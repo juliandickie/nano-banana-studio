@@ -1,6 +1,6 @@
 <!-- Updated: 2026-03-19 -->
 
-![Claude Banana](screenshots/cover-image.jpeg)
+![Claude Banana](screenshots/cover-image.png)
 
 # Claude Banana
 
@@ -9,7 +9,7 @@ AI image generation skill for Claude Code where **Claude acts as Creative Direct
 Unlike simple API wrappers, Claude interprets your intent, selects domain expertise, constructs optimized prompts using Google's official 5-component formula, and orchestrates Gemini for the best possible results.
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
-[![Version](https://img.shields.io/badge/version-1.4.0-coral)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.0.0-coral)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 <details>
@@ -89,6 +89,8 @@ claude
 
 Claude will ask about your brand, select the right domain mode (Cinema, Product, Portrait, Editorial, UI, Logo, Landscape, Infographic, Abstract), construct a detailed prompt with lighting and composition, set the right aspect ratio, and generate.
 
+![Claude Banana in action](screenshots/claude-banana-skillcommand.gif)
+
 ## Commands
 
 | Command | Description |
@@ -105,7 +107,7 @@ Claude will ask about your brand, select the right domain mode (Cinema, Product,
 
 ## How It Works
 
-![Creative Director Pipeline](screenshots/pipeline-flow.jpeg)
+![Creative Director Pipeline](screenshots/pipeline-flow.png)
 
 ## What Makes This Different
 
@@ -121,7 +123,7 @@ Claude will ask about your brand, select the right domain mode (Cinema, Product,
 
 ## The 5-Component Prompt Formula
 
-![Prompt Formula](screenshots/reasoning-brief.jpeg)
+![Prompt Formula](screenshots/reasoning-brief.png)
 
 Instead of sending "a cat in space" to Gemini, Claude constructs:
 
@@ -139,7 +141,7 @@ Instead of sending "a cat in space" to Gemini, Claude constructs:
 
 ## Domain Modes
 
-![Domain Modes](screenshots/domain-modes.jpeg)
+![Domain Modes](screenshots/domain-modes.png)
 
 | Mode | Best For | Example |
 |------|----------|---------|
@@ -164,7 +166,7 @@ Instead of sending "a cat in space" to Gemini, Claude constructs:
 
 ```
 ~/.claude/skills/banana/          # The skill (installed location)
-├── SKILL.md                           # Creative Director orchestration (v1.4)
+├── SKILL.md                           # Creative Director orchestration (v4.0)
 ├── references/
 │   ├── prompt-engineering.md          # 5-component formula, banned keywords, safety rephrase
 │   ├── gemini-models.md               # Model specs, rate limits, capabilities
