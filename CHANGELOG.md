@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-03-27
+
+### Changed
+- Restructured as official Claude Code plugin (`.claude-plugin/plugin.json` manifest)
+- Added marketplace catalog (`.claude-plugin/marketplace.json`) for distribution via `/plugin marketplace add`
+- Moved `banana/` to `skills/banana/` (standard plugin layout)
+- Moved `.claude/agents/` to `agents/` (standard plugin layout)
+- Plugin install is now the primary installation method
+- Updated CI workflow, README, CLAUDE.md, and install.sh for new structure
+
+### Fixed
+- Git remote URL corrected from `claude-banana` to `banana-claude`
+- Removed `firebase-debug.log` from git tracking
+
 ## [1.4.0] - 2026-03-19
 
 ### Breaking Changes

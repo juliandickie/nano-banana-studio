@@ -4,10 +4,18 @@ This file is read by Claude Code when working inside this repository.
 
 ## What this repo is
 
-`banana-claude` is a Claude Code skill that enables AI image generation
+`banana-claude` is a Claude Code **plugin** that enables AI image generation
 using Google's Gemini Nano Banana models via MCP. Claude acts as a Creative
 Director: it interprets intent, selects domain expertise, constructs
 optimized prompts, and orchestrates Gemini API calls.
+
+## Plugin structure
+
+This repo follows the official Claude Code plugin layout:
+- `.claude-plugin/plugin.json` -- Plugin manifest
+- `.claude-plugin/marketplace.json` -- Marketplace catalog for distribution
+- `skills/banana/` -- The main skill (SKILL.md + references + scripts)
+- `agents/` -- Subagents (brief-constructor)
 
 ## Model status (as of March 2026)
 
@@ -17,8 +25,8 @@ optimized prompts, and orchestrates Gemini API calls.
 
 ## How to test changes
 
-1. Install the skill locally: `bash install.sh`
-2. Start Claude Code: `claude`
+1. Test as plugin: `claude --plugin-dir .`
+2. Or install standalone: `bash install.sh`
 3. Test basic generation: `/banana generate "a red apple on a white table"`
 4. Test domain routing: `/banana generate "product shot for headphones"`
 5. Test editing: `/banana edit [path] "make the background blurry"`
@@ -29,13 +37,13 @@ optimized prompts, and orchestrates Gemini API calls.
 
 | File | Purpose |
 |---|---|
-| `banana/SKILL.md` | Main orchestrator. Edit to change Claude's behavior. |
-| `banana/references/gemini-models.md` | Model roster, routing table, resolution defaults. Update when Google releases new models. |
-| `banana/references/prompt-engineering.md` | The prompt construction system. Update when Google publishes new guidance. |
-| `banana/references/mcp-tools.md` | API parameter reference. Update when Google changes the API. |
-| `banana/scripts/generate.py` | Direct API fallback for generation. Uses urllib.request (stdlib). |
-| `banana/scripts/edit.py` | Direct API fallback for editing. Uses urllib.request (stdlib). |
-| `.claude/agents/brief-constructor.md` | Subagent for prompt construction. |
+| `skills/banana/SKILL.md` | Main orchestrator. Edit to change Claude's behavior. |
+| `skills/banana/references/gemini-models.md` | Model roster, routing table, resolution defaults. Update when Google releases new models. |
+| `skills/banana/references/prompt-engineering.md` | The prompt construction system. Update when Google publishes new guidance. |
+| `skills/banana/references/mcp-tools.md` | API parameter reference. Update when Google changes the API. |
+| `skills/banana/scripts/generate.py` | Direct API fallback for generation. Uses urllib.request (stdlib). |
+| `skills/banana/scripts/edit.py` | Direct API fallback for editing. Uses urllib.request (stdlib). |
+| `agents/brief-constructor.md` | Subagent for prompt construction. |
 
 ## Scripts use stdlib only
 

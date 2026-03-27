@@ -1,6 +1,7 @@
 #!/bin/bash
 # Banana Claude -- Install Script
-# Installs the skill to ~/.claude/skills/ for Claude Code
+# Standalone installer -- copies skill to ~/.claude/skills/ for Claude Code.
+# For plugin installation, use: /plugin marketplace add AgriciDaniel/banana-claude
 #
 # Usage:
 #   ./install.sh                    # Install skill only
@@ -12,7 +13,7 @@ set -euo pipefail
 SKILL_NAME="banana"
 SKILL_DIR="$HOME/.claude/skills/$SKILL_NAME"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SOURCE_DIR="$SCRIPT_DIR/$SKILL_NAME"
+SOURCE_DIR="$SCRIPT_DIR/skills/$SKILL_NAME"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'

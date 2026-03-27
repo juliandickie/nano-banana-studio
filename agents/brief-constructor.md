@@ -9,8 +9,8 @@ tools: Read, Grep
 model: sonnet
 maxTurns: 5
 skills:
-  - banana/references/prompt-engineering
-  - banana/references/gemini-models
+  - skills/banana/references/prompt-engineering
+  - skills/banana/references/gemini-models
 ---
 
 ## Your role

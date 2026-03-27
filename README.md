@@ -9,7 +9,7 @@ AI image generation skill for Claude Code where **Claude acts as Creative Direct
 Unlike simple API wrappers, Claude interprets your intent, selects domain expertise, constructs optimized prompts using Google's official 5-component formula, and orchestrates Gemini for the best possible results.
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
-[![Version](https://img.shields.io/badge/version-1.4.0-coral)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.1-coral)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 <details>
@@ -33,38 +33,45 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 
 ## Installation
 
-### Recommended Install (Unix/macOS/Linux)
+### Plugin Install (Recommended)
+
+Add the marketplace and install:
+
+```shell
+/plugin marketplace add AgriciDaniel/banana-claude
+/plugin install banana-claude@banana-claude-marketplace
+```
+
+Or test locally:
+
+```bash
+git clone --depth 1 https://github.com/AgriciDaniel/banana-claude.git
+claude --plugin-dir ./banana-claude
+```
+
+<details>
+<summary>Standalone Install (without plugin system)</summary>
 
 ```bash
 git clone --depth 1 https://github.com/AgriciDaniel/banana-claude.git
 bash banana-claude/install.sh
 ```
 
-<details>
-<summary>One-liner (curl)</summary>
+**One-liner (curl):**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/AgriciDaniel/banana-claude/main/install.sh | bash
 ```
 
-Prefer to review the script before running?
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AgriciDaniel/banana-claude/main/install.sh > install.sh
-cat install.sh        # review
-bash install.sh       # run when satisfied
-rm install.sh
-```
-
-</details>
-
-### With MCP Setup
+**With MCP Setup:**
 
 ```bash
 git clone --depth 1 https://github.com/AgriciDaniel/banana-claude.git
 cd banana-claude
 ./install.sh --with-mcp YOUR_API_KEY
 ```
+
+</details>
 
 Get a free API key at [Google AI Studio](https://aistudio.google.com/apikey).
 
@@ -165,23 +172,29 @@ Instead of sending "a cat in space" to Gemini, Claude constructs:
 ## Architecture
 
 ```
-~/.claude/skills/banana/          # The skill (installed location)
-├── SKILL.md                           # Creative Director orchestration (v1.4)
-├── references/
-│   ├── prompt-engineering.md          # 5-component formula, banned keywords, safety rephrase
-│   ├── gemini-models.md               # Model specs, rate limits, capabilities
-│   ├── mcp-tools.md                   # MCP tool parameters and responses
-│   ├── post-processing.md            # ImageMagick/FFmpeg pipelines, green screen
-│   ├── cost-tracking.md              # Pricing table, usage guide
-│   └── presets.md                    # Brand preset schema and examples
-└── scripts/
-    ├── setup_mcp.py                   # Configure MCP in Claude Code
-    ├── validate_setup.py             # Verify installation
-    ├── generate.py                   # Direct API fallback -- generation
-    ├── edit.py                       # Direct API fallback -- editing
-    ├── cost_tracker.py               # Cost logging and summaries
-    ├── presets.py                    # Brand/style preset management
-    └── batch.py                     # CSV batch workflow parser
+banana-claude/                         # Claude Code Plugin
+├── .claude-plugin/
+│   ├── plugin.json                    # Plugin manifest
+│   └── marketplace.json               # Marketplace catalog
+├── skills/banana/                     # Main skill
+│   ├── SKILL.md                       # Creative Director orchestration (v1.4)
+│   ├── references/
+│   │   ├── prompt-engineering.md      # 5-component formula, banned keywords, safety rephrase
+│   │   ├── gemini-models.md           # Model specs, rate limits, capabilities
+│   │   ├── mcp-tools.md              # MCP tool parameters and responses
+│   │   ├── post-processing.md        # ImageMagick/FFmpeg pipelines, green screen
+│   │   ├── cost-tracking.md          # Pricing table, usage guide
+│   │   └── presets.md                # Brand preset schema and examples
+│   └── scripts/
+│       ├── setup_mcp.py              # Configure MCP in Claude Code
+│       ├── validate_setup.py         # Verify installation
+│       ├── generate.py               # Direct API fallback -- generation
+│       ├── edit.py                   # Direct API fallback -- editing
+│       ├── cost_tracker.py           # Cost logging and summaries
+│       ├── presets.py                # Brand/style preset management
+│       └── batch.py                  # CSV batch workflow parser
+└── agents/
+    └── brief-constructor.md           # Subagent for prompt construction
 ```
 
 ## Requirements
@@ -193,8 +206,15 @@ Instead of sending "a cat in space" to Gemini, Claude constructs:
 
 ## Uninstall
 
+**Plugin:**
+
+```shell
+/plugin uninstall banana-claude@banana-claude-marketplace
+```
+
+**Standalone:**
+
 ```bash
-git clone --depth 1 https://github.com/AgriciDaniel/banana-claude.git
 bash banana-claude/install.sh --uninstall
 ```
 
