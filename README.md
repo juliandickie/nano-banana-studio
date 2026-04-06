@@ -174,6 +174,8 @@ Claude will ask about your brand, select the right domain mode (Cinema, Product,
 
 ## What Makes This Different
 
+![5-Input Creative Brief](screenshots/creative-brief.webp)
+
 - **5-Input Creative Brief** -- Gathers Purpose, Audience, Subject, Brand, and References before generating
 - **Domain Expertise** -- Selects the right creative lens (Cinema, Product, Portrait, Editorial, UI, Logo, Landscape, Infographic, Abstract, Presentation)
 - **5-Component Prompt Formula** -- Constructs prompts with Subject + Action + Location/Context + Composition + Style (includes lighting)
