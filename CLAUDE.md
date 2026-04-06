@@ -89,17 +89,65 @@ Progressive Enhancement, expanded character consistency, multilingual support).
 
 Test locally: `claude --plugin-dir .` or standalone: `bash install.sh`
 
-## Versioning
+## Feature Completion Checklist
 
-Version must be bumped in ALL 4 files when releasing:
-1. `.claude-plugin/plugin.json` -- `version` field (plugin system reads this)
-2. `skills/banana/SKILL.md` -- `metadata.version` in frontmatter
-3. `README.md` -- version badge
-4. `CITATION.cff` -- `version` and `date-released`
+**MANDATORY: After completing ANY feature or significant change, run through this
+entire checklist before committing.** Do not skip items. Do not batch them for later.
 
-Also add a new section in `CHANGELOG.md`.
+### 1. Version Bump (ALL 4 files)
 
-Do NOT set version in `marketplace.json` -- it conflicts with `plugin.json` (plugin.json always wins silently per Anthropic docs).
+| File | What to update |
+|------|---------------|
+| `.claude-plugin/plugin.json` | `"version"` field |
+| `skills/banana/SKILL.md` | `metadata.version` in YAML frontmatter |
+| `README.md` | Version badge number in shields.io URL |
+| `CITATION.cff` | `version` field + `date-released` to today |
+
+Do NOT set version in `marketplace.json` -- it conflicts with `plugin.json`.
+
+### 2. Documentation Updates
+
+| File | What to update |
+|------|---------------|
+| `CHANGELOG.md` | Add new `## [X.Y.Z]` section with Added/Changed/Fixed. Add link reference at bottom. |
+| `README.md` | Update "What's New in This Fork" section if feature is user-facing. Update architecture diagram if new files created. Update commands table if new commands added. |
+| `PROGRESS.md` | Add session entry with numbered list of what was done. Update priority table if roadmap item completed. Update version in header. |
+| `ROADMAP.md` | Mark completed features. Update version reference. |
+| `CLAUDE.md` | Update file responsibilities table if new files created. Update key constraints if new rules added. |
+
+### 3. Cross-File Consistency Check
+
+After all edits, verify these match across files:
+- **Version number** identical in all 4 version files
+- **Command list** in SKILL.md Quick Reference matches README Commands table
+- **File list** in CLAUDE.md file responsibilities table matches what exists on disk
+- **Model names** and **rate limits** consistent across gemini-models.md, cost-tracking.md, mcp-tools.md
+- **Aspect ratios** consistent across gemini-models.md, replicate.md, generate.py, replicate_generate.py
+
+### 4. SKILL.md Size Check
+
+```bash
+wc -l skills/banana/SKILL.md  # Must stay under 500 lines
+```
+
+Current: ~170 lines (lean orchestrator pattern). If approaching 300+, extract to reference files.
+
+### 5. Memory File
+
+Update `~/.claude/projects/.../memory/project_banana_claude_workflow.md` if:
+- Version changed
+- New key constraints added
+- Architecture changed (e.g., new skill files, new reference files)
+
+### 6. Git Commit
+
+Stage specific files (not `git add -A`). Commit with descriptive message following the pattern:
+- `feat:` for new features
+- `fix:` for bug fixes
+- `docs:` for documentation only
+- `refactor:` for restructuring
+
+Push to fork: `git push origin main`
 
 ## Plugin development notes
 

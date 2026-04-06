@@ -19,12 +19,11 @@ Contributions are welcome! Here's how to help.
 
 ## Guidelines
 
-- Keep SKILL.md under 500 lines / 5,000 tokens
+- Keep SKILL.md under 500 lines (currently ~170 as lean orchestrator -- add features as reference files, not inline)
 - Ensure consistency across all reference files (rate limits, model names, aspect ratios)
 - Test as plugin: `claude --plugin-dir .`
-- Validate before submitting: `claude plugin validate .`
 - Follow existing markdown formatting conventions
-- Bump version in all 4 files when releasing (see CLAUDE.md Versioning section)
+- **After every feature:** Follow the Feature Completion Checklist in CLAUDE.md (version bump, docs, consistency check, SKILL.md size check)
 
 ## Reporting Issues
 
