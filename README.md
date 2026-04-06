@@ -10,7 +10,7 @@ AI image generation skill for Claude Code where **Claude acts as Creative Direct
 Unlike simple API wrappers, Claude interprets your intent, selects domain expertise, constructs optimized prompts using Google's official 5-component formula, and orchestrates Gemini for the best possible results.
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
-[![Version](https://img.shields.io/badge/version-1.5.0-coral)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.6.0-coral)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Upstream](https://img.shields.io/badge/upstream-AgriciDaniel%2Fbanana--claude-gray)](https://github.com/AgriciDaniel/banana-claude)
 
@@ -42,6 +42,17 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 ## What's New in This Fork
 
 This fork extends [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude) with features driven by production use and research analysis of Google's prompting guidance:
+
+### Slide Deck Pipeline (v1.6.0)
+Three-step batch pipeline for generating presentation slides from content:
+1. **Plan** -- Claude reads transcripts, writes detailed visual design briefs per slide
+2. **Prompts** -- Claude converts briefs to Nano Banana Pro prompts
+3. **Generate** -- `slides.py` batch-generates all slide images from the prompts markdown
+
+Replaces a manual 3-step, 2-session process where teams copy-paste prompts one at a time.
+
+### Lean Orchestrator Architecture (v1.6.0)
+SKILL.md restructured from 496 → 170 lines. Detailed content lazy-loaded from reference files. 330 lines of headroom for future features.
 
 ### Presentation Mode (v1.5.0)
 Two generation options for slide visuals:
@@ -335,7 +346,7 @@ banana-claude/                         # Claude Code Plugin
 │   ├── plugin.json                    # Plugin manifest
 │   └── marketplace.json               # Marketplace catalog
 ├── skills/banana/                     # Main skill
-│   ├── SKILL.md                       # Creative Director orchestration (v1.5)
+│   ├── SKILL.md                       # Creative Director orchestrator (v1.6, ~170 lines)
 │   ├── references/
 │   │   ├── prompt-engineering.md      # 5-component formula, domain modes, PEEL strategy
 │   │   ├── gemini-models.md           # Model specs, resolution tables, input limits
@@ -343,7 +354,8 @@ banana-claude/                         # Claude Code Plugin
 │   │   ├── replicate.md              # Replicate backend API reference
 │   │   ├── post-processing.md        # ImageMagick/FFmpeg pipelines, green screen
 │   │   ├── cost-tracking.md          # Pricing table, usage guide
-│   │   └── presets.md                # Brand Style Guide schema and examples
+│   │   ├── presets.md                # Brand Style Guide schema and examples
+│   │   └── setup.md                  # Guided API key configuration flow
 │   └── scripts/
 │       ├── setup_mcp.py              # Configure MCP + Replicate
 │       ├── validate_setup.py         # Verify installation
@@ -351,6 +363,7 @@ banana-claude/                         # Claude Code Plugin
 │       ├── edit.py                   # Direct Gemini API fallback -- editing
 │       ├── replicate_generate.py     # Replicate API fallback -- generation
 │       ├── replicate_edit.py         # Replicate API fallback -- editing
+│       ├── slides.py                 # Slide deck batch generation pipeline
 │       ├── cost_tracker.py           # Cost logging and summaries
 │       ├── presets.py                # Brand Style Guide management
 │       └── batch.py                  # CSV batch workflow parser

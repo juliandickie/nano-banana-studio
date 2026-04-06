@@ -8,7 +8,7 @@
 
 - **Repo:** https://github.com/juliandickie/banana-claude
 - **Upstream:** https://github.com/AgriciDaniel/banana-claude (forked at v1.4.1)
-- **Current version:** 1.5.0
+- **Current version:** 1.6.0
 - **Local path:** `/Users/juliandickie/code/nano-banana-pro/banana-claude/`
 - **Plugin layout:** `.claude-plugin/` + `skills/banana/` + `agents/`
 
@@ -92,6 +92,23 @@ Both keys stored in `~/.banana/config.json`. Scripts check: CLI flag → env var
 6. Created PROGRESS.md for cross-session continuity
 7. Designed expansion roadmap (see ROADMAP.md)
 
+### Session 3 (2026-04-07)
+**Scope:** `/banana slides` pipeline + SKILL.md restructure
+
+1. Built `slides.py` with `generate`, `estimate`, and `template` subcommands
+2. Added `/banana slides` section to SKILL.md (plan → prompts → generate workflow)
+3. Added 4 new slide-type templates to prompt-engineering.md (quote, section divider, image feature, infographic)
+4. Tested end-to-end: template → estimate → generate → verified output images
+5. **Restructured SKILL.md as lean orchestrator** (496 → 170 lines, 66% reduction)
+   - Extracted setup instructions to `references/setup.md`
+   - Removed duplicated tables (domain modes, aspect ratios, resolutions)
+   - 330 lines of headroom for future features
+6. Version bumped to v1.6.0 across all 4 files
+7. Updated all docs (README, CHANGELOG, PROGRESS, ROADMAP)
+
+**Files created:** slides.py, references/setup.md
+**Files modified:** SKILL.md (major rewrite), prompt-engineering.md, README.md, CHANGELOG.md, plugin.json, CITATION.cff, PROGRESS.md, ROADMAP.md
+
 ## Expansion Roadmap
 
 See `ROADMAP.md` for the full prioritized feature roadmap.
@@ -105,7 +122,7 @@ See `ROADMAP.md` for the full prioritized feature roadmap.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 1 | `/banana slides` — batch slide deck pipeline (plan → prompts → generate) | Planned |
+| 1 | `/banana slides` — batch slide deck pipeline (plan → prompts → generate) | **Done (v1.6.0)** |
 | 2 | `/banana brand` — conversational brand guide builder (learn from website/docs → refine → preview) | Planned |
 | 3 | Pre-built brand guide library (example JSON templates) | Planned |
 | 4 | `/banana social` — platform-native generation with text option | Planned |

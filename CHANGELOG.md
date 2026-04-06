@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-04-07
+
+### Added
+- **`/banana slides` pipeline** -- three-step batch slide deck generation:
+  - `plan` -- Claude analyzes content and writes detailed visual design briefs
+  - `prompts` -- Claude converts briefs to Nano Banana Pro prompts
+  - `generate` -- `slides.py` batch-generates all slide images from prompts markdown
+- **`slides.py`** script with `generate`, `estimate`, and `template` subcommands
+- 4 new slide-type prompt templates: quote, section divider, image feature, infographic process
+- `references/setup.md` -- extracted setup instructions for lazy loading
+
+### Changed
+- **SKILL.md restructured as lean orchestrator** (496 → 170 lines, 66% reduction)
+  - Detailed content moved to lazy-loaded reference files
+  - Duplicated tables (domain modes, aspect ratios, resolutions) removed -- single source in references
+  - Setup instructions extracted to `references/setup.md`
+  - 330 lines of headroom for future features (social, brand builder, video)
+- Version bumped across all 4 files (plugin.json, SKILL.md, README, CITATION.cff)
+
 ## [1.5.0] - 2026-04-06
 
 ### Added
@@ -176,6 +195,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Batch variations, multi-turn chat, prompt inspiration
 - Install script with validation
 
+[1.6.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.6.0
 [1.5.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.5.0
 [1.4.2]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.2
 [1.4.1]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.1
