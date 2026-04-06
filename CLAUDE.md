@@ -38,18 +38,23 @@ This repo follows the official Claude Code plugin layout:
 | File | Purpose |
 |---|---|
 | `skills/banana/SKILL.md` | Main orchestrator. Edit to change Claude's behavior. |
-| `skills/banana/references/gemini-models.md` | Model roster, routing table, resolution defaults. Update when Google releases new models. |
-| `skills/banana/references/prompt-engineering.md` | The prompt construction system. Update when Google publishes new guidance. |
-| `skills/banana/references/mcp-tools.md` | API parameter reference. Update when Google changes the API. |
-| `skills/banana/scripts/generate.py` | Direct API fallback for generation. Uses urllib.request (stdlib). |
-| `skills/banana/scripts/edit.py` | Direct API fallback for editing. Uses urllib.request (stdlib). |
+| `skills/banana/references/gemini-models.md` | Model roster, routing table, resolution tables, input limits. Update when Google releases new models. |
+| `skills/banana/references/prompt-engineering.md` | The prompt construction system: 5-component formula, 11 domain modes, PEEL strategy, brand guide integration. Update when Google publishes new guidance. |
+| `skills/banana/references/mcp-tools.md` | MCP tool parameter reference. Update when Google changes the API. |
+| `skills/banana/references/replicate.md` | Replicate backend API reference (`google/nano-banana-2`). |
+| `skills/banana/references/presets.md` | Brand Style Guide schema (17 fields, 8 optional for brand guides). |
+| `skills/banana/scripts/generate.py` | Direct Gemini API fallback for generation. Uses urllib.request (stdlib). |
+| `skills/banana/scripts/edit.py` | Direct Gemini API fallback for editing. Uses urllib.request (stdlib). |
+| `skills/banana/scripts/replicate_generate.py` | Replicate API fallback for generation. Uses urllib.request (stdlib). |
+| `skills/banana/scripts/replicate_edit.py` | Replicate API fallback for editing. Uses urllib.request (stdlib). |
+| `skills/banana/scripts/presets.py` | Brand Style Guide CRUD (list, show, create, delete). |
 | `agents/brief-constructor.md` | Subagent for prompt construction. |
 
 ## Scripts use stdlib only
 
-The fallback scripts (`generate.py`, `edit.py`) use Python's `urllib.request`
-to call the Gemini REST API directly. They have ZERO pip dependencies by design.
-Do NOT add `google-genai` or `requests` as dependencies -- the stdlib approach
+All fallback scripts (`generate.py`, `edit.py`, `replicate_generate.py`, `replicate_edit.py`)
+use Python's `urllib.request` to call APIs directly. They have ZERO pip dependencies by design.
+Do NOT add `google-genai`, `requests`, or `replicate` as dependencies -- the stdlib approach
 ensures the skill works on any system with Python 3.6+.
 
 ## Key constraints
@@ -59,28 +64,27 @@ ensures the skill works on any system with Python 3.6+.
 - No negative prompt parameter exists. Use semantic reframing in the prompt.
 - `responseModalities` must explicitly include "IMAGE" or the API returns text only.
 - NEVER use banned keywords in prompts: "8K", "masterpiece", "ultra-realistic", "high resolution" -- these degrade output quality. Use prestigious context anchors instead (see prompt-engineering.md).
+- NEVER mention "logo" in Presentation mode prompts -- the model generates unwanted logo artifacts. Describe the area as "clean negative space" instead. Logos are composited in presentation software.
+- Brand Style Guide fields in presets are optional -- old presets without them continue to work.
+- Fallback chain: MCP (primary) -> Direct Gemini API -> Replicate.
 
-## Distribution
+## Upstream tracking
 
-### Plugin marketplace (primary)
+This is a fork of https://github.com/AgriciDaniel/banana-claude (v1.4.1 baseline).
 
-Users install via:
-```shell
-/plugin marketplace add AgriciDaniel/banana-claude
-/plugin install banana-claude@banana-claude-marketplace
+To check for upstream changes:
+```bash
+git fetch upstream
+git diff upstream/main
 ```
 
-### Official Anthropic marketplace
+Our additions over upstream: Replicate backend, Presentation mode, Brand Style Guides,
+research-driven prompt improvements (5-Input Creative Brief, PEEL strategy, Edit-First,
+Progressive Enhancement, expanded character consistency, multilingual support).
 
-Submission pending via [claude.ai/settings/plugins/submit](https://claude.ai/settings/plugins/submit).
-Once accepted, users install with:
-```shell
-/plugin install banana-claude@claude-plugins-official
-```
+## Installation
 
-### Standalone install (legacy)
-
-Still supported via `install.sh` for users not on the plugin system.
+Test locally: `claude --plugin-dir .` or standalone: `bash install.sh`
 
 ## Versioning
 

@@ -96,6 +96,36 @@ def cmd_create(args):
         "default_resolution": args.resolution or "2K",
     }
 
+    # Brand Style Guide fields (optional, backward-compatible)
+    if args.background_styles:
+        try:
+            preset["background_styles"] = json.loads(args.background_styles)
+        except json.JSONDecodeError:
+            print("Error: --background-styles must be valid JSON.", file=sys.stderr)
+            sys.exit(1)
+    if args.visual_motifs:
+        preset["visual_motifs"] = args.visual_motifs
+    if args.logo_placement:
+        preset["logo_placement"] = args.logo_placement
+    if args.do_list:
+        preset["do_list"] = [item.strip() for item in args.do_list.split(",")]
+    if args.dont_list:
+        preset["dont_list"] = [item.strip() for item in args.dont_list.split(",")]
+    if args.prompt_keywords:
+        try:
+            preset["prompt_keywords"] = json.loads(args.prompt_keywords)
+        except json.JSONDecodeError:
+            print("Error: --prompt-keywords must be valid JSON.", file=sys.stderr)
+            sys.exit(1)
+    if args.prompt_suffix:
+        preset["prompt_suffix"] = args.prompt_suffix
+    if args.technical_specs:
+        try:
+            preset["technical_specs"] = json.loads(args.technical_specs)
+        except json.JSONDecodeError:
+            print("Error: --technical-specs must be valid JSON.", file=sys.stderr)
+            sys.exit(1)
+
     with open(path, "w") as f:
         json.dump(preset, f, indent=2)
 
@@ -139,6 +169,15 @@ def main():
     p_create.add_argument("--ratio", default="16:9", help="Default aspect ratio")
     p_create.add_argument("--resolution", default="2K", help="Default resolution")
     p_create.add_argument("--force", action="store_true", help="Overwrite existing preset")
+    # Brand Style Guide fields (optional)
+    p_create.add_argument("--background-styles", default="", help="JSON string of named background variants")
+    p_create.add_argument("--visual-motifs", default="", help="Pattern/overlay description")
+    p_create.add_argument("--logo-placement", default="", help="Logo placement description")
+    p_create.add_argument("--do-list", default="", help="Comma-separated brand do's")
+    p_create.add_argument("--dont-list", default="", help="Comma-separated brand don'ts")
+    p_create.add_argument("--prompt-keywords", default="", help="JSON string of categorized keywords")
+    p_create.add_argument("--prompt-suffix", default="", help="Suffix appended to every prompt")
+    p_create.add_argument("--technical-specs", default="", help="JSON string of technical defaults")
 
     # delete
     p_delete = sub.add_parser("delete", help="Delete a preset")

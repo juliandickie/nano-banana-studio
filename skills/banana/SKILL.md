@@ -109,6 +109,21 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/presets.py list
 If a matching preset exists, load it with `presets.py show NAME` and use its values
 as defaults for the Reasoning Brief. User instructions override preset values.
 
+**Brand Style Guide fields** (when present in the preset):
+- Apply `visual_motifs` to the Style component (append motif at specified opacity)
+- If in Presentation mode, select from `background_styles` based on slide type
+- Append `prompt_suffix` verbatim to the end of every constructed prompt
+- Check the final prompt against `do_list` and `dont_list` rules
+- Weave `prompt_keywords` naturally into the prompt (not as a raw list)
+- Use `technical_specs` for default ratio/resolution if not overridden by user
+
+**Logo handling -- IMPORTANT:**
+Do NOT mention "logo," "logo placement," or "reserve space for logo" in any prompt.
+Gemini interprets logo references as instructions to generate a logo, which produces
+unwanted artifacts. Instead, describe the area as "clean negative space," "simple
+uncluttered background," or "generous white space in the lower-left corner." Logos
+are added as separate layers in Keynote/PowerPoint/Google Slides after generation.
+
 ### Step 2: Select Domain Mode
 
 Choose the expertise lens that best fits the request:
@@ -124,6 +139,8 @@ Choose the expertise lens that best fits the request:
 | **Landscape** | Environments, backgrounds, wallpapers | Atmospheric perspective, depth layers, time of day |
 | **Abstract** | Patterns, textures, generative art | Color theory, mathematical forms, movement |
 | **Infographic** | Data visualization, diagrams, charts | Layout structure, text rendering, hierarchy |
+| **Presentation (Complete)** | Full slide with text rendered in the image | Background + headline/body text rendered by the model, ready to use as-is |
+| **Presentation (Background)** | Slide backgrounds for layering in Keynote/PPT/Slides | Clean backgrounds with negative space for text/logo overlay -- NO text, NO logos in the image |
 
 ### Step 3: Construct the Reasoning Brief
 
@@ -211,6 +228,7 @@ Match ratio to use case -- call `set_aspect_ratio` BEFORE generating:
 | Large format photography | `5:4` | Landscape fine art |
 | Website banner | `4:1` or `8:1` | Ultra-wide strip |
 | Ultrawide / cinematic | `21:9` | Film-grade (3.1 Flash only) |
+| Presentation slide / deck | `16:9` | Widescreen standard for slides |
 
 ### Step 4.5: Select Resolution (optional)
 
@@ -224,6 +242,8 @@ Choose output resolution based on intended use:
 | `4K` | Print production, hero images, final deliverables |
 
 Note: Resolution control (`imageSize`) depends on MCP package version support.
+
+Presentation mode defaults to `4K` for slide backgrounds (3840x2160), `2K` for composited slides.
 
 ### Step 5: Call the MCP
 

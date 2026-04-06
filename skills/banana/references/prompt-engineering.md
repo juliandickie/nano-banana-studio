@@ -122,6 +122,33 @@ Reminiscent of Dorothea Lange's documentary portraiture"
 **Color palettes:** analogous harmony, complementary clash, monochromatic gradient, neon-on-black
 **Styles:** generative art, data visualization art, glitch, procedural, macro photography of materials
 
+### Presentation Mode
+
+Presentation mode has **two generation options**:
+
+**Option A -- Complete Slide** (text rendered in the image):
+Use when the model should render headline/body text directly. Nano Banana 2 excels
+at text rendering (up to 25 chars per element). The output is a finished slide.
+
+**Option B -- Background Only** (for layering in Keynote/PPT/Slides):
+Use when text, logos, and UI elements will be added as separate layers in presentation
+software. The output is a clean background with intentional negative space.
+
+**Background styles:** dark premium (pure black #000000), gradient sweep (brand color to darker tone), split layout (half image / half solid), full-bleed image with dark overlay
+**Layout zones:** headline zone (top 20%), content zone (middle 55%), lower margin (bottom 25% -- clean negative space for later overlays)
+**Typography rendering (Complete mode only):** headline (bold sans-serif, 48-72pt equivalent), subheading (medium, 32-40pt), body (light, 24-32pt), caption (12-20pt)
+**Pattern overlays:** geometric network, connected nodes and lines, circuit mesh, dot grid -- all at 30-50% opacity in silver or white
+**Slide types:** title, content, quote/statement, image feature, section divider
+**Format:** always 16:9 widescreen, default 4K (3840x2160) for backgrounds
+**Color guidance:** high contrast pairs (white on black, black on gold), gradient transitions, accent colors sparingly
+**Style refs:** Apple Keynote, TED stage visuals, premium pitch decks, conference keynotes
+
+**CRITICAL -- Logo exclusion:** NEVER mention "logo," "logo placement," "branding mark,"
+or "reserve space for logo" in any Presentation prompt. The model will generate unwanted
+logo-like artifacts. Instead, describe the area as "clean negative space," "simple
+uncluttered background," or "generous breathing room." Logos are composited in
+presentation software after generation.
+
 ## Advanced Techniques
 
 ### Start with Intent, Refine with Specs
@@ -242,6 +269,26 @@ in an elegant brush-style font. Format: 2:3 portrait.
 - For RTL languages (Arabic, Hebrew), specify text direction if layout matters
 - Generate and verify one language at a time for multi-language campaigns
 - Native speaker review is recommended for production content
+
+### Brand Style Guide Integration
+
+When a loaded preset contains Brand Style Guide fields, apply them during prompt construction:
+
+**prompt_suffix:** Append verbatim after the Style component. The most direct brand influence on every generation.
+
+**prompt_keywords:** Weave keywords from relevant categories into the narrative naturally. Do not dump as a list -- integrate "premium" and "modern" into the Style component description.
+
+**visual_motifs:** Add motif description to Style or Context. In Presentation mode, include as pattern overlay with specified opacity. In other modes, use as subtle background texture.
+
+**background_styles:** In Presentation mode, select the variant matching the slide type:
+- Title slides → dark-premium or gradient variant
+- Content slides → variant with best readability for body text
+- Quote/statement → dark background for dramatic impact
+- User can override by naming a specific variant
+
+**do_list / dont_list:** Verify the final prompt aligns with do's and avoids don'ts. These are guardrails, not prompt components.
+
+**logo_placement:** This field records where the logo will be placed in post-production (e.g., "bottom-left, 15% of width"). Do NOT mention "logo" in the prompt. Instead, describe that area as "clean negative space" or "simple uncluttered background" so the model keeps it clear without generating logo-like artifacts. The logo is composited in Keynote/PowerPoint/Slides after image generation.
 
 ### Style Transfer Without Reference Images
 Describe the target style exhaustively instead of referencing an image:
@@ -544,6 +591,63 @@ label, surrounded by swirling gradient ribbons of teal and coral light.
 The bottle sits on a reflective dark surface, sharp studio rim lighting
 separating it from the background. Product photography for luxury
 branding, dramatic contrast. Wallpaper* magazine design editorial.
+```
+
+### Presentation / Slide
+
+Two generation patterns depending on whether text is rendered in the image or added later.
+
+#### Option A -- Complete Slide (text rendered by the model)
+
+**Pattern:** `[Background style] + [visual motif at opacity] + [rendered text with font description] + [color palette] + "16:9 widescreen presentation slide" + [mood/brand]`
+
+**Example (Complete Title Slide):**
+```
+A premium presentation title slide on a pure black background. The text
+"DIGITAL INNOVATION" is rendered in bold white condensed sans-serif at
+the top third, with the subtitle "Transforming the Future" in a lighter
+weight gold (#FFC000) font below it. A subtle geometric network pattern
+of connected silver nodes and thin lines at 30% opacity decorates the
+lower-right corner. Clean negative space throughout. 16:9 widescreen,
+4K resolution. Premium tech keynote aesthetic.
+```
+
+**Example (Complete Content Slide):**
+```
+A presentation slide with rich gold (#FFC000) gradient background fading
+to dark amber at the bottom. The headline "KEY FINDINGS" is rendered in
+bold black sans-serif in the upper-left. Below it, three bullet points
+in black regular-weight text: "94% accuracy rate", "3x faster workflow",
+"50% cost reduction". A faint dot grid pattern at 20% opacity overlays
+the gradient. 16:9 widescreen format. Modern corporate keynote style.
+```
+
+#### Option B -- Background Only (for layering in presentation software)
+
+**Pattern:** `[Background style] + [visual motif at opacity] + [describe negative space where text will go] + [color palette] + "16:9 widescreen slide background, NO text, NO logos, NO labels" + [mood/brand]`
+
+**CRITICAL:** Explicitly state "NO text, NO logos, NO labels, NO watermarks" in Background
+mode. Without this, the model may generate decorative text or logo-like shapes. Never
+mention logos even to say "leave space for" -- describe the area as clean background instead.
+
+**Example (Background-Only Dark Title):**
+```
+A dark premium slide background in pure black with generous clean negative
+space in the upper half and center. A subtle geometric network pattern of
+connected silver nodes and thin lines at 30% opacity in the lower-right
+quadrant. Simple, uncluttered lower-left corner with continued dark
+background. 16:9 widescreen, 4K resolution. NO text, NO logos, NO labels.
+Premium tech keynote aesthetic, Apple WWDC stage visual style.
+```
+
+**Example (Background-Only Gradient):**
+```
+A widescreen slide background with a smooth gradient sweep from rich gold
+(#FFC000) at the top transitioning to deep amber and dark charcoal at the
+bottom. A faint geometric dot grid at 20% opacity across the surface.
+Large open areas of clean gradient for content overlay. Simple uncluttered
+composition with generous breathing room. 16:9 format, 4K resolution.
+NO text, NO logos, NO labels. Premium corporate keynote background.
 ```
 
 ### Key Tactics That Make Prompts Work

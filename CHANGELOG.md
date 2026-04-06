@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-04-06
+
+### Added
+- **Presentation domain mode** with two generation options:
+  - **Complete Slide** -- model renders headline/body text directly (leverages Nano Banana 2's 94% text accuracy)
+  - **Background Only** -- clean backgrounds with negative space for layering in Keynote/PPT/Slides
+- **Brand Style Guides** -- 8 new optional preset fields for project-wide visual consistency:
+  - `background_styles` -- named background variants (dark-premium, gradient, split-layout)
+  - `visual_motifs` -- pattern overlays with opacity
+  - `prompt_suffix` -- appended verbatim to every prompt
+  - `prompt_keywords` -- categorized keywords woven into prompts
+  - `do_list` / `dont_list` -- brand guardrails checked before generation
+  - `logo_placement` -- records post-production logo position (never mentioned in prompts)
+  - `technical_specs` -- default color space, DPI, etc.
+- **Logo exclusion rule** -- logos are NEVER mentioned in prompts (model generates artifacts). Described as "clean negative space" instead; logos composited in presentation software
+- Presentation mode modifier library in prompt-engineering.md (background styles, layout zones, typography, pattern overlays, slide types)
+- 4 Presentation prompt templates (2 Complete, 2 Background-Only)
+- Brand Style Guide Integration section in prompt-engineering.md
+- Expanded merge rules (items 6-12) for brand guide fields in presets.md
+- 8 new CLI args in presets.py for brand guide creation
+- README updated with new feature documentation, rationale, and upstream tracking
+
+### Changed
+- Domain modes expanded from 9 to 11 (Presentation Complete + Background)
+- presets.py `create` command accepts brand guide fields (backward-compatible)
+- Logo handling rewritten: replaced "reserve space for logo" with negative-space approach
+
 ## [1.4.2] - 2026-03-27
 
 ### Added
@@ -149,6 +176,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Batch variations, multi-turn chat, prompt inspiration
 - Install script with validation
 
+[1.5.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.5.0
 [1.4.2]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.2
 [1.4.1]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.1
 [1.4.0]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.0
