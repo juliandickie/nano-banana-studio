@@ -43,16 +43,14 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 
 This fork extends [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude) with features driven by production use and research analysis of Google's prompting guidance:
 
+### Social Media Generation (v1.7.0)
+Platform-native image generation for 46 social media platforms. Generates at the correct native ratio at 4K resolution, then auto-crops to exact platform pixel specs. One prompt → multiple platform-specific images. Groups platforms by ratio to avoid duplicate API calls.
+
+### Brand Guide Builder (v1.7.0)
+Conversational brand guide creation: learn from websites/PDFs/images → auto-extract colors, typography, mood → refine interactively → preview with sample image → save. Ships with 12 example brand presets covering tech, luxury, organic, fitness, healthcare, fashion, and more.
+
 ### Slide Deck Pipeline (v1.6.0)
-Three-step batch pipeline for generating presentation slides from content:
-1. **Plan** -- Claude reads transcripts, writes detailed visual design briefs per slide
-2. **Prompts** -- Claude converts briefs to Nano Banana Pro prompts
-3. **Generate** -- `slides.py` batch-generates all slide images from the prompts markdown
-
-Replaces a manual 3-step, 2-session process where teams copy-paste prompts one at a time.
-
-### Lean Orchestrator Architecture (v1.6.0)
-SKILL.md restructured from 496 → 170 lines. Detailed content lazy-loaded from reference files. 330 lines of headroom for future features.
+Three-step batch pipeline: content → design brief → prompts → batch-generate all slide images. Replaces a manual 3-step, 2-session workflow.
 
 ### Presentation Mode (v1.5.0)
 Two generation options for slide visuals:
@@ -308,7 +306,23 @@ Presentation mode has two generation options designed for real-world slide workf
 
 > **Why no logos in prompts?** Gemini interprets every word literally. "Reserve space for logo" becomes "generate a logo here." The correct approach is describing the area as "clean negative space" or "simple uncluttered background," then compositing the logo as a separate layer in your presentation software where you have pixel-perfect control.
 
+## Social Media Generation
+
+![Platform-Native Generation](screenshots/social-platforms.webp)
+
+Generate platform-native images for 46 social media platforms. One prompt, multiple platform-specific outputs — each generated at the correct native ratio at 4K, then auto-cropped to exact pixel specs.
+
+```bash
+/banana social "product launch hero for wireless earbuds" --platforms ig-feed,yt-thumb,li-feed,tt-feed
+```
+
+Platforms sharing the same ratio are grouped automatically — if Instagram feed and Facebook portrait both use 4:5, only one API call is made and cropped to both specs. Saves cost and time.
+
+Supports: Instagram, Facebook, YouTube, LinkedIn, Twitter/X, TikTok, Pinterest, Threads, Snapchat, Google Ads, and Spotify — including organic posts, stories, ads, banners, thumbnails, and covers.
+
 ## Brand Style Guides
+
+![Brand Guide Builder](screenshots/brand-builder.webp)
 
 Enhanced presets for project-wide visual consistency. Create a brand style guide once, and every generated image inherits the brand's visual language:
 

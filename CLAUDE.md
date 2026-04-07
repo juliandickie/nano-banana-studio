@@ -121,7 +121,13 @@ Do NOT set version in `marketplace.json` -- it conflicts with `plugin.json`.
 | `ROADMAP.md` | Mark completed features. Update version reference. |
 | `CLAUDE.md` | Update file responsibilities table if new files created. Update key constraints if new rules added. |
 
-### 3. Command Sync Check (IMPORTANT — frequently missed)
+### 3. README "What's New in This Fork" Check (IMPORTANT — frequently missed)
+
+If the feature is user-facing, it MUST appear in the README "What's New in This Fork" section.
+Each feature gets a `### Feature Name (vX.Y.Z)` heading with a brief description.
+Check: does the new feature have its own subsection in "What's New"? If not, add it.
+
+### 4. Command Sync Check (IMPORTANT — frequently missed)
 
 Every command in SKILL.md Quick Reference table MUST also appear in:
 - **README.md Commands table** — exact same commands and descriptions
@@ -134,7 +140,7 @@ echo "=== README ===" && grep '| `/banana' README.md
 ```
 If they don't match, update README before committing.
 
-### 4. Cross-File Consistency Check
+### 5. Cross-File Consistency Check
 
 After all edits, verify these match across files:
 - **Version number** identical in all 4 version files
@@ -142,14 +148,14 @@ After all edits, verify these match across files:
 - **Model names** and **rate limits** consistent across gemini-models.md, cost-tracking.md, mcp-tools.md
 - **Aspect ratios** consistent across gemini-models.md, replicate.md, generate.py, replicate_generate.py
 
-### 5. New Script Checks
+### 6. New Script Checks
 
 If any new Python scripts were created:
 - `chmod +x` — all scripts in `scripts/` must be executable
 - Verify they compile: `python3 -c "import py_compile; py_compile.compile('path', doraise=True)"`
 - Test `--help` works
 
-### 6. SKILL.md Size Check
+### 7. SKILL.md Size Check
 
 ```bash
 wc -l skills/banana/SKILL.md  # Must stay under 500 lines
@@ -157,14 +163,14 @@ wc -l skills/banana/SKILL.md  # Must stay under 500 lines
 
 Current: ~172 lines (lean orchestrator pattern). If approaching 300+, extract to reference files.
 
-### 7. Memory File
+### 8. Memory File
 
 Update `~/.claude/projects/.../memory/project_banana_claude_workflow.md` if:
 - Version changed
 - New key constraints added
 - Architecture changed (e.g., new skill files, new reference files)
 
-### 8. Git Commit
+### 9. Git Commit
 
 Stage specific files (not `git add -A`). Commit with descriptive message following the pattern:
 - `feat:` for new features
@@ -174,7 +180,7 @@ Stage specific files (not `git add -A`). Commit with descriptive message followi
 
 Push to fork: `git push origin main`
 
-### 9. Distribution Zips (if distributing)
+### 10. Distribution Zips (if distributing)
 
 Regenerate the plugin and skill zips after significant changes:
 ```bash
