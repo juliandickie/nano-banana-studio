@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-04-09
+
+### Added
+- **`/banana book`** -- visual brand book generator with three output formats:
+  - **Markdown + images** -- `brand-book.md` with color tables (Hex/RGB/CMYK/Pantone) + categorized image folder
+  - **PowerPoint (.pptx)** -- professional slide deck with brand colors, swatches, typography, photo samples
+  - **HTML** -- self-contained single file with base64-embedded images + print CSS (open → Print → PDF)
+- Three tiers: `quick` (5 images), `standard` (16), `comprehensive` (25+)
+- `scripts/brandbook.py` -- orchestrator with image generation + 3 output formatters (~590 lines)
+- `scripts/pantone_lookup.py` -- Hex→RGB→CMYK→Pantone color conversion with 156 Pantone Coated colors
+- `references/brand-book.md` -- tiers, formats, options, color spec guide
+
 ## [1.9.1] - 2026-04-08
 
 ### Changed
@@ -251,6 +263,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Batch variations, multi-turn chat, prompt inspiration
 - Install script with validation
 
+[2.0.0]: https://github.com/juliandickie/banana-claude/releases/tag/v2.0.0
 [1.9.1]: https://github.com/juliandickie/banana-claude/releases/tag/v1.9.1
 [1.9.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.9.0
 [1.8.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.8.0

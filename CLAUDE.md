@@ -58,6 +58,9 @@ This repo follows the official Claude Code plugin layout:
 | `skills/banana/scripts/replicate_edit.py` | Replicate API fallback for editing. Uses urllib.request (stdlib). |
 | `skills/banana/references/asset-registry.md` | How to detect, load, and use persistent assets in generation. |
 | `skills/banana/references/reverse-prompt.md` | Image → 5-Component Formula prompt extraction methodology. |
+| `skills/banana/references/brand-book.md` | Brand book generator guide (tiers, formats, color specs). |
+| `skills/banana/scripts/brandbook.py` | Brand book generator (markdown + pptx + html output). |
+| `skills/banana/scripts/pantone_lookup.py` | Color conversion: Hex → RGB → CMYK → nearest Pantone (156 colors). |
 | `skills/banana/scripts/assets.py` | Asset registry CRUD (list, show, create, delete, add-image). |
 | `skills/banana/scripts/presets.py` | Brand Style Guide CRUD (list, show, create, delete). |
 | `skills/banana/scripts/batch.py` | CSV batch workflow parser with cost estimates. |

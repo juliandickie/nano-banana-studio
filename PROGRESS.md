@@ -8,7 +8,7 @@
 
 - **Repo:** https://github.com/juliandickie/banana-claude
 - **Upstream:** https://github.com/AgriciDaniel/banana-claude (forked at v1.4.1)
-- **Current version:** 1.9.0
+- **Current version:** 2.0.0
 - **Local path:** `/Users/juliandickie/code/nano-banana-pro/banana-claude/`
 - **Plugin layout:** `.claude-plugin/` + `skills/banana/` + `agents/`
 
@@ -130,5 +130,5 @@ See `ROADMAP.md` for the full prioritized feature roadmap.
 | 6 | `/banana video` with VEO 3.1 (separate skill) | Planned |
 | 7 | Image-to-prompt reverse engineering | **Done (v1.9.0)** |
 | 8 | Deck builder (.pptx output) | Future |
-| 9 | Visual brand book generator | Future |
+| 9 | Visual brand book generator | **Done (v2.0.0)** |
 | 10 | Analytics dashboard | Future |

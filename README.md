@@ -10,7 +10,7 @@ AI image generation skill for Claude Code where **Claude acts as Creative Direct
 Unlike simple API wrappers, Claude interprets your intent, selects domain expertise, constructs optimized prompts using Google's official 5-component formula, and orchestrates Gemini for the best possible results.
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
-[![Version](https://img.shields.io/badge/version-1.9.1-coral)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.0.0-coral)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Upstream](https://img.shields.io/badge/upstream-AgriciDaniel%2Fbanana--claude-gray)](https://github.com/AgriciDaniel/banana-claude)
 
@@ -43,8 +43,11 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 
 This fork extends [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude) with features driven by production use and research analysis of Google's prompting guidance:
 
+### Visual Brand Book Generator (v2.0.0)
+Generate complete visual brand books from any preset in three formats: Markdown + images, PowerPoint (.pptx), and self-contained HTML (print to PDF). Three tiers — quick (5 images), standard (16), comprehensive (25+). Automatic Hex → RGB → CMYK → Pantone color conversion with 156 Pantone Coated colors.
+
 ### Reverse Prompt Engineering (v1.9.0)
-Upload any image and Claude decomposes it into a structured 5-Component Formula prompt — identifying domain mode, camera specs, lighting, composition, and style. Use it to learn prompt engineering by example or recreate a style across multiple generations.
+Upload any image and Claude decomposes it into a structured 5-Component Formula prompt — identifying domain mode, camera specs, lighting, composition, and style. Compares Claude vs Gemini perspectives and provides a blended best-of-both prompt.
 
 ### Asset Registry (v1.8.0)
 Persistent named references for characters, products, equipment, and environments. Save once with reference images, reuse across sessions — Claude automatically loads reference images and consistency notes into every generation.
@@ -225,6 +228,9 @@ To update: `cd ~/banana-claude && git pull && bash install.sh`
 # Reverse engineer a prompt from an image
 /banana reverse ~/photos/inspiration.jpg
 
+# Generate a visual brand book (markdown + pptx + html)
+/banana book --preset my-brand --tier standard --output ~/brand-book/
+
 # Browse prompt inspiration
 /banana inspire
 
@@ -256,6 +262,7 @@ Claude will ask about your brand, select the right domain mode (Cinema, Product,
 | `/banana brand` | Conversational brand guide builder (learn → refine → preview → save) |
 | `/banana asset [list\|show\|create\|delete]` | Manage persistent character/product/object references |
 | `/banana reverse <image-path>` | Analyze image → extract 5-Component Formula prompt |
+| `/banana book --preset <name> [--tier quick\|standard\|comprehensive]` | Generate visual brand book (markdown + pptx + html) |
 | `/banana setup` | Guided Google AI API key setup |
 | `/banana setup replicate` | Guided Replicate token setup (optional fallback) |
 | `/banana status` | Check version, installation, and API key status |
@@ -429,7 +436,7 @@ banana-claude/                         # Claude Code Plugin
 │   ├── plugin.json                    # Plugin manifest
 │   └── marketplace.json               # Marketplace catalog
 ├── skills/banana/                     # Main skill
-│   ├── SKILL.md                       # Creative Director orchestrator (v1.9)
+│   ├── SKILL.md                       # Creative Director orchestrator (v2.0)
 │   ├── references/
 │   │   ├── prompt-engineering.md      # 5-component formula, 11 domain modes, PEEL strategy
 │   │   ├── gemini-models.md           # Model specs, resolution tables, input limits
@@ -439,6 +446,7 @@ banana-claude/                         # Claude Code Plugin
 │   │   ├── brand-builder.md           # Conversational brand guide creation flow
 │   │   ├── asset-registry.md          # Persistent asset registry for characters/products
 │   │   ├── reverse-prompt.md          # Image → 5-Component Formula prompt extraction
+│   │   ├── brand-book.md             # Brand book generator (tiers, formats, colors)
 │   │   ├── post-processing.md        # ImageMagick/FFmpeg pipelines, green screen
 │   │   ├── cost-tracking.md          # Pricing table, usage guide
 │   │   ├── presets.md                # Brand Style Guide schema (17 fields)
@@ -455,6 +463,8 @@ banana-claude/                         # Claude Code Plugin
 │       ├── edit.py                   # Direct Gemini API fallback -- editing
 │       ├── replicate_generate.py     # Replicate API fallback -- generation
 │       ├── replicate_edit.py         # Replicate API fallback -- editing
+│       ├── brandbook.py              # Visual brand book generator (3 output formats)
+│       ├── pantone_lookup.py         # Color conversion (Hex/RGB/CMYK/Pantone)
 │       ├── assets.py                 # Asset registry CRUD (characters, products, objects)
 │       ├── social.py                 # Social media platform-native generation
 │       ├── slides.py                 # Slide deck batch generation pipeline
