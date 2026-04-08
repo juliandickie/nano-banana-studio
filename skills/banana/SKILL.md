@@ -3,7 +3,7 @@ name: banana
 description: "Use when ANY request involves image creation, editing, visual asset production, slide generation, or creative direction. Triggers on: generate an image, create a photo, edit this picture, design a logo, make a banner, slide deck, social media visuals, and all /banana commands."
 argument-hint: "[generate|edit|chat|slides|inspire|batch|setup] <idea, path, or command>"
 metadata:
-  version: "1.8.0"
+  version: "1.9.0"
   author: juliandickie
   mcp-package: "@ycse/nanobanana-mcp"
 ---
@@ -36,6 +36,7 @@ Before constructing ANY prompt or calling ANY tool, read:
 | `/banana social <idea> --platforms <list>` | Platform-native image generation (47 platforms, 4K, auto-crop) |
 | `/banana brand` | Conversational brand guide builder (learn → refine → preview → save) |
 | `/banana asset [list\|show\|create\|delete]` | Manage persistent character/product/object references |
+| `/banana reverse <image-path>` | Analyze image → extract 5-Component Formula prompt to recreate it |
 | `/banana setup` | Guided Google AI API key setup |
 | `/banana setup replicate` | Guided Replicate token setup (optional fallback) |
 | `/banana status` | Check version, installation, and API key status |
@@ -65,6 +66,10 @@ If user mentions a named character, product, or object, check assets:
 `python3 ${CLAUDE_SKILL_DIR}/scripts/assets.py list`. Load with `show NAME`.
 Pass `reference_images[]` as inlineData parts in the API call. Append
 `consistency_notes` to the prompt. See `references/asset-registry.md`.
+
+## Reverse Prompt Engineering (`/banana reverse`)
+
+Analyze an image and extract the prompt that would recreate it. Load `references/reverse-prompt.md` and follow its instructions. Decompose the image using the 5-Component Formula (Subject, Action, Location, Composition, Style), estimate camera/lens/lighting, and output a complete reconstructed prompt ready to use.
 
 ## Social Media Generation (`/banana social`)
 
@@ -193,6 +198,7 @@ Load on-demand -- do NOT load all at startup:
 - `references/social-platforms.md` -- 47 social media platform specs, ratios, pixel targets, negative space
 - `references/brand-builder.md` -- Guided brand creation flow (learn → refine → preview → save)
 - `references/asset-registry.md` -- Persistent asset registry (characters, products, objects, environments)
+- `references/reverse-prompt.md` -- Image analysis → 5-Component Formula prompt extraction
 - `references/setup.md` -- Guided API key configuration flow
 
 ## Setup, Status & Update

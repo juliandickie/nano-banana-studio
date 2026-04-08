@@ -10,7 +10,7 @@ AI image generation skill for Claude Code where **Claude acts as Creative Direct
 Unlike simple API wrappers, Claude interprets your intent, selects domain expertise, constructs optimized prompts using Google's official 5-component formula, and orchestrates Gemini for the best possible results.
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
-[![Version](https://img.shields.io/badge/version-1.8.0-coral)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.0-coral)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Upstream](https://img.shields.io/badge/upstream-AgriciDaniel%2Fbanana--claude-gray)](https://github.com/AgriciDaniel/banana-claude)
 
@@ -42,6 +42,9 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 ## What's New in This Fork
 
 This fork extends [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude) with features driven by production use and research analysis of Google's prompting guidance:
+
+### Reverse Prompt Engineering (v1.9.0)
+Upload any image and Claude decomposes it into a structured 5-Component Formula prompt — identifying domain mode, camera specs, lighting, composition, and style. Use it to learn prompt engineering by example or recreate a style across multiple generations.
 
 ### Asset Registry (v1.8.0)
 Persistent named references for characters, products, equipment, and environments. Save once with reference images, reuse across sessions — Claude automatically loads reference images and consistency notes into every generation.
@@ -219,6 +222,9 @@ To update: `cd ~/banana-claude && git pull && bash install.sh`
 # Generate 3 variations (Literal, Creative, Premium)
 /banana batch "landing page hero for fintech app" 3
 
+# Reverse engineer a prompt from an image
+/banana reverse ~/photos/inspiration.jpg
+
 # Browse prompt inspiration
 /banana inspire
 
@@ -249,6 +255,7 @@ Claude will ask about your brand, select the right domain mode (Cinema, Product,
 | `/banana social <idea> --platforms <list>` | Platform-native image generation (47 platforms, 4K, auto-crop) |
 | `/banana brand` | Conversational brand guide builder (learn → refine → preview → save) |
 | `/banana asset [list\|show\|create\|delete]` | Manage persistent character/product/object references |
+| `/banana reverse <image-path>` | Analyze image → extract 5-Component Formula prompt |
 | `/banana setup` | Guided Google AI API key setup |
 | `/banana setup replicate` | Guided Replicate token setup (optional fallback) |
 | `/banana status` | Check version, installation, and API key status |
@@ -422,7 +429,7 @@ banana-claude/                         # Claude Code Plugin
 │   ├── plugin.json                    # Plugin manifest
 │   └── marketplace.json               # Marketplace catalog
 ├── skills/banana/                     # Main skill
-│   ├── SKILL.md                       # Creative Director orchestrator (v1.8, ~199 lines)
+│   ├── SKILL.md                       # Creative Director orchestrator (v1.9)
 │   ├── references/
 │   │   ├── prompt-engineering.md      # 5-component formula, 11 domain modes, PEEL strategy
 │   │   ├── gemini-models.md           # Model specs, resolution tables, input limits
@@ -431,6 +438,7 @@ banana-claude/                         # Claude Code Plugin
 │   │   ├── social-platforms.md        # 46 social media platform specs and ratios
 │   │   ├── brand-builder.md           # Conversational brand guide creation flow
 │   │   ├── asset-registry.md          # Persistent asset registry for characters/products
+│   │   ├── reverse-prompt.md          # Image → 5-Component Formula prompt extraction
 │   │   ├── post-processing.md        # ImageMagick/FFmpeg pipelines, green screen
 │   │   ├── cost-tracking.md          # Pricing table, usage guide
 │   │   ├── presets.md                # Brand Style Guide schema (17 fields)

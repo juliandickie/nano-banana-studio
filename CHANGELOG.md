@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-04-08
+
+### Added
+- **`/banana reverse`** -- image-to-prompt reverse engineering
+  - Analyzes an image and extracts a structured 5-Component Formula prompt
+  - Identifies domain mode, estimates camera/lens/lighting, suggests prestigious context anchor
+  - Outputs a complete reconstructed prompt ready to copy and use for recreation
+  - `references/reverse-prompt.md` with analysis methodology and output format
+
 ## [1.8.0] - 2026-04-08
 
 ### Added
@@ -233,6 +242,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Batch variations, multi-turn chat, prompt inspiration
 - Install script with validation
 
+[1.9.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.9.0
 [1.8.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.8.0
 [1.7.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.7.0
 [1.6.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.6.0
