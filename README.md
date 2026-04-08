@@ -313,6 +313,33 @@ Presentation mode has two generation options designed for real-world slide workf
 
 > **Why no logos in prompts?** Gemini interprets every word literally. "Reserve space for logo" becomes "generate a logo here." The correct approach is describing the area as "clean negative space" or "simple uncluttered background," then compositing the logo as a separate layer in your presentation software where you have pixel-perfect control.
 
+## Asset Registry
+
+![Asset Registry](screenshots/asset-registry.webp)
+
+Save named characters, products, equipment, and environments with reference images for consistent reuse across sessions. When you mention a saved asset, Claude automatically loads its reference images and consistency notes.
+
+```bash
+# Save a product with reference images
+/banana asset create "itero-scanner" --type product \
+  --reference ~/photos/itero-front.jpg \
+  --reference ~/photos/itero-angle.jpg \
+  --description "Handheld intraoral scanner, white and gray body, LED ring" \
+  --consistency-notes "Always show LED ring illuminated"
+
+# Now just mention it naturally
+/banana generate "the iTero Scanner being used in a modern dental clinic"
+# Claude loads reference images automatically for visual consistency
+
+# Add more reference images later
+/banana asset add-image "itero-scanner" --reference ~/photos/itero-closeup.jpg
+
+# See all saved assets
+/banana asset list
+```
+
+Assets work alongside brand presets — the preset defines the visual style, the asset defines what the object looks like. Both are applied automatically when detected.
+
 ## Social Media Generation
 
 ![Platform-Native Generation](screenshots/social-platforms.webp)

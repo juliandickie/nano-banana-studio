@@ -201,14 +201,32 @@ Stage specific files (not `git add -A`). Commit with descriptive message followi
 
 Push to fork: `git push origin main`
 
-### 11. Distribution Zips (if distributing)
+### 11. GitHub Release + Distribution Zips (on version bumps)
 
-Regenerate the plugin and skill zips after significant changes:
+When a version is bumped, create a GitHub Release with distribution zips:
+
 ```bash
-# Plugin zip (excludes .git, screenshots, dev files)
-# Skill zip (just skills/banana/ contents)
+# Build plugin zip (excludes .git, screenshots, dev files, .claude/)
+cd /path/to/banana-claude
+zip -r ../banana-claude-vX.Y.Z.zip . -x ".git/*" ".DS_Store" "*/.DS_Store" \
+  "*__pycache__/*" "*.pyc" ".github/*" "screenshots/*" "PROGRESS.md" \
+  "ROADMAP.md" "CODEOWNERS" "CODE_OF_CONDUCT.md" "SECURITY.md" \
+  "CITATION.cff" ".gitattributes" ".gitignore" ".claude/*"
+
+# Build skill zip (standalone, no plugin wrapper)
+mkdir -p /tmp/banana-skill/banana
+cp -r skills/banana/* /tmp/banana-skill/banana/
+cp agents/brief-constructor.md /tmp/banana-skill/banana/
+cd /tmp/banana-skill && zip -r /path/to/banana-skill-vX.Y.Z.zip banana/
+rm -rf /tmp/banana-skill
+
+# Create GitHub Release with zips attached
+gh release create vX.Y.Z \
+  ../banana-claude-vX.Y.Z.zip \
+  ../banana-skill-vX.Y.Z.zip \
+  --title "vX.Y.Z" \
+  --notes "See CHANGELOG.md for details"
 ```
-See PROGRESS.md for the exact zip commands used.
 
 ## Plugin development notes
 
