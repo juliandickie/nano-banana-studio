@@ -146,7 +146,20 @@ echo "=== README ===" && grep '| `/banana' README.md
 ```
 If they don't match, update README before committing.
 
-### 5. Cross-File Consistency Check
+### 5. README Architecture Diagram Check (IMPORTANT — frequently missed)
+
+If ANY new files were created (scripts, references, presets, etc.), the architecture
+tree diagram in README.md MUST be updated to include them. Also verify the version
+number and SKILL.md line count in the diagram are current.
+
+Run this to compare:
+```bash
+echo "=== Diagram files ===" && grep '│' README.md | grep -oE '[a-z_-]+\.(md|py|json)' | sort
+echo "=== Actual files ===" && (ls skills/banana/references/ skills/banana/scripts/) | sort
+```
+If the lists don't match, update the diagram.
+
+### 6. Cross-File Consistency Check (versions, models, ratios)
 
 After all edits, verify these match across files:
 - **Version number** identical in all 4 version files
@@ -154,14 +167,14 @@ After all edits, verify these match across files:
 - **Model names** and **rate limits** consistent across gemini-models.md, cost-tracking.md, mcp-tools.md
 - **Aspect ratios** consistent across gemini-models.md, replicate.md, generate.py, replicate_generate.py
 
-### 6. New Script Checks
+### 7. New Script Checks
 
 If any new Python scripts were created:
 - `chmod +x` — all scripts in `scripts/` must be executable
 - Verify they compile: `python3 -c "import py_compile; py_compile.compile('path', doraise=True)"`
 - Test `--help` works
 
-### 7. SKILL.md Size Check
+### 8. SKILL.md Size Check
 
 ```bash
 wc -l skills/banana/SKILL.md  # Must stay under 500 lines
@@ -169,14 +182,14 @@ wc -l skills/banana/SKILL.md  # Must stay under 500 lines
 
 Current: ~172 lines (lean orchestrator pattern). If approaching 300+, extract to reference files.
 
-### 8. Memory File
+### 9. Memory File
 
 Update `~/.claude/projects/.../memory/project_banana_claude_workflow.md` if:
 - Version changed
 - New key constraints added
 - Architecture changed (e.g., new skill files, new reference files)
 
-### 9. Git Commit
+### 10. Git Commit
 
 Stage specific files (not `git add -A`). Commit with descriptive message following the pattern:
 - `feat:` for new features
@@ -186,7 +199,7 @@ Stage specific files (not `git add -A`). Commit with descriptive message followi
 
 Push to fork: `git push origin main`
 
-### 10. Distribution Zips (if distributing)
+### 11. Distribution Zips (if distributing)
 
 Regenerate the plugin and skill zips after significant changes:
 ```bash
