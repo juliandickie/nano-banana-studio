@@ -2,7 +2,7 @@
 
 ## Context
 
-Nano Banana Studio v2.6.0 is a comprehensive Creative Director plugin for AI image generation. This roadmap captures planned features, organized by implementation priority.
+Nano Banana Studio v2.7.0 is a comprehensive Creative Director plugin for AI image generation. This roadmap captures planned features, organized by implementation priority.
 
 **Architecture note:** As this grows, the skill should split into three interlinked skills:
 1. **Brand Learning** (`/banana brand`) — Brand guide creation, asset registry, presets
@@ -29,6 +29,7 @@ These would share the brand preset system and asset registry but have their own 
 | 10 | `/banana ab-test` — A/B prompt variation testing | v2.4.0 | Literal/Creative/Premium + preference learning |
 | 11 | `/banana deck` — slide deck builder | v2.5.0 | .pptx with 3 layouts, brand styling, logo placement |
 | 12 | `/banana analytics` — analytics dashboard | v2.6.0 | HTML with SVG charts, cost/usage/quota |
+| 13 | `/banana content` — multi-modal content pipeline | v2.7.0 | hero + social + email + formats orchestration |
 
 ---
 
@@ -56,12 +57,6 @@ Implementation: `video_generate.py` (stdlib-only, same pattern), `/banana video`
 
 ## Planned Features
 
-### Multi-Modal Content Pipeline
-
-```
-/banana content "product launch" --preset brand --outputs hero,social-pack,email-header,deck
-```
-
 ---
 
 ## Future Considerations
@@ -80,4 +75,3 @@ Implementation: `video_generate.py` (stdlib-only, same pattern), `/banana video`
 | # | Feature | Effort | Impact | Status |
 |---|---------|--------|--------|--------|
 | 1 | `/banana video` with VEO 3.1 | Medium | Very High | Next |
-| 2 | Multi-modal content pipeline | High | High | Planned |

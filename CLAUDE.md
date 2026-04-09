@@ -63,6 +63,8 @@ This repo follows the official Claude Code plugin layout:
 | `skills/banana/scripts/pantone_lookup.py` | Color conversion: Hex → RGB → CMYK → nearest Pantone (156 colors). |
 | `skills/banana/scripts/assets.py` | Asset registry CRUD (list, show, create, delete, add-image). |
 | `skills/banana/scripts/presets.py` | Brand Style Guide CRUD (list, show, create, delete). |
+| `skills/banana/scripts/content_pipeline.py` | Multi-modal content pipeline orchestrator. |
+| `skills/banana/references/content-pipeline.md` | Content pipeline output types, dependencies, cost estimation. |
 | `skills/banana/scripts/analytics.py` | Analytics dashboard (HTML with SVG charts, cost/usage/quota). |
 | `skills/banana/references/analytics.md` | Analytics dashboard sections, data sources, chart types. |
 | `skills/banana/scripts/deckbuilder.py` | Slide deck builder (.pptx with brand styling, 3 layouts). |

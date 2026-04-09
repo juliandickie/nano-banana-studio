@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-04-09
+
+### Added
+- **`/banana content`** -- Multi-modal content pipeline: one idea → hero, social, email, formats
+  - `scripts/content_pipeline.py` (~420 lines) orchestrates existing scripts via subprocess
+  - Two-phase workflow: plan (cost estimate) → generate (execute step-by-step)
+  - Dependency handling (email/formats wait for hero)
+  - Status tracking with plan.json and manifest.json
+  - `references/content-pipeline.md` -- output types, dependencies, cost estimation
+
 ## [2.6.0] - 2026-04-09
 
 ### Added
@@ -337,6 +347,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Batch variations, multi-turn chat, prompt inspiration
 - Install script with validation
 
+[2.7.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.7.0
 [2.6.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.6.0
 [2.5.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.5.0
 [2.4.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.4.0
