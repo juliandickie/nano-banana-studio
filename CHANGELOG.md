@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-04-09
+
+### Added
+- **Image-to-video pipeline** -- `/video animate` with `image-to-video.md` reference documenting cross-skill workflow (/banana → /video)
+- **Content pipeline video support** -- `content_pipeline.py` now supports `"video"` output type using hero image as first frame
+- **Session history video type** -- `history.py` now accepts `--type video` for video generation logging
+
 ## [3.1.0] - 2026-04-09
 
 ### Added
@@ -372,6 +379,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Batch variations, multi-turn chat, prompt inspiration
 - Install script with validation
 
+[3.2.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.2.0
 [3.1.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.1.0
 [3.0.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.0.0
 [2.7.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.7.0

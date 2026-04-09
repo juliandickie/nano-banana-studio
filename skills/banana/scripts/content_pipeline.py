@@ -64,6 +64,15 @@ OUTPUT_TYPES = {
         "source": "hero",
         "api_calls": 0,
     },
+    "video": {
+        "description": "Product reveal video clip (8s, 16:9)",
+        "script": "../../video/scripts/video_generate.py",
+        "source": "hero",  # uses hero image as first frame
+        "default_duration": "8",
+        "default_ratio": "16:9",
+        "default_resolution": "1080p",
+        "api_calls": 1,
+    },
     "deck": {
         "description": "Slide deck backgrounds (requires separate slide prompts)",
         "script": "slides.py",
@@ -201,6 +210,11 @@ def _build_step_args(step_type, idea, ratio, resolution, preset, platforms):
 
     if step_type == "formats":
         return ["convert", "--input", "HERO_PATH", "--formats", "png,webp,jpeg", "--sizes", "4k,2k,1k"]
+
+    if step_type == "video":
+        # Video uses hero image as first frame for animation
+        return ["--prompt", idea, "--first-frame", "HERO_PATH",
+                "--duration", "8", "--aspect-ratio", ratio, "--resolution", "1080p"]
 
     if step_type == "deck":
         # Deck requires a prompts file; placeholder until user provides one

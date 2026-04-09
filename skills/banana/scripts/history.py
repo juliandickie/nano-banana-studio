@@ -91,6 +91,7 @@ def cmd_log(args):
         "domain_mode": args.domain or "",
         "preset": args.preset or "",
         "cost": args.cost or 0.0,
+        "type": getattr(args, "type", "image"),
         "tags": [],
     }
     data["entries"].append(entry)
@@ -217,6 +218,7 @@ def main():
     p_log.add_argument("--cost", type=float, help="Generation cost in USD")
     p_log.add_argument("--session-id", help="Session ID (auto-generated if omitted)")
     p_log.add_argument("--user-brief", help="Original user request summary")
+    p_log.add_argument("--type", default="image", choices=["image", "video"], help="Generation type (image or video)")
 
     # list
     p_list = sub.add_parser("list", help="List session entries")
