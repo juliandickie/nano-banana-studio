@@ -45,6 +45,8 @@ Built on [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-cla
 
 **Sample output (generated with `/video generate`):**
 
+<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1181470215?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;muted=1&amp;loop=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="product-reveal-demo"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
+
 https://github.com/juliandickie/nano-banana-studio/raw/main/screenshots/videos/product-reveal-demo.mp4
 
 > 6-second product reveal at 1080p with native audio. Generated in ~47 seconds via VEO 3.1.
