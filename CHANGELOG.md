@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-04-09
+
+### Changed
+- **Renamed project** from `banana-claude` to `nano-banana-studio` — new independent identity
+- **Detached from GitHub fork network** — `gh` CLI now resolves correctly to this repo
+- Updated all repo URLs, plugin name, and documentation references
+- Updated CITATION.cff title and repository URL
+- Updated install.sh with pre-flight check for conflicting banana-claude installation
+
+### Added
+- **Migration guide** in README — instructions for users switching from banana-claude
+- **Conflict detection** in install.sh — warns if banana-claude plugin is already installed
+
 ## [2.0.1] - 2026-04-09
 
 ### Fixed
@@ -277,14 +290,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Batch variations, multi-turn chat, prompt inspiration
 - Install script with validation
 
-[2.0.1]: https://github.com/juliandickie/banana-claude/releases/tag/v2.0.1
-[2.0.0]: https://github.com/juliandickie/banana-claude/releases/tag/v2.0.0
-[1.9.1]: https://github.com/juliandickie/banana-claude/releases/tag/v1.9.1
-[1.9.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.9.0
-[1.8.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.8.0
-[1.7.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.7.0
-[1.6.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.6.0
-[1.5.0]: https://github.com/juliandickie/banana-claude/releases/tag/v1.5.0
+[2.1.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.1.0
+[2.0.1]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.0.1
+[2.0.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.0.0
+[1.9.1]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.9.1
+[1.9.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.9.0
+[1.8.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.8.0
+[1.7.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.7.0
+[1.6.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.6.0
+[1.5.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.5.0
 [1.4.2]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.2
 [1.4.1]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.1
 [1.4.0]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.0

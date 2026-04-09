@@ -1,16 +1,16 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 type: software
-title: "Banana Claude"
+title: "Nano Banana Studio"
 abstract: "AI image generation skill for Claude Code -- Creative Director powered by Gemini"
 authors:
   - family-names: "Daniel"
     given-names: "Agrici"
     alias: "AgriciDaniel"
-repository-code: "https://github.com/AgriciDaniel/banana-claude"
+repository-code: "https://github.com/juliandickie/nano-banana-studio"
 url: "https://www.skool.com/ai-marketing-hub-pro"
 license: MIT
-version: "2.0.1"
+version: "2.1.0"
 date-released: "2026-04-09"
 keywords:
   - ai-image-generation

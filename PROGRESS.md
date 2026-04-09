@@ -1,14 +1,14 @@
 # Banana Claude -- Development Progress
 
 > This file tracks development history, decisions, and next steps for the
-> juliandickie/banana-claude fork. Read this at the start of each session
+> juliandickie/nano-banana-studio fork. Read this at the start of each session
 > for continuity.
 
 ## Project Overview
 
-- **Repo:** https://github.com/juliandickie/banana-claude
+- **Repo:** https://github.com/juliandickie/nano-banana-studio
 - **Upstream:** https://github.com/AgriciDaniel/banana-claude (forked at v1.4.1)
-- **Current version:** 2.0.1
+- **Current version:** 2.1.0
 - **Local path:** `/Users/juliandickie/code/nano-banana-pro/banana-claude/`
 - **Plugin layout:** `.claude-plugin/` + `skills/banana/` + `agents/`
 
@@ -127,6 +127,21 @@ Both keys stored in `~/.banana/config.json`. Scripts check: CLI flag → env var
 13. Version bumped to v2.0.1 across 3 files
 
 **Files modified:** SKILL.md, agents/brief-constructor.md, marketplace.json, CLAUDE.md, plugin.json, README.md, CITATION.cff, CHANGELOG.md, PROGRESS.md
+
+### Session 5 (2026-04-09)
+**Scope:** Rename to nano-banana-studio + detach fork (v2.1.0)
+
+1. Renamed GitHub repo from `banana-claude` to `nano-banana-studio`
+2. Detached from GitHub fork network (now standalone, `gh` resolves correctly)
+3. Updated all repo URLs, plugin name, titles across 13+ files
+4. Updated CITATION.cff title and repository URL
+5. Added migration guide in README for users switching from banana-claude
+6. Added conflict detection in install.sh (warns if banana-claude is installed)
+7. Added conflict note comments in SKILL.md
+8. Updated install.sh branding and plugin install command
+9. Version bumped to v2.1.0 across 3 files
+
+**Files modified:** plugin.json, marketplace.json, SKILL.md, README.md, CHANGELOG.md, CLAUDE.md, PROGRESS.md, CITATION.cff, CODE_OF_CONDUCT.md, SECURITY.md, install.sh, setup.md, issue template config.yml
 
 ## Expansion Roadmap
 

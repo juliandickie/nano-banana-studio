@@ -1,7 +1,7 @@
 # Setup, Install & Update Reference
 
 > Load this when the user runs `/banana setup`, `/banana status`, `/banana update`,
-> or asks how to install/share banana-claude.
+> or asks how to install/share nano-banana-studio.
 >
 > Guide conversationally. Do NOT run `setup_mcp.py` without arguments (the
 > interactive `input()` prompt does not work in Claude Code's shell).
@@ -88,7 +88,7 @@ For first-time users, provide this quick start:
 >
 > **Install in 3 steps:**
 > ```bash
-> git clone https://github.com/juliandickie/banana-claude.git ~/banana-claude
+> git clone https://github.com/juliandickie/nano-banana-studio.git ~/banana-claude
 > claude --plugin-dir ~/banana-claude
 > # Then in Claude Code: /banana setup
 > ```
@@ -104,7 +104,7 @@ Copy-paste this message:
 > 1. Get a free API key: https://aistudio.google.com/apikey
 > 2. Run:
 > ```bash
-> git clone https://github.com/juliandickie/banana-claude.git ~/banana-claude
+> git clone https://github.com/juliandickie/nano-banana-studio.git ~/banana-claude
 > claude --plugin-dir ~/banana-claude
 > ```
 > 3. In Claude Code: `/banana setup` (paste your API key)

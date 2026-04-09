@@ -1,16 +1,16 @@
-<!-- Updated: 2026-04-06 -->
-<!-- Forked from: https://github.com/AgriciDaniel/banana-claude -->
+<!-- Updated: 2026-04-09 -->
+<!-- Originally forked from: https://github.com/AgriciDaniel/banana-claude -->
 
-![Banana Claude](screenshots/cover-image.webp)
+![Nano Banana Studio](screenshots/cover-image.webp)
 
-# Banana Claude
+# Nano Banana Studio
 
-AI image generation skill for Claude Code where **Claude acts as Creative Director** using Google's Gemini Nano Banana models.
+AI image generation plugin for Claude Code where **Claude acts as Creative Director** using Google's Gemini Nano Banana models.
 
 Unlike simple API wrappers, Claude interprets your intent, selects domain expertise, constructs optimized prompts using Google's official 5-component formula, and orchestrates Gemini for the best possible results.
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
-[![Version](https://img.shields.io/badge/version-2.0.1-coral)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.1.0-coral)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Upstream](https://img.shields.io/badge/upstream-AgriciDaniel%2Fbanana--claude-gray)](https://github.com/AgriciDaniel/banana-claude)
 
@@ -41,7 +41,7 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 
 ## What's New in This Fork
 
-This fork extends [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude) with features driven by production use and research analysis of Google's prompting guidance:
+This project extends [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude) with features driven by production use and research analysis of Google's prompting guidance:
 
 ### Visual Brand Book Generator (v2.0.0)
 Generate complete visual brand books from any preset in three formats: Markdown + images, PowerPoint (.pptx), and self-contained HTML (print to PDF). Three tiers — quick (5 images), standard (16), comprehensive (25+). Automatic Hex → RGB → CMYK → Pantone color conversion with 156 Pantone Coated colors.
@@ -104,7 +104,7 @@ Based on analysis of Google's official prompting guides and two research documen
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/juliandickie/banana-claude.git ~/banana-claude
+git clone https://github.com/juliandickie/nano-banana-studio.git ~/nano-banana-studio
 ```
 
 ### Step 2: Get Your Google AI API Key (Free)
@@ -120,7 +120,7 @@ git clone https://github.com/juliandickie/banana-claude.git ~/banana-claude
 ### Step 3: Start Claude Code with the Plugin
 
 ```bash
-claude --plugin-dir ~/banana-claude
+claude --plugin-dir ~/nano-banana-studio
 ```
 
 ### Step 4: Configure Your API Key
@@ -148,7 +148,7 @@ If you see an image path and the file exists, you're all set!
 ### Updating
 
 ```bash
-cd ~/banana-claude && git pull
+cd ~/nano-banana-studio && git pull
 ```
 
 Then in Claude Code, type `/reload-plugins` to pick up changes.
@@ -163,7 +163,7 @@ Replicate provides an alternative API backend using `google/nano-banana-2`. It's
 1. Go to [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens)
 2. Sign in with GitHub, Google, or email
 3. Click **"Create token"**
-4. Give it a name (e.g., "banana-claude")
+4. Give it a name (e.g., "nano-banana-studio")
 5. Copy the token (starts with `r8_...`)
 
 **Configure it in Claude Code:**
@@ -184,11 +184,11 @@ The fallback chain is automatic: MCP → Direct Gemini API → Replicate.
 If you prefer to copy the skill files rather than use the plugin system:
 
 ```bash
-git clone https://github.com/juliandickie/banana-claude.git ~/banana-claude
-bash ~/banana-claude/install.sh
+git clone https://github.com/juliandickie/nano-banana-studio.git ~/nano-banana-studio
+bash ~/nano-banana-studio/install.sh
 ```
 
-To update: `cd ~/banana-claude && git pull && bash install.sh`
+To update: `cd ~/nano-banana-studio && git pull && bash install.sh`
 
 </details>
 
@@ -431,7 +431,7 @@ An alternative API backend using `google/nano-banana-2` on Replicate. Useful whe
 ## Architecture
 
 ```
-banana-claude/                         # Claude Code Plugin
+nano-banana-studio/                    # Claude Code Plugin
 ├── .claude-plugin/
 │   ├── plugin.json                    # Plugin manifest
 │   └── marketplace.json               # Marketplace catalog
@@ -475,6 +475,36 @@ banana-claude/                         # Claude Code Plugin
     └── brief-constructor.md           # Subagent for prompt construction
 ```
 
+## Migrating from banana-claude
+
+nano-banana-studio is a standalone successor to [banana-claude](https://github.com/AgriciDaniel/banana-claude).
+**You must uninstall banana-claude before installing nano-banana-studio** — both register
+the `/banana` command, and having both installed causes conflicts.
+
+### Remove banana-claude first
+
+If installed as a plugin:
+```bash
+claude plugin remove banana-claude
+```
+
+If installed as a standalone skill:
+```bash
+rm -rf ~/.claude/skills/banana
+```
+
+Then install nano-banana-studio:
+```bash
+claude plugin add juliandickie/nano-banana-studio
+```
+
+### What's different
+
+nano-banana-studio includes everything in banana-claude plus: slides pipeline,
+social media generation (47 platforms), brand builder, asset registry, reverse
+prompt engineering, brand book generator, cost tracking, Replicate fallback, and
+12 brand presets. See the [changelog](CHANGELOG.md) for details.
+
 ## Requirements
 
 - [Claude Code](https://github.com/anthropics/claude-code)
@@ -489,12 +519,12 @@ banana-claude/                         # Claude Code Plugin
 **Standalone:**
 
 ```bash
-bash banana-claude/install.sh --uninstall
+bash nano-banana-studio/install.sh --uninstall
 ```
 
 ## Upstream Tracking
 
-This fork extends [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude). To check for upstream changes:
+Originally forked from [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude), now an independent project. To check for upstream changes:
 
 ```bash
 git fetch upstream

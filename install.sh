@@ -1,7 +1,7 @@
 #!/bin/bash
-# Banana Claude -- Install Script
+# Nano Banana Studio -- Install Script
 # Standalone installer -- copies skill to ~/.claude/skills/ for Claude Code.
-# For plugin installation, use: /plugin marketplace add AgriciDaniel/banana-claude
+# For plugin installation, use: claude plugin add juliandickie/nano-banana-studio
 #
 # Usage:
 #   ./install.sh                    # Install skill only
@@ -35,6 +35,14 @@ if [[ "${1:-}" == "--uninstall" ]]; then
     exit 0
 fi
 
+# Check for conflicting banana-claude installation
+if claude plugin list 2>/dev/null | grep -q "banana-claude"; then
+    warn "banana-claude plugin is installed."
+    warn "Both plugins register /banana -- please remove banana-claude first:"
+    warn "  claude plugin remove banana-claude"
+    exit 1
+fi
+
 # Check source exists
 if [[ ! -d "$SOURCE_DIR" ]]; then
     error "Source directory not found: $SOURCE_DIR"
@@ -42,7 +50,7 @@ if [[ ! -d "$SOURCE_DIR" ]]; then
 fi
 
 # Install skill
-info "Installing Banana Claude skill..."
+info "Installing Nano Banana Studio skill..."
 mkdir -p "$SKILL_DIR"
 cp -r "$SOURCE_DIR"/* "$SKILL_DIR/"
 chmod +x "$SKILL_DIR/scripts/"*.py 2>/dev/null || true

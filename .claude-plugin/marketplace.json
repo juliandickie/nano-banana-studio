@@ -1,5 +1,5 @@
 {
-  "name": "banana-claude-marketplace",
+  "name": "nano-banana-studio-marketplace",
   "owner": {
     "name": "juliandickie"
   },
@@ -8,11 +8,11 @@
   },
   "plugins": [
     {
-      "name": "banana-claude",
+      "name": "nano-banana-studio",
       "source": "./",
       "description": "AI image generation Creative Director powered by Google Gemini Nano Banana models. Claude interprets intent, selects domain expertise, constructs optimized prompts, and orchestrates Gemini for best results.",
-      "homepage": "https://github.com/juliandickie/banana-claude",
-      "repository": "https://github.com/juliandickie/banana-claude",
+      "homepage": "https://github.com/juliandickie/nano-banana-studio",
+      "repository": "https://github.com/juliandickie/nano-banana-studio",
       "license": "MIT",
       "keywords": ["image-generation", "ai-art", "gemini", "creative-director"],
       "category": "creative"

@@ -1,4 +1,4 @@
-# CLAUDE.md -- Development context for banana-claude
+# CLAUDE.md -- Development context for nano-banana-studio
 
 This file is read by Claude Code when working inside this repository.
 
@@ -7,7 +7,7 @@ history, design decisions, and next steps.
 
 ## What this repo is
 
-`banana-claude` is a Claude Code **plugin** that enables AI image generation
+`nano-banana-studio` is a Claude Code **plugin** that enables AI image generation
 using Google's Gemini Nano Banana models via MCP. Claude acts as a Creative
 Director: it interprets intent, selects domain expertise, constructs
 optimized prompts, and orchestrates Gemini API calls.
@@ -91,7 +91,7 @@ ensures the skill works on any system with Python 3.6+.
 
 ## Upstream tracking
 
-This is a fork of https://github.com/AgriciDaniel/banana-claude (v1.4.1 baseline).
+Originally forked from https://github.com/AgriciDaniel/banana-claude (v1.4.1 baseline), now an independent project.
 
 To check for upstream changes:
 ```bash
@@ -211,8 +211,8 @@ When a version is bumped, create a GitHub Release with distribution zips:
 
 ```bash
 # Build plugin zip (excludes .git, screenshots, dev files, .claude/)
-cd /path/to/banana-claude
-zip -r ../banana-claude-vX.Y.Z.zip . -x ".git/*" ".DS_Store" "*/.DS_Store" \
+cd /path/to/nano-banana-studio
+zip -r ../nano-banana-studio-vX.Y.Z.zip . -x ".git/*" ".DS_Store" "*/.DS_Store" \
   "*__pycache__/*" "*.pyc" ".github/*" "screenshots/*" "PROGRESS.md" \
   "ROADMAP.md" "CODEOWNERS" "CODE_OF_CONDUCT.md" "SECURITY.md" \
   "CITATION.cff" ".gitattributes" ".gitignore" ".claude/*"
@@ -226,7 +226,7 @@ rm -rf /tmp/banana-skill
 
 # Create GitHub Release with zips attached
 gh release create vX.Y.Z \
-  ../banana-claude-vX.Y.Z.zip \
+  ../nano-banana-studio-vX.Y.Z.zip \
   ../banana-skill-vX.Y.Z.zip \
   --title "vX.Y.Z" \
   --notes "See CHANGELOG.md for details"

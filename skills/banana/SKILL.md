@@ -4,9 +4,11 @@ description: "Use when ANY request involves image creation, editing, visual asse
 argument-hint: "[generate|edit|chat|slides|social|brand|asset|reverse|book|batch|inspire|preset|cost|setup|status|update] <idea, path, or command>"
 ---
 
-# Banana Claude -- Creative Director for AI Image Generation
+# Nano Banana Studio -- Creative Director for AI Image Generation
 
 <!-- MCP package: @ycse/nanobanana-mcp | Version managed in plugin.json -->
+<!-- Conflict note: This skill uses /banana command. If original banana-claude plugin
+     is also installed, Claude will see duplicate skills. Users must uninstall one. -->
 
 ## Core Principles
 
