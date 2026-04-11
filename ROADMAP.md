@@ -2,7 +2,7 @@
 
 ## Context
 
-Nano Banana Studio v3.4.0 is a comprehensive Creative Director plugin for AI image and video generation. This roadmap captures planned features, organized by implementation priority.
+Nano Banana Studio v3.6.3 is a comprehensive Creative Director plugin for AI image and video generation. This roadmap captures planned features, organized by implementation priority.
 
 **Architecture:** Two interlinked skills sharing brand presets and asset registry:
 1. **Image Skill** (`/banana`) — 24 commands: generation, editing, social media, slides, brand guides, assets, analytics, content pipeline
@@ -32,6 +32,9 @@ Nano Banana Studio v3.4.0 is a comprehensive Creative Director plugin for AI ima
 | 16 | `/video extend` + `/video stitch` — extension + FFmpeg toolkit | v3.4.0 | Clip chaining to 148s, concat/trim/convert |
 | 17 | VEO 3.1 model variants + draft workflow + pricing fixes | v3.5.0 | Lite/Fast/Standard tiers, `--quality-tier` flag, model routing |
 | 18 | Vertex AI backend (API-key auth) — unblocks Lite, image-to-video, Scene Ext v2, GA `-001` IDs | v3.6.0 | `_vertex_backend.py` helper, `--backend auto`, service agent retry |
+| 19 | First+last frame interpolation + reference images on Vertex | v3.6.1 | `lastFrame` / `referenceImages` wired into `build_vertex_request_body` |
+| 20 | Sequence production polish — review subcommand, `use_veo_interpolation`, partial storyboard regen, `~/Documents/nano-banana-sequences/` default | v3.6.2 | Review-sheet markdown generator, `--shots 1,3-5`, per-project output dirs |
+| 21 | Review gate enforcement + smarter plans | v3.6.3 | Plan-hash tracking (SHA-256), mandatory review gate with `--skip-review` bypass, 8-type shot-type defaults, `--reference-image` on banana `generate.py`, 1080p Lite pricing verified |
 
 ---
 
@@ -215,5 +218,10 @@ These worked well and should be documented in the video-sequences reference so f
 |---|---------|--------|--------|--------|
 | 1 | v3.5.0 — VEO 3.1 model variants + draft workflow + pricing fixes | Medium | Very High | **Shipped 2026-04-10** |
 | 2 | v3.6.0 — Vertex AI backend (unblocks Lite, image-to-video, Scene Ext v2, GA `-001` IDs) | Large | Very High | **Shipped 2026-04-11** |
-| 3 | v3.6.1 — Deferred sequence production improvements (review gate, plan hash tracking, audio strategy split) + batch/parallel features | Medium | High | **Next** |
-| 4 | Replicate video model routing (Kling, Wan, PixVerse) for character consistency | Medium | High | Future |
+| 3 | v3.6.1 — First+last frame interpolation + reference images on Vertex | Small | High | **Shipped 2026-04-11** |
+| 4 | v3.6.2 — Sequence production polish (review subcommand, `use_veo_interpolation`, partial storyboard regen, new output default) | Medium | High | **Shipped 2026-04-11** |
+| 5 | v3.6.3 — Review gate enforcement with plan hash tracking + shot-type defaults + `--reference-image` on banana + 1080p Lite verified | Medium | High | **Shipped 2026-04-11** |
+| 6 | v3.6.4 — `update-prompts` Gemini-vision subcommand (closes the prompt-drift loop from v3.6.3) | Medium | High | **Next** |
+| 7 | v3.7.0 — Audio strategy split (narration/dialogue/ambient/sfx fields) + `/video sequence narration` TTS subcommand | Large | Very High | Needs brainstorming session before plan |
+| 8 | Replicate video model routing (Kling, Wan, PixVerse) for character consistency | Medium | High | Future |
+| 9 | Backlog cherry-picks — `output_gcs_uri`, `--num-videos`, parallel batch execution, object insertion, regional restrictions awareness | Various | Low-Medium | Cherry-pick as needed |
