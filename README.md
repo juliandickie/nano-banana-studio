@@ -10,7 +10,7 @@ AI image and video generation plugin for Claude Code where **Claude acts as Crea
 Unlike simple API wrappers, Claude interprets your intent, selects domain expertise, constructs optimized prompts, and orchestrates generation for the best possible results — for both still images and video clips with synchronized audio.
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
-[![Version](https://img.shields.io/badge/version-3.6.1-coral)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.6.2-coral)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Origin](https://img.shields.io/badge/origin-AgriciDaniel%2Fbanana--claude-gray)](https://github.com/AgriciDaniel/banana-claude)
 
@@ -38,6 +38,16 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 ## Features
 
 Built on [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude), extended with features driven by production use and research analysis of Google's prompting guidance:
+
+### Sequence Production Polish (v3.6.2)
+
+Five small-but-high-value improvements surfaced by the coffee shop demo. All zero-cost-to-verify (no new VEO calls):
+
+- **`video_sequence.py review` subcommand** — generates `REVIEW-SHEET.md` from a plan + storyboard directory. Each shot block shows the frames inline, the full VEO prompt, the resolved model + cost for the selected `--quality-tier`, and a ✅/⚠️ status badge. Sequence totals and any gaps blocking `generate` appear in the footer. Pure markdown, regenerated on demand, opens in Quick Look. The human approval gate between `storyboard` and `generate`.
+- **5-stage pipeline** (docs rename) — `plan → storyboard → **review** → generate → stitch`. The review stage is now first-class.
+- **`use_veo_interpolation: true` per-shot flag** — shots that cut away to unrelated material (e.g. the coffee shop demo's Shot 1) can set this in plan.json to skip the end frame. The storyboard stage saves $0.08/frame and the generate stage drops `--last-frame`, letting VEO compose its own ending. Empirically validated by Shot 1 of the coffee shop demo last night.
+- **`video_sequence.py storyboard --shots 1,3-5`** — partial regeneration. When one frame needs a redo but the rest are approved, regenerate only the subset instead of paying for the whole storyboard again.
+- **Default output location `~/Documents/nano-banana-sequences/`** — replaces the hidden `/tmp` default. Visible from Finder, works with Quick Look, per-project subdirs (`~/Documents/nano-banana-sequences/<project-slug>/`). The legacy `~/Documents/nanobanana_generated/` path from v3.4.x–v3.6.1 still works for old plans.
 
 ### First+Last Frame Interpolation + Reference Images on Vertex (v3.6.1)
 
@@ -337,7 +347,9 @@ To update: `cd ~/nano-banana-studio && git pull && bash install.sh`
 # Multi-shot sequence with storyboard approval
 /video sequence plan --script "30-second product launch ad" --target 30
 /video sequence storyboard --plan shot-list.json     # preview frames before video
-/video sequence generate --storyboard ~/storyboard/  # generate from approved frames
+/video sequence review --plan shot-list.json --storyboard ~/storyboard/ \
+                       --quality-tier draft          # human approval gate (free)
+/video sequence generate --storyboard ~/storyboard/ --quality-tier draft
 /video sequence stitch --clips ~/clips/ --output final.mp4
 
 # Extend a clip to 30 seconds
@@ -381,8 +393,9 @@ Claude acts as Creative Director for both images and video — selecting domain 
 | `/video generate <idea>` | Text-to-video with full Creative Director pipeline |
 | `/video animate <image> <motion>` | Animate a still image (from /banana or uploaded) |
 | `/video sequence plan --script "..." --target Ns` | Break a script into a shot list |
-| `/video sequence storyboard --plan PATH` | Generate start/end frame pairs for visual approval |
-| `/video sequence generate --storyboard PATH` | Batch-generate clips from approved storyboard frames |
+| `/video sequence storyboard --plan PATH [--shots 1,3-5]` | Generate start/end frame pairs (optionally a subset) |
+| `/video sequence review --plan PATH --storyboard DIR` | Generate REVIEW-SHEET.md — the approval gate |
+| `/video sequence generate --storyboard PATH [--quality-tier draft]` | Batch-generate clips from approved storyboard frames |
 | `/video sequence stitch --clips DIR --output PATH` | Assemble clips into final sequence via FFmpeg |
 | `/video extend <clip> [--to Ns]` | Extend a clip (+7s per hop, max 148s) |
 | `/video stitch <clips...>` | Concat, trim, convert video via FFmpeg |

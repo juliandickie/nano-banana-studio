@@ -28,7 +28,14 @@ from pathlib import Path
 # Constants
 # ---------------------------------------------------------------------------
 
-OUTPUT_BASE = Path.home() / "Documents" / "nanobanana_generated"
+# v3.6.2: sequence output lives under ~/Documents/nano-banana-sequences/
+# so users can Quick Look (Space key) individual shots from Finder. The
+# previous /tmp location was hidden on macOS and forced users to open a
+# terminal to inspect their own output.
+OUTPUT_BASE = Path.home() / "Documents" / "nano-banana-sequences"
+# Kept as a fallback pointer for the legacy location that existed in v3.4.x
+# through v3.6.1 — referenced in docs so users of old plans can find them.
+LEGACY_OUTPUT_BASE = Path.home() / "Documents" / "nanobanana_generated"
 COST_STORYBOARD_FRAME = 0.078   # per 2K frame
 AVG_SHOT_DURATION = 7           # seconds, for shot-count estimation
 MIN_SHOTS = 2
@@ -149,10 +156,71 @@ def _save_plan(path, plan):
     return str(p.resolve())
 
 
-def _default_output(suffix):
-    """Return a timestamped output directory under OUTPUT_BASE."""
+def _default_output(suffix, project_name=None):
+    """Return a timestamped output directory under OUTPUT_BASE.
+
+    v3.6.2: if *project_name* is set, the layout is
+
+        ~/Documents/nano-banana-sequences/<project_name>/<suffix>/
+
+    so all stages of a single project (plan / storyboard / clips /
+    final.mp4) cluster under one directory visible from Finder.
+    If *project_name* is None (e.g. ad-hoc runs without a named
+    project), fall back to the timestamped sibling layout:
+
+        ~/Documents/nano-banana-sequences/sequence_<suffix>_<ts>/
+    """
+    OUTPUT_BASE.mkdir(parents=True, exist_ok=True)
+    if project_name:
+        return str(OUTPUT_BASE / _sanitize_project_name(project_name) / suffix)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     return str(OUTPUT_BASE / f"sequence_{suffix}_{ts}")
+
+
+def _parse_shots_filter(spec):
+    """Parse a `--shots 1,3,5` or `--shots 2-4` filter into a set of ints.
+
+    Returns None when *spec* is None/empty (meaning "all shots").
+    Accepts comma-separated values and hyphen ranges, e.g. "1,3-5,7".
+    Raises _error_exit on garbled input so typos surface immediately.
+    """
+    if not spec:
+        return None
+    result = set()
+    for piece in spec.split(","):
+        piece = piece.strip()
+        if not piece:
+            continue
+        if "-" in piece:
+            try:
+                lo, hi = piece.split("-", 1)
+                lo_i = int(lo.strip())
+                hi_i = int(hi.strip())
+            except ValueError:
+                _error_exit(f"Invalid --shots range '{piece}' (expected e.g. '3-5')")
+            if lo_i > hi_i:
+                _error_exit(f"Invalid --shots range '{piece}' (low > high)")
+            result.update(range(lo_i, hi_i + 1))
+        else:
+            try:
+                result.add(int(piece))
+            except ValueError:
+                _error_exit(f"Invalid --shots value '{piece}' (expected integer or range)")
+    return result or None
+
+
+def _sanitize_project_name(name):
+    """Return a filesystem-safe slug for *name* (kebab-case, alnum only).
+
+    Used by _default_output() to build per-project subdirs. Strips
+    anything that isn't [a-zA-Z0-9._-] and lowercases the rest so
+    plans with display names like "Golden Bean Cafe — 30s" become
+    "golden-bean-cafe-30s" on disk.
+    """
+    import re
+    slug = re.sub(r"[^\w.-]+", "-", name.strip().lower())
+    slug = re.sub(r"-+", "-", slug).strip("-")
+    return slug or "sequence"
 
 
 def _run_script(script_path, args, api_key):
@@ -253,6 +321,13 @@ def cmd_plan(args):
             # sequence-level model/resolution at generate time.
             "model": "",
             "resolution": "",
+            # v3.6.2: when True, the generate stage drops --last-frame and
+            # lets VEO pick its own ending. Useful for shots that cut away
+            # to unrelated material (e.g. establishing → cut to interior)
+            # where pinning a specific end frame over-constrains the motion.
+            # Empirically validated by the coffee shop demo where Shot 1
+            # used first-frame-only for exactly this reason.
+            "use_veo_interpolation": False,
             "status": "planned",
         })
 
@@ -312,13 +387,32 @@ def cmd_storyboard(args):
     frames_generated = 0
     total_cost = 0.0
 
+    # v3.6.2: parse --shots (comma-separated shot numbers) to limit
+    # regeneration to a subset. Empty/None means "all shots". Saves
+    # money when only one frame has a bug but the rest are approved.
+    shots_filter = _parse_shots_filter(getattr(args, "shots", None))
+
     for shot in plan["shots"]:
         num = shot["number"]
 
-        if not shot.get("start_frame_prompt") or not shot.get("end_frame_prompt"):
+        if shots_filter is not None and num not in shots_filter:
+            continue
+
+        if not shot.get("start_frame_prompt"):
             _progress({
                 "skipped": num,
-                "reason": "missing start_frame_prompt or end_frame_prompt",
+                "reason": "missing start_frame_prompt",
+            })
+            continue
+
+        # v3.6.2: shots with use_veo_interpolation=True only need a
+        # start frame. Missing end_frame_prompt is OK for those shots;
+        # required for everything else.
+        use_interpolation = bool(shot.get("use_veo_interpolation"))
+        if not use_interpolation and not shot.get("end_frame_prompt"):
+            _progress({
+                "skipped": num,
+                "reason": "missing end_frame_prompt (set use_veo_interpolation=true to allow first-frame-only)",
             })
             continue
 
@@ -339,30 +433,38 @@ def cmd_storyboard(args):
             _progress({"warning": f"No output for shot {num} start frame"})
             continue
 
-        _progress({"status": "generating_storyboard", "shot": num, "frame": "end"})
+        frames_generated += 1
+        total_cost += COST_STORYBOARD_FRAME
 
-        # Generate end frame
-        end_result = _run_script(generate_script, [
-            "--prompt", shot["end_frame_prompt"],
-            "--aspect-ratio", "16:9",
-            "--resolution", "2K",
-        ], api_key)
+        # Only generate the end frame when the shot isn't using VEO
+        # interpolation. Shots that drop the end frame save ~$0.08/frame
+        # on the storyboard cost too, not just the video cost.
+        end_dst = None
+        if not use_interpolation:
+            _progress({"status": "generating_storyboard", "shot": num, "frame": "end"})
 
-        end_src = end_result.get("path", "")
-        end_dst = str(output_dir / f"end-{num:02d}.png")
-        if end_src and Path(end_src).exists():
-            _copy_file(end_src, end_dst)
-        else:
-            _progress({"warning": f"No output for shot {num} end frame"})
-            continue
+            end_result = _run_script(generate_script, [
+                "--prompt", shot["end_frame_prompt"],
+                "--aspect-ratio", "16:9",
+                "--resolution", "2K",
+            ], api_key)
 
-        frames_generated += 2
-        total_cost += 2 * COST_STORYBOARD_FRAME
+            end_src = end_result.get("path", "")
+            end_dst = str(output_dir / f"end-{num:02d}.png")
+            if end_src and Path(end_src).exists():
+                _copy_file(end_src, end_dst)
+            else:
+                _progress({"warning": f"No output for shot {num} end frame"})
+                continue
+
+            frames_generated += 1
+            total_cost += COST_STORYBOARD_FRAME
 
         results.append({
             "shot": num,
             "start_frame": start_dst,
             "end_frame": end_dst,
+            "use_veo_interpolation": use_interpolation,
         })
 
     # Save storyboard manifest
@@ -438,6 +540,262 @@ def cmd_estimate(args):
 
 
 # ---------------------------------------------------------------------------
+# Subcommand: review (v3.6.2)
+# ---------------------------------------------------------------------------
+
+def _relpath_for_markdown(target, base):
+    """Return a markdown-friendly relative path from *base* to *target*.
+
+    Falls back to the absolute path if *target* is on a different
+    filesystem root than *base* (Python's PurePath.relative_to raises
+    in that case). Always uses forward slashes so the markdown preview
+    renders on macOS + Linux + iOS identically.
+    """
+    try:
+        return str(Path(target).resolve().relative_to(Path(base).resolve())).replace("\\", "/")
+    except ValueError:
+        return str(Path(target).resolve())
+
+
+def _build_review_sheet(plan, storyboard_dir, *, override_model=None):
+    """Return a REVIEW-SHEET.md string for *plan* against *storyboard_dir*.
+
+    Layout per shot (markdown):
+
+        ## Shot N — <type> (Xs)
+        **Mode:** first-and-last-frame | first-frame-only (use_veo_interpolation=true)
+        **Model:** veo-... **Resolution:** 1080p **Cost:** $X.XX
+        **Frames:**
+        ![start](start-01.png) ![end](end-01.png)  ← or just start
+        **Prompt:**
+        > (full VEO prompt text, quoted)
+        **Consistency notes:** ...
+
+    Plus a header block with the sequence totals and a Plan freshness
+    footer noting which frames are present/missing on disk.
+    """
+    from datetime import datetime as _dt  # avoid top-level name clash
+
+    storyboard_path = Path(storyboard_dir).resolve()
+    shots = plan.get("shots", [])
+    shot_count = len(shots)
+    sequence_model = plan.get("model") or DEFAULT_SEQUENCE_MODEL
+    sequence_resolution = plan.get("resolution") or DEFAULT_SEQUENCE_RESOLUTION
+
+    # Totals across the sequence.
+    total_duration = sum(s.get("duration", DEFAULT_SHOT_DURATION) for s in shots)
+    storyboard_cost = 0.0
+    video_cost = 0.0
+    ready = 0
+    missing_frames = []
+
+    lines = []
+    lines.append(f"# {plan.get('script', 'Sequence')} — REVIEW SHEET")
+    lines.append("")
+    lines.append(
+        f"_Generated by `video_sequence.py review` on "
+        f"{_dt.now().strftime('%Y-%m-%d %H:%M:%S')}._ "
+        f"Review all frames and prompts before approving generate pass."
+    )
+    lines.append("")
+    lines.append(
+        f"- **Target duration:** {plan.get('target_duration', total_duration)}s"
+    )
+    lines.append(f"- **Shot count:** {shot_count}")
+    lines.append(f"- **Sequence model (default):** `{sequence_model}`")
+    lines.append(f"- **Sequence resolution (default):** {sequence_resolution}")
+    if override_model:
+        lines.append(f"- **Quality tier override:** `{override_model}`")
+    lines.append(f"- **Storyboard directory:** `{storyboard_path}`")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+
+    for shot in shots:
+        num = shot["number"]
+        duration = shot.get("duration", DEFAULT_SHOT_DURATION)
+        shot_type = shot.get("type", "content") or "content"
+        model = _resolve_shot_model(shot, plan, override=override_model)
+        resolution = shot.get("resolution") or sequence_resolution
+        use_interpolation = bool(shot.get("use_veo_interpolation"))
+        per_shot_cost = _veo_cost(model, duration) or 0.0
+        video_cost += per_shot_cost
+
+        # Frame file presence check.
+        start_file = storyboard_path / f"start-{num:02d}.png"
+        end_file = storyboard_path / f"end-{num:02d}.png"
+        start_present = start_file.exists()
+        end_required = not use_interpolation
+        end_present = end_file.exists() if end_required else None
+
+        # Count storyboard cost only for frames that should exist.
+        storyboard_cost += COST_STORYBOARD_FRAME  # start
+        if end_required:
+            storyboard_cost += COST_STORYBOARD_FRAME
+
+        # Ready status: must have a prompt AND the start frame AND
+        # (if end_required) the end frame.
+        ready_shot = (
+            bool(shot.get("prompt"))
+            and start_present
+            and (not end_required or end_present)
+        )
+        if ready_shot:
+            ready += 1
+        else:
+            reasons = []
+            if not shot.get("prompt"):
+                reasons.append("no prompt")
+            if not start_present:
+                reasons.append("start frame missing")
+            if end_required and not end_present:
+                reasons.append("end frame missing")
+            missing_frames.append((num, reasons))
+
+        mode_label = (
+            "first-frame-only (VEO interpolates ending)"
+            if use_interpolation
+            else "first-and-last-frame interpolation"
+        )
+        status_badge = "✅" if ready_shot else "⚠️"
+
+        lines.append(
+            f"## Shot {num} — {shot_type} ({duration}s) {status_badge}"
+        )
+        lines.append("")
+        lines.append(
+            f"**Mode:** {mode_label}  "
+            f"**Model:** `{model}`  "
+            f"**Resolution:** {resolution}  "
+            f"**Cost:** ${per_shot_cost:.2f}"
+        )
+        lines.append("")
+
+        # Frames
+        lines.append("**Frames:**")
+        lines.append("")
+        start_md_path = _relpath_for_markdown(start_file, storyboard_path)
+        if start_present:
+            lines.append(f"![start-{num:02d}]({start_md_path}) <!-- start frame -->")
+        else:
+            lines.append(f"_⚠️ start frame missing at_ `{start_md_path}`")
+        if end_required:
+            end_md_path = _relpath_for_markdown(end_file, storyboard_path)
+            if end_present:
+                lines.append(f"![end-{num:02d}]({end_md_path}) <!-- end frame -->")
+            else:
+                lines.append(f"_⚠️ end frame missing at_ `{end_md_path}`")
+        else:
+            lines.append("_(no end frame — VEO interpolates ending)_")
+        lines.append("")
+
+        # Prompt
+        prompt = shot.get("prompt", "").strip()
+        if prompt:
+            lines.append("**VEO prompt:**")
+            lines.append("")
+            for pline in prompt.splitlines() or [""]:
+                lines.append(f"> {pline}" if pline else ">")
+            lines.append("")
+        else:
+            lines.append("**VEO prompt:** _⚠️ empty — shot will be skipped at generate time_")
+            lines.append("")
+
+        # Storyboard prompts (optional, shown for the approval gate)
+        sfp = shot.get("start_frame_prompt", "").strip()
+        efp = shot.get("end_frame_prompt", "").strip()
+        if sfp or efp:
+            lines.append("<details><summary>Storyboard prompts</summary>")
+            lines.append("")
+            if sfp:
+                lines.append("**Start frame prompt:**")
+                lines.append("")
+                lines.append(f"```\n{sfp}\n```")
+                lines.append("")
+            if efp and end_required:
+                lines.append("**End frame prompt:**")
+                lines.append("")
+                lines.append(f"```\n{efp}\n```")
+                lines.append("")
+            lines.append("</details>")
+            lines.append("")
+
+        # Consistency notes
+        notes = shot.get("consistency_notes", "").strip()
+        if notes:
+            lines.append(f"**Consistency notes:** {notes}")
+            lines.append("")
+
+        lines.append("---")
+        lines.append("")
+
+    # Summary footer
+    lines.append("## Sequence totals")
+    lines.append("")
+    lines.append(f"- **Total duration:** {total_duration}s")
+    lines.append(f"- **Shots ready:** {ready} / {shot_count}")
+    lines.append(f"- **Storyboard cost:** ${storyboard_cost:.2f}")
+    lines.append(f"- **Video cost (at selected models):** ${video_cost:.2f}")
+    lines.append(f"- **Total cost:** ${storyboard_cost + video_cost:.2f}")
+    lines.append("")
+    if missing_frames:
+        lines.append("### ⚠️ Gaps blocking generate")
+        lines.append("")
+        for num, reasons in missing_frames:
+            lines.append(f"- Shot {num}: {', '.join(reasons)}")
+        lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append(
+        "_This review sheet is the approval gate between `storyboard` and "
+        "`generate`. Once every shot shows ✅ above, run "
+        "`video_sequence.py generate --storyboard <dir>` to kick off the "
+        "clip generation pass. Use `--quality-tier draft` for the Lite "
+        "first pass if you want to see motion before committing to the "
+        "final Standard render._"
+    )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def cmd_review(args):
+    """Generate REVIEW-SHEET.md for an existing plan + storyboard dir.
+
+    The review sheet is the human-readable artifact that interleaves
+    each shot's storyboard frames, VEO prompt, cost estimate, and
+    parameters into a single markdown file you can open in Quick Look
+    or a markdown preview. Intended to be the approval gate between
+    the `storyboard` and `generate` stages of the pipeline.
+
+    v3.6.2 ships the review sheet as a stand-alone subcommand. It
+    doesn't block `generate` yet — a `--skip-review` / mandatory-gate
+    integration is v3.6.3 scope. For now, running `review` writes the
+    file and leaves enforcement to human discipline.
+    """
+    plan = _load_plan(args.plan)
+    storyboard_dir = Path(args.storyboard)
+    if not storyboard_dir.is_dir():
+        _error_exit(f"Storyboard directory not found: {storyboard_dir}")
+
+    override = QUALITY_TIER_MODELS.get(getattr(args, "quality_tier", None))
+
+    content = _build_review_sheet(plan, storyboard_dir, override_model=override)
+
+    output_path = Path(args.output) if args.output else storyboard_dir / "REVIEW-SHEET.md"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        f.write(content)
+
+    # Emit a JSON status + the path so shell callers can open it.
+    print(json.dumps({
+        "review_sheet": str(output_path.resolve()),
+        "shots": len(plan.get("shots", [])),
+        "storyboard_dir": str(storyboard_dir.resolve()),
+        "plan_path": str(Path(args.plan).resolve()),
+    }, indent=2))
+
+
+# ---------------------------------------------------------------------------
 # Subcommand: generate
 # ---------------------------------------------------------------------------
 
@@ -489,8 +847,16 @@ def cmd_generate(args):
         start_frame = storyboard_dir / f"start-{num:02d}.png"
         end_frame = storyboard_dir / f"end-{num:02d}.png"
 
-        if not start_frame.exists() or not end_frame.exists():
-            _progress({"skipped": num, "reason": "missing storyboard frames"})
+        # v3.6.2: `use_veo_interpolation: true` on the shot means VEO
+        # picks its own ending. We still require a start frame but the
+        # end frame is optional (and dropped from the generate call).
+        use_interpolation = bool(shot.get("use_veo_interpolation"))
+
+        if not start_frame.exists():
+            _progress({"skipped": num, "reason": "missing start frame"})
+            continue
+        if not use_interpolation and not end_frame.exists():
+            _progress({"skipped": num, "reason": "missing end frame (set use_veo_interpolation=true to allow first-frame-only)"})
             continue
 
         duration = shot.get("duration", DEFAULT_SHOT_DURATION)
@@ -503,6 +869,7 @@ def cmd_generate(args):
             "duration": duration,
             "model": model,
             "resolution": resolution,
+            "mode": "first-frame-only" if use_interpolation else "first-and-last-frame",
         })
 
         cmd_args = [
@@ -512,8 +879,9 @@ def cmd_generate(args):
             "--aspect-ratio", "16:9",
             "--resolution", resolution,
             "--first-frame", str(start_frame),
-            "--last-frame", str(end_frame),
         ]
+        if not use_interpolation:
+            cmd_args.extend(["--last-frame", str(end_frame)])
 
         result = _run_script(video_script, cmd_args, api_key)
 
@@ -669,6 +1037,15 @@ def main():
     p_sb.add_argument("--plan", required=True, help="Path to shot-list.json")
     p_sb.add_argument("--api-key", default=None, help="Google AI API key")
     p_sb.add_argument("--output", default=None, help="Output directory for frames")
+    p_sb.add_argument(
+        "--shots", default=None,
+        help=(
+            "Comma-separated shot numbers (or ranges) to regenerate, "
+            "e.g. '1,3,5' or '2-4' or '1,3-5,7'. Default: regenerate "
+            "all shots. Use to iterate on a single frame without paying "
+            "for the whole storyboard again."
+        ),
+    )
 
     # -- estimate --
     p_est = subparsers.add_parser("estimate", help="Print cost estimate from plan")
@@ -702,6 +1079,30 @@ def main():
         ),
     )
 
+    # -- review (v3.6.2) --
+    p_rev = subparsers.add_parser(
+        "review",
+        help=(
+            "Generate REVIEW-SHEET.md interleaving each shot's frames, "
+            "VEO prompt, cost, and parameters. The human approval gate "
+            "between storyboard and generate."
+        ),
+    )
+    p_rev.add_argument("--plan", required=True, help="Path to shot-list.json")
+    p_rev.add_argument(
+        "--storyboard", required=True,
+        help="Storyboard directory (containing start-NN.png / end-NN.png frames)",
+    )
+    p_rev.add_argument(
+        "--output", default=None,
+        help="Path for the generated REVIEW-SHEET.md (default: <storyboard>/REVIEW-SHEET.md)",
+    )
+    p_rev.add_argument(
+        "--quality-tier", choices=["draft", "fast", "standard", "lite", "legacy"],
+        default=None,
+        help="Preview the cost breakdown at this tier (matches generate --quality-tier)",
+    )
+
     # -- stitch --
     p_stitch = subparsers.add_parser(
         "stitch", help="Concatenate clips into final video with FFmpeg",
@@ -715,6 +1116,7 @@ def main():
         "plan": cmd_plan,
         "storyboard": cmd_storyboard,
         "estimate": cmd_estimate,
+        "review": cmd_review,
         "generate": cmd_generate,
         "stitch": cmd_stitch,
     }

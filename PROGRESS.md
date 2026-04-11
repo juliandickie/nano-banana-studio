@@ -7,7 +7,7 @@
 
 - **Repo:** https://github.com/juliandickie/nano-banana-studio
 - **Origin:** https://github.com/AgriciDaniel/banana-claude (forked at v1.4.1, detached at v2.1.0)
-- **Current version:** 3.6.1
+- **Current version:** 3.6.2
 - **Local path:** `/Users/juliandickie/code/nano-banana-pro/banana-claude/`
 - **Plugin layout:** `.claude-plugin/` + `skills/banana/` (image) + `skills/video/` (video) + `agents/`
 
@@ -229,6 +229,29 @@ Both keys stored in `~/.banana/config.json`. Scripts check: CLI flag → env var
 **Why same-day release:** v3.6.0's deferred-to-v3.6.1 errors blocked the coffee shop demo. Rather than run the demo with a degraded Option A (first-frame only, dropping end-frame guidance), the user chose Option C: fix the code first. The Google docs had the exact field names; all it took was implementation + verification.
 
 **Total v3.6.1 spend:** $0.20 (first+last frame smoke test).
+
+### Session 10 (2026-04-11, same day as v3.6.0 + v3.6.1)
+**Scope:** v3.6.2 — Sequence production polish (5 items from the coffee shop demo gaps)
+
+1. **Context:** Immediately after running the coffee shop demo at Lite draft ($1.50, 4 shots generated + stitched into a 30-second final-draft.mp4), the user pointed at the v3.6.1 deferred-sequence-improvements bucket in ROADMAP and asked to ship more of it under the same 3.6.x series. 20+ items in the bucket — too much for one session — so I proposed a focused 5-item subset that delivers the gaps the demo actually hit, and deferred the design-heavy items (audio strategy split, narration TTS, plan hash tracking, mandatory gate enforcement) to later releases where they deserve proper plans.
+2. **5 items shipped:**
+   - Default output location `/tmp` → `~/Documents/nano-banana-sequences/<project>/` (visible from Finder, Quick Look works)
+   - `use_veo_interpolation: true` per-shot flag in plan.json (skips end frame for cutaway shots, saves $0.08/frame on storyboard + drops `--last-frame` at generate time)
+   - `video_sequence.py storyboard --shots 1,3-5` partial regeneration (iterate on one frame without rebuilding the whole storyboard)
+   - `video_sequence.py review` subcommand — generates `REVIEW-SHEET.md` interleaving frames + prompts + costs + ✅/⚠️ status per shot (this was the hand-written artifact from a previous coffee shop session, now first-class)
+   - 5-stage pipeline rename: `plan → storyboard → **review** → generate → stitch`
+3. **Code changes** (~320 lines net):
+   - `video_sequence.py`: new `_parse_shots_filter`, `_sanitize_project_name`, `_relpath_for_markdown`, `_build_review_sheet`, `cmd_review` functions plus the `--shots` flag wiring in `cmd_storyboard`, the `use_veo_interpolation` branching in both `cmd_storyboard` and `cmd_generate`, and the argparse subparser for the new `review` subcommand. Default output path updated in `_default_output`.
+   - `video-sequences.md`: "The 4-Stage Pipeline" → "The 5-Stage Pipeline" with a new Stage 3 (Review) block.
+   - `SKILL.md`: Commands table, sequence narrative, partial iteration note.
+   - `README.md`: Commands table, Quick Start example, new "Sequence Production Polish (v3.6.2)" section in What's New.
+   - `CHANGELOG.md`: `[3.6.2]` section with Added / Changed / Docs / Verification / Deferred subsections.
+4. **Zero new VEO spend.** All testing used fixtures:
+   - `_parse_shots_filter` unit tests covering all 4 supported syntaxes
+   - Real-data test: `video_sequence.py review` against the coffee shop demo plan + storyboard dir from session 9, with filename symlinks (the demo's hand-built naming diverged from the pipeline convention) and Shot 1 marked `use_veo_interpolation=true`. The review sheet correctly reported 4/4 ready, $0.55 storyboard cost (one less frame because of Shot 1's flag), $1.50 video cost, and Shot 1's block correctly rendered "first-frame-only (VEO interpolates ending)".
+5. **What's explicitly NOT in v3.6.2** — documented in the CHANGELOG "Not in scope" section: plan hash tracking, the `update-prompts` Gemini-vision subcommand, the review-as-mandatory-gate enforcement, the audio strategy split (narration/dialogue/ambient/sfx), the `/video sequence narration` TTS subcommand, shot-type semantic effects, `/banana` skill improvements, and the v3.6.0 research batch. Each deserves its own dedicated release.
+
+**Total v3.6.2 spend:** $0.00 VEO (fixtures only). Full v3.6.x series spend today: $2.85 ($0.75 research + $0.20 v3.6.0 commit 2 smoke + $0.20 v3.6.0 commit 5 smoke + $0.20 v3.6.1 first+last frame smoke + $1.50 coffee shop demo + $0.00 v3.6.2).
 
 ## Expansion Roadmap
 

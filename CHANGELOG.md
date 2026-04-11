@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.2] - 2026-04-11
+
+### Headline
+
+**Sequence production polish.** Five small-but-high-value improvements surfaced by the coffee shop demo that shipped earlier today — the ones you notice the moment you run a real 4-shot sequence end-to-end. Zero new VEO API calls to verify; everything tested against fixture plans.
+
+### Added
+
+- **`video_sequence.py review` subcommand** — generates `REVIEW-SHEET.md` from a plan + storyboard directory. Each shot block shows frames inline, the full VEO prompt, resolved model + cost for the selected `--quality-tier`, and a ✅/⚠️ status badge. Sequence totals and any gaps blocking `generate` appear in the footer. Pure markdown, regenerated on demand, opens in Quick Look. This is the human approval gate between `storyboard` and `generate` that was previously an undocumented hand-written step. v3.6.2 ships it as a standalone subcommand; a `--skip-review` mandatory-gate integration is v3.6.3 scope.
+- **5-stage pipeline**: `plan → storyboard → **review** → generate → stitch`. The review stage is now first-class in the docs, the SKILL.md routing table, the README Commands table, and the Quick Start example.
+- **`use_veo_interpolation: true` per-shot flag in plan.json** — shots that should let VEO pick their own ending (establishing shots cutting away to unrelated material, transitions, etc.) can set this. The storyboard stage skips the end frame for those shots (saves $0.08/frame) and the generate stage drops `--last-frame` from the VEO call. Empirically validated by the coffee shop demo's Shot 1 where we used first-frame-only to let VEO execute a dramatic push-in. The field defaults to False so existing plans keep the strict first+last frame behavior.
+- **`video_sequence.py storyboard --shots 1,3-5` partial regeneration** — new `--shots` flag accepts a comma-separated list of shot numbers and/or hyphen ranges. When set, the storyboard stage only regenerates the selected shots instead of rebuilding the whole storyboard. Critical for iteration when one frame has a bug but others are approved.
+- **`_parse_shots_filter()` helper** in `video_sequence.py` — accepts `"1,3,5"`, `"2-4"`, `"1,3-5,7"`, or any mix. Validates and fails fast with a clear error on garbled input.
+- **`_sanitize_project_name()` helper** — builds filesystem-safe slugs for per-project output subdirs. `"Golden Bean Cafe — 30s"` becomes `"golden-bean-cafe-30s"`.
+
+### Changed
+
+- **Default output location** is now `~/Documents/nano-banana-sequences/` (was `~/Documents/nanobanana_generated/`). Visible from Finder, works with Quick Look (Space key), per-project subdirs when a project name is provided. `LEGACY_OUTPUT_BASE` still points at the old path for documentation continuity.
+- **`_default_output(suffix, project_name=None)`** now accepts an optional `project_name` argument. With a project name, the layout becomes `~/Documents/nano-banana-sequences/<project-slug>/<suffix>/` so all stages of one project cluster together.
+- **Storyboard stage cost accounting** — shots with `use_veo_interpolation=true` only charge for one frame ($0.08) instead of two ($0.16). The estimate subcommand and the review sheet both reflect this.
+- **`cmd_storyboard()` missing-frame error messages** now distinguish "missing start frame" (always fatal) from "missing end frame" (fatal only when `use_veo_interpolation=false`). The error text also points users at the flag they can set to unblock themselves.
+
+### Docs
+
+- **`video-sequences.md`** section "The 4-Stage Pipeline" renamed to "The 5-Stage Pipeline" with a new Stage 3 (Review) block describing the review subcommand, its cost-free nature, and the decision not to hard-enforce the gate in v3.6.2.
+- **`SKILL.md`** Commands table and narrative section updated with the review subcommand, partial regeneration flag, and `use_veo_interpolation` option.
+- **`README.md`** Commands table, Quick Start example, and What's New section all updated.
+
+### Verification
+
+- All 4 video scripts still compile clean.
+- `_parse_shots_filter` unit test covers the four supported syntaxes (None, `"1,3,5"`, `"2-4"`, `"1,3-5,7"`).
+- Real-data test: ran `video_sequence.py review --plan /tmp/coffee-shop-demo/plan.json --storyboard /tmp/coffee-shop-demo/storyboard --quality-tier draft` against the coffee shop demo fixture from earlier today. With Shot 1 marked `use_veo_interpolation=true` and filename symlinks in place, the review sheet reports 4/4 ready, $0.55 storyboard cost, $1.50 video cost (Lite draft), $2.05 total, and the Shot 1 block correctly shows "first-frame-only (VEO interpolates ending)" with no end-frame slot.
+- **Zero new VEO spend this release** — all testing used fixtures from earlier v3.6.1 work.
+
+### Not in scope for v3.6.2 (deferred to v3.6.3+)
+
+Everything else in the original v3.6.1 deferred bucket: plan hash tracking with SHA-256, the `update-prompts` Gemini-vision subcommand, the review-as-mandatory-gate enforcement with `--skip-review`, the audio strategy split (narration/dialogue/ambient/sfx fields), the `/video sequence narration` TTS subcommand, shot-type semantic effects, `/banana` skill improvements (`--reference-image` flag on `generate.py`, conservatism bias docs), and the v3.6.0-research batch (`--num-videos`, object insertion, parallel execution, `output_gcs_uri`, regional detection, 1080p Lite pricing verification). These items need their own dedicated releases with proper plans — especially the audio strategy split which is a real product decision, not a code change.
+
 ## [3.6.1] - 2026-04-11
 
 ### Headline

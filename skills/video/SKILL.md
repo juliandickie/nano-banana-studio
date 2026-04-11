@@ -24,8 +24,9 @@ argument-hint: "[generate|animate|sequence|extend|stitch|cost|status] <idea, pat
 | `/video generate <idea>` | Text-to-video with full Creative Director pipeline |
 | `/video animate <image> <motion>` | Animate a still image (from /banana or uploaded) |
 | `/video sequence plan --script "..." --target Ns` | Break a script into a shot list |
-| `/video sequence storyboard --plan PATH` | Generate start/end frame pairs for approval |
-| `/video sequence generate --storyboard PATH` | Batch-generate clips from approved frames |
+| `/video sequence storyboard --plan PATH [--shots 1,3-5]` | Generate start/end frame pairs (optionally a subset) |
+| `/video sequence review --plan PATH --storyboard DIR` | Generate REVIEW-SHEET.md — the approval gate |
+| `/video sequence generate --storyboard PATH [--quality-tier draft]` | Batch-generate clips from approved frames |
 | `/video sequence stitch --clips DIR --output PATH` | Assemble clips into final sequence |
 | `/video extend <clip> [--to Ns]` | Extend a clip (+7s per hop, max 148s) |
 | `/video stitch <clips...>` | Concatenate arbitrary clips via FFmpeg |
@@ -139,9 +140,11 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/video_generate.py --prompt "slow orbit revea
 
 ## /video sequence (Multi-Shot Production)
 
-For sequences longer than 8 seconds: plan → storyboard (preview) → generate → stitch. See `references/video-sequences.md`.
+For sequences longer than 8 seconds: **plan → storyboard → review → generate → stitch**. See `references/video-sequences.md`.
 
-The storyboard stage generates still frame pairs using `/banana generate` for visual approval before committing to video generation. This saves costs ($0.08/frame vs $1.20+/clip).
+The storyboard stage generates still frame pairs using `/banana generate` for visual approval before committing to video generation. This saves costs ($0.08/frame vs $1.20+/clip). v3.6.2 adds a dedicated **review** stage: `video_sequence.py review` produces a `REVIEW-SHEET.md` that interleaves each shot's frames, VEO prompt, cost estimate, and parameters into a single markdown file you can open in Quick Look. It's the human approval gate before any VEO spend.
+
+**Partial iteration:** if one frame needs a redo but the rest are approved, use `video_sequence.py storyboard --shots 3` (or `--shots 1,3-5`) to regenerate only a subset. Shots with `use_veo_interpolation: true` in plan.json skip the end frame entirely — useful for establishing shots that cut away to unrelated material.
 
 ## /video extend
 

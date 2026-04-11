@@ -77,7 +77,14 @@ subtly or dramatically shift. The consistency rules below (identity
 lock, wardrobe lock, reference images) are **mitigations, not
 solutions** — see the Known Limitations section of `veo-models.md`.
 
-## The 4-Stage Pipeline
+## The 5-Stage Pipeline
+
+`plan → storyboard → review → generate → stitch`
+
+v3.6.2 promoted "review" from an implicit human step to a first-class
+pipeline stage with its own subcommand. The stage order matches the
+cost gradient: each stage gets more expensive, so the approval gate
+lives at the last cheap moment before committing to VEO spend.
 
 ### Stage 1: Shot List (Free)
 
@@ -86,7 +93,7 @@ Claude breaks the user's script/concept into individual shots:
 python3 ${CLAUDE_SKILL_DIR}/scripts/video_sequence.py plan --script "30-second product launch ad" --target 30
 ```
 
-Each shot specifies: number, duration, camera, subject, action, setting, audio, consistency anchors, and prompts for start/end frame generation.
+Each shot specifies: number, duration, camera, subject, action, setting, audio, consistency anchors, and prompts for start/end frame generation. Shots that should let VEO pick their own ending (e.g. establishing shots that cut away) can set `"use_veo_interpolation": true` — the storyboard stage will skip generating an end frame for those shots and the generate stage will drop `--last-frame` from the VEO call.
 
 ### Stage 2: Storyboard (Cheap — image cost only)
 
@@ -97,20 +104,46 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/video_sequence.py storyboard --plan shot-lis
 
 Uses `/banana`'s `generate.py` (cross-skill) to produce still frames at ~$0.08 each. User reviews the visual storyboard and approves or requests changes before committing to video.
 
-**Cost:** N shots x 2 frames x $0.078 = ~$0.80 for 5 shots
+**v3.6.2 partial regeneration:** use `--shots 1,3-5` to regenerate only a subset of frames when one shot needs iteration but the rest are approved.
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/video_sequence.py storyboard \
+    --plan shot-list.json --shots 3
+# Only regenerates shot 3's start and (optionally) end frames.
+```
 
-### Stage 3: Video Generation (Expensive — VEO cost)
+**Cost:** N shots × 2 frames × $0.078 ≈ $0.80 for 5 shots. Shots with `use_veo_interpolation=true` only need the start frame, saving $0.08 each.
+
+### Stage 3: Review (Free — the approval gate)
+
+v3.6.2 adds a dedicated review subcommand that generates a
+`REVIEW-SHEET.md` interleaving each shot's frames, VEO prompt, cost
+estimate, and parameters into a single markdown file:
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/video_sequence.py review \
+    --plan shot-list.json \
+    --storyboard ~/sequences/my-project/storyboard \
+    --quality-tier draft
+```
+
+The review sheet is written to `<storyboard>/REVIEW-SHEET.md` by default. Open it in Quick Look (Space key in Finder) or any markdown preview to see the full sequence at a glance: each shot block shows the start (and end, if not interpolating) frame inline, the full VEO prompt, the resolved model and cost for the selected `--quality-tier`, and a ✅/⚠️ status badge indicating whether the shot is ready to generate. The footer shows sequence totals and lists any gaps that would block `generate`.
+
+This is a pure markdown artifact — no VEO calls, no Gemini calls, no cost. It's regenerated on demand so you can review, tweak the plan, and re-run as many times as you want before committing to VEO spend.
+
+v3.6.2 does NOT enforce review as a hard gate before `generate` — running `generate` without first reviewing is still allowed. Enforcement is a v3.6.3 scope item and will add a plan-hash check plus a `--skip-review` override for CI.
+
+### Stage 4: Video Generation (Expensive — VEO cost)
 
 Generate video clips from approved storyboard frames:
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/video_sequence.py generate --storyboard ~/storyboard/
+python3 ${CLAUDE_SKILL_DIR}/scripts/video_sequence.py generate --storyboard ~/storyboard/ --quality-tier draft
 ```
 
-Each shot uses its start frame as `--first-frame` and end frame as `--last-frame` for VEO, ensuring frame-perfect continuity between shots.
+Each shot uses its start frame as `--first-frame`. If `use_veo_interpolation` is not set on the shot, the end frame is also passed as `--last-frame` for frame-perfect continuity. Use `--quality-tier draft` for the Lite-tier first pass; re-run with `--quality-tier standard` after reviewing the draft.
 
-**Cost:** N shots x $1.20 = ~$6.00 for 5 shots
+**Cost (at Lite draft):** N shots × $0.40 = ~$1.60 for 4 shots of 8s each. At Standard: ~$12.80.
 
-### Stage 4: Assembly
+### Stage 5: Stitch (Assembly)
 
 Concatenate clips into final sequence:
 ```bash
