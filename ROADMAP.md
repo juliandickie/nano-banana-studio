@@ -235,16 +235,29 @@ These worked well and should be documented in the video-sequences reference so f
 
 The strategic reset session included six planned empirical spikes. Spikes 1, 2, 3 (audio architecture) shipped in v3.7.1. Spike 4 (Lyria + 5-way music bake-off) shipped in v3.7.2. Spike 6 (banned-keywords re-validation) shipped in v3.7.3 — findings were surprising on both axes: the banned keywords turned out to be useless-but-not-harmful, AND the "use prestigious anchors instead" replacement turned out to be actively harmful (publication-format names render literal magazine covers on Gemini 3.1). One spike remains deferred:
 
-- **Spike 5 — Character consistency bake-off (~$15-20)** — generates 4-shot character sequences on VEO 3.1 Lite, Kling 2.6 (Replicate), and Runway Gen-4 (Replicate) for direct comparison. Informs whether v3.8.0 multi-provider abstraction is urgent or deferred. Targets v3.8.0.
+- **Spike 5 — Character consistency bake-off (~$15-25, expanded candidate pool)** — generates 4-shot character sequences on VEO 3.1 Lite plus a rotating subset of the Replicate candidates now pinned in `dev-docs/`. As of session 15, the candidate pool is: **Kling 3.0 Omni** (multi-shot + native audio + reference images — closest structural match to `video_sequence.py`), **Kling 3.0 Video** (same multi-shot, no reference), **Kling 2.5 Turbo Pro** (first+last frame interpolation, cheaper draft tier), **Runway Gen-4.5** (state-of-the-art motion quality per marketing), **xAI Grok Imagine** (video editing mode), **PrunaAI P Video** (draft mode + audio-to-video — structural match for `--quality-tier draft`), and **ByteDance Seedance 2.0** (original candidate from v3.7.2 planning). Informs whether v3.8.0 multi-provider abstraction is urgent or defer-until-needed. Expanded budget of $25 recommended given the 7-candidate pool; consider a 2-phase spike where the first $5-8 narrows to 2-3 finalists before the second phase runs a controlled side-by-side. Targets v3.8.0.
 
-### Future research backlog (post-spike-6)
+### Future research backlog (post-v3.7.4)
 
-These items came up during sessions 12 + 13 but don't have committed target releases yet:
+Items that came up during sessions 12–15 but don't have committed target releases yet. Most of the v3.7.1/v3.7.2 polish debt from the earlier version of this list (multi-call Lyria, stereo mix, auto-WPM, IVC) shipped in v3.7.4 — this list is now forward-looking rather than known-issues.
 
+**Audio research:**
 - **Lyria-vs-ElevenLabs head-to-head genre bake-off**. v3.7.2's spike 4 tested both providers with a single "cinematic nature documentary" prompt where Lyria won decisively. The user noted that **different genres might surface different model strengths** and would be worth a dedicated test: electronic, classical, folk, ambient, jazz, hip-hop, etc. Each genre × each provider = ~12 test calls = ~$1-2 cost. Could ship as a v3.7.x research release that updates `audio-pipeline.md` with per-genre provider recommendations. Targets a v3.7.x research release.
-- **Multi-call Lyria for music longer than 32.768s**. Lyria has a hard 32.768s clip cap. For longer videos, v3.7.x should auto-loop Lyria calls and crossfade them via FFmpeg. Or fall back to ElevenLabs which has a configurable duration. Targets v3.7.x audio polish.
-- **Stereo output in FFmpeg mix** — v3.7.1 known polish issue, currently mono. Workaround: route narration through `pan=stereo|c0=c0|c1=c0` before mixing. Should be a small surgical patch.
-- **Auto-measured per-voice WPM** — currently hardcoded for the line-length calibration logic. Would auto-measure on first use of a new voice and store in `custom_voices.{role}.wpm`.
-- **Voice cloning subcommands** (Instant Voice Clone + Professional Voice Clone). Schema field `source_type: "cloned"` is reserved.
 
-Total deferred spike budget: ~$17-22. Plus ~$1-2 for the future genre bake-off if the user approves it.
+**Audio polish still deferred:**
+- **Professional Voice Cloning (PVC) subcommand** — separate endpoint family (`/v1/voices/pvc/*`), needs 30+ minutes of audio + Creator+ plan + multi-step fine-tuning workflow. Reserved under the existing `source_type: "cloned"` enum as a future `design_method: "pvc"`. Targets v3.7.5+.
+- **Lyria long-music cost warning** — when `generate_music_lyria_extended()` would issue more than 5 calls (~$0.30), emit a pre-flight confirmation or require a `--confirm-extended-cost` flag. Tiny polish item.
+- **Strip-list extensibility via config file** — `NAMED_CREATOR_TRIGGERS` is currently hardcoded. A future release could move it to `~/.banana/config.json` so users can add their own terms without editing the script.
+- **"in the style of X" compound-phrase stripping** — when `strip_named_creators()` removes "Hans Zimmer" from "in the style of Hans Zimmer, warm strings", it leaves a dangling "in the style of , warm strings". The music providers ignore it, but a future pass could detect and strip the containing phrase as a unit.
+
+**Orthogonal video capabilities surfaced in session 15 dev-docs additions:**
+
+Two model cards added to `../dev-docs/` in session 15 solve jobs the plugin currently cannot do at all. They're NOT spike 5 bake-off candidates (which are general text-to-video alternatives to VEO) — they're new product surfaces. See the workspace `CLAUDE.md` "Specialised video capabilities" section for the full details.
+
+- **`/video animate-character` via ByteDance DreamActor M2.0** — motion transfer. Input: one character image + one driving video. Output: the character animated with the driving video's motion, facial expressions, and lip movements. Works on humans, cartoons, animals, non-humans. Up to 30s driving video. **The closest the plugin has ever come to consistent brand-character animation across scenes.** Could ship as a new subcommand that takes a banana-generated character reference + a VEO-generated motion template and produces a character-consistent animated clip. Targets a v3.8.x or v3.9.0 research release depending on whether the v3.8.0 spike 5 shows that general-purpose video models have closed the character-consistency gap first. If they haven't, DreamActor becomes the dedicated path.
+- **`/video lipsync` via VEED Fabric 1.0** — audio-driven talking head. Input: one face image + one audio file (ANY audio — including an ElevenLabs TTS output from the v3.7.x audio pipeline). Output: the face lip-synced to the audio. This is structurally different from VEO's "person speaking" mode: VEO generates the speech internally and can't accept external audio, so there's no way to have a VEO character speak an ElevenLabs voice-designed narrator line. Fabric closes that loop. **Integration sketch:** `audio_pipeline.py narrate --voice brand_voice --text "..."` → Fabric with a banana-generated face → ship-ready talking-head reel. Targets a v3.8.x research release.
+
+**v3.8.0 planning:**
+- Primary spike is still **spike 5** (character consistency bake-off) above. Candidate pool expanded from 3 to 7 generic t2v models as of session 15. Recommended 2-phase approach: first $5-8 narrows to 2-3 finalists, second phase runs the controlled side-by-side.
+
+Total deferred spike budget: ~$25-30 (spike 5 at $15-25, optional genre bake-off at $1-2, DreamActor + Fabric smoke tests at ~$1 each).
