@@ -210,7 +210,7 @@ Current: ~200 lines (lean orchestrator pattern). If approaching 300+, extract to
 
 ### 9. Memory File
 
-Update `~/.claude/projects/.../memory/project_banana_claude_workflow.md` if:
+Update `~/.claude/projects/.../memory/project_nano_banana_studio_workflow.md` if:
 - Version changed
 - New key constraints added
 - Architecture changed (e.g., new skill files, new reference files)

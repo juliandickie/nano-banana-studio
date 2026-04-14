@@ -81,15 +81,15 @@ Keys never leave the user's machine.
 
 For first-time users, provide this quick start:
 
-> **What is Banana Claude?**
+> **What is Nano Banana Studio?**
 > An AI image generation skill for Claude Code. You describe what you want,
 > and Claude acts as Creative Director -- interpreting intent, selecting style,
 > and generating images using Google's Gemini models.
 >
 > **Install in 3 steps:**
 > ```bash
-> git clone https://github.com/juliandickie/nano-banana-studio.git ~/banana-claude
-> claude --plugin-dir ~/banana-claude
+> git clone https://github.com/juliandickie/nano-banana-studio.git ~/nano-banana-studio
+> claude --plugin-dir ~/nano-banana-studio
 > # Then in Claude Code: /banana setup
 > ```
 >
@@ -104,10 +104,10 @@ Copy-paste this message:
 > 1. Get a free API key: https://aistudio.google.com/apikey
 > 2. Run:
 > ```bash
-> git clone https://github.com/juliandickie/nano-banana-studio.git ~/banana-claude
-> claude --plugin-dir ~/banana-claude
+> git clone https://github.com/juliandickie/nano-banana-studio.git ~/nano-banana-studio
+> claude --plugin-dir ~/nano-banana-studio
 > ```
 > 3. In Claude Code: `/banana setup` (paste your API key)
 > 4. Try it: `/banana generate "a sunset over mountains"`
 >
-> To update: `cd ~/banana-claude && git pull` then `/reload-plugins`
+> To update: `cd ~/nano-banana-studio && git pull` then `/reload-plugins`
