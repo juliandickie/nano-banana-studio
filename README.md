@@ -12,10 +12,6 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
 [![Version](https://img.shields.io/badge/version-3.8.4-coral)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Origin](https://img.shields.io/badge/origin-AgriciDaniel%2Fbanana--claude-gray)](https://github.com/AgriciDaniel/banana-claude)
-
-> **Blog:** [See banana-claude in action](https://agricidaniel.com/blog/banana-claude-ai-image-generation)
-
 <details>
 <summary>Table of Contents</summary>
 
@@ -28,7 +24,6 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 - [Domain Modes](#domain-modes) (Image + Video)
 - [Models](#models) (Gemini + VEO)
 - [Architecture](#architecture)
-- [Migrating from banana-claude](#migrating-from-banana-claude)
 - [Requirements](#requirements)
 - [Changelog](CHANGELOG.md)
 - [License](#license)
@@ -37,7 +32,7 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 
 ## Features
 
-Built on [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude), extended with features driven by production use and research analysis of Google's prompting guidance:
+Features driven by production use and research analysis of Google's prompting guidance:
 
 ### ElevenLabs Music as Default Provider (v3.8.3)
 
@@ -668,31 +663,6 @@ nano-banana-studio/                    # Claude Code Plugin
     └── video-brief-constructor.md     # Video prompt subagent
 ```
 
-## Migrating from banana-claude
-
-nano-banana-studio is a standalone successor to [banana-claude](https://github.com/AgriciDaniel/banana-claude).
-**You must uninstall banana-claude before installing nano-banana-studio** — both register
-the `/banana` command, and having both installed causes conflicts.
-
-### Remove banana-claude first
-
-```bash
-# Remove old banana-claude if installed
-claude plugin remove banana-claude 2>/dev/null || true
-# Remove legacy standalone skill install if present
-rm -rf ~/.claude/skills/banana 2>/dev/null || true
-
-# Install nano-banana-studio as a plugin (required as of v3.8.4+)
-claude plugin add juliandickie/nano-banana-studio
-```
-
-### What's different
-
-nano-banana-studio includes everything in banana-claude plus: slides pipeline,
-social media generation (46 platforms), brand builder, asset registry, reverse
-prompt engineering, brand book generator, cost tracking, Replicate fallback, and
-12 brand presets. See the [changelog](CHANGELOG.md) for details.
-
 ## Requirements
 
 - [Claude Code](https://claude.ai/claude-code)
@@ -703,23 +673,7 @@ prompt engineering, brand book generator, cost tracking, Replicate fallback, and
 
 ## Uninstall
 
-**Plugin:** Remove the plugin directory or stop using `--plugin-dir`.
-
-**Standalone:**
-
-```bash
-bash nano-banana-studio/install.sh --uninstall
-```
-
-## Upstream Tracking
-
-Originally forked from [AgriciDaniel/banana-claude](https://github.com/AgriciDaniel/banana-claude), now an independent project. To check for upstream changes:
-
-```bash
-git fetch upstream
-git diff upstream/main   # see what changed
-git merge upstream/main  # integrate selectively
-```
+Remove the plugin directory or stop using `--plugin-dir`.
 
 ## License
 
