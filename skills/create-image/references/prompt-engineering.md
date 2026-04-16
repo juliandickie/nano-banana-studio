@@ -1,0 +1,943 @@
+# Prompt Engineering Reference -- Creators Studio
+
+> Load this on-demand when constructing complex prompts or when the user
+> asks about prompt techniques. Do NOT load at startup.
+>
+> Aligned with Google's official Gemini 3.1 Flash Image prompting guide
+> (`ai.google.dev/gemini-api/docs/image-generation`, verified 2026-04-15).
+
+## Core Principle (Gemini 3.1)
+
+> **Describe the scene, don't just list keywords.** Gemini 3.1's core strength
+> is deep language understanding. A narrative, descriptive paragraph will
+> almost always produce a better, more coherent image than a list of
+> disconnected words.
+>
+> — Google, official Gemini 3.1 Flash Image prompting guide
+
+This single principle supersedes the older Stable-Diffusion-era
+"tag list + quality modifiers" pattern. Everything below flows from it:
+
+- **Prose > tags.** Natural narrative sentences beat comma-separated keywords.
+- **Context > ornament.** Specifying *why* a shot looks the way it does
+  ("shot from below to convey authority") beats decorating with quality words.
+- **Iterate > one-shot.** Use conversational editing to refine; don't try to
+  stuff every constraint into a single turn.
+- **Semantic, not negative.** Gemini has no negative-prompt parameter —
+  describe what you want, not what you don't.
+
+See "Prompt Patterns That Don't Help" below for the Gemini-3.1-era correction
+to the previous "banned keywords + prestigious anchors" rule (both parts of
+that rule are now obsolete — spike 6, 2026-04-15).
+
+## The 5-Component Prompt Formula
+
+> Based on Google's officially validated prompt structure for Gemini image models.
+> Write as natural narrative paragraphs -- NEVER as comma-separated keyword lists.
+
+### Component 1 -- SUBJECT
+Who or what is the primary focus. Be specific about physical characteristics,
+material, species, age, expression. Never write just "a person" or "a product."
+
+**Good:** "A weathered Japanese ceramicist in his 70s, deep sun-etched
+wrinkles mapping decades of kiln work, calloused hands cradling a
+freshly thrown tea bowl with an irregular, organic rim"
+
+**Bad:** "old man, ceramic, bowl"
+
+### Component 2 -- ACTION
+What the subject is doing, or the primary visual state. Use strong present-
+tense verbs. "floats weightlessly," "holds a glowing lantern," "sits perfectly
+still." If no action, describe pose or arrangement.
+
+**Good:** "leaning forward with intense concentration, gently smoothing
+the rim with a wet thumb, a thin trail of slip running down his wrist"
+
+**Bad:** "making pottery"
+
+### Component 3 -- LOCATION / CONTEXT
+Where the scene takes place. Include environmental details, time of day,
+atmospheric conditions. "inside the cupola module of the International Space
+Station," "on a rain-slicked Tokyo alley at 2am."
+
+**Good:** "inside a traditional wood-fired anagama kiln workshop,
+stacked shelves of drying pots visible in the soft background, late
+afternoon light filtering through rice paper screens"
+
+**Bad:** "workshop, afternoon"
+
+### Component 4 -- COMPOSITION
+Camera perspective, framing, and spatial relationship. "medium shot centered
+against the window," "extreme low-angle looking up," "bird's-eye view from
+30 meters," "tight close-up on hands."
+
+**Good:** "intimate close-up shot from slightly below eye level,
+shallow depth of field isolating the hands and bowl against the
+soft bokeh of the workshop behind"
+
+**Bad:** "close up"
+
+### Component 5 -- STYLE (includes lighting)
+The visual register, aesthetic, medium, and lighting combined. Reference real
+cameras, film stock, art movements, or (softly) named photographers. Describe
+lighting direction, quality, and colour temperature directly. Lighting lives
+here as a sub-element, not a separate component.
+
+**Good:** "shot on a Fujifilm X-T4 with warm colour science and natural
+bokeh, warm directional light from a single high window camera-left
+creating gentle Rembrandt lighting on the face with deep warm shadows.
+Documentary-portrait register, reminiscent of Dorothea Lange's
+Depression-era fieldwork."
+
+**Bad:** "photorealistic, 8K, masterpiece" — keyword stuffing, not a
+description. Harmless on Gemini 3.1 (they don't degrade output) but useless.
+Cut them.
+
+**Also bad:** "Vanity Fair magazine cover style," "National Geographic cover
+story." Naming a *publication format* triggers a documented failure mode —
+Gemini 3.1 renders the output as a literal magazine cover, complete with
+masthead typography, headline text, and gibberish cover-line overlays. See
+"Prompt Patterns That Don't Help" below.
+
+## Domain Mode Modifier Libraries
+
+### Cinema Mode
+**Camera specs:** RED V-Raptor, ARRI Alexa 65, Sony Venice 2, Blackmagic URSA
+**Lenses:** Cooke S7/i, Zeiss Supreme Prime, Atlas Orion anamorphic
+**Film stocks:** Kodak Vision3 500T (tungsten), Kodak Vision3 250D (daylight), Fuji Eterna Vivid
+**Lighting setups:** three-point, chiaroscuro, Rembrandt, split, butterfly, rim/backlight
+**Shot types:** establishing wide, medium close-up, extreme close-up, Dutch angle, overhead crane, Steadicam tracking
+**Color grading:** teal and orange, desaturated cold, warm vintage, high-contrast noir
+
+### Product Mode
+**Surfaces:** polished marble, brushed concrete, raw linen, acrylic riser, gradient sweep
+**Lighting:** softbox diffused, hard key with fill card, rim separation, tent lighting, light painting
+**Angles:** 45-degree hero, flat lay, three-quarter, straight-on, worm's-eye
+**Style refs:** Apple product photography, Aesop minimal, Bang & Olufsen clean, luxury cosmetics
+
+### Portrait Mode
+**Focal lengths:** 85mm (classic), 105mm (compression), 135mm (telephoto), 50mm (environmental)
+**Apertures:** f/1.4 (dreamy bokeh), f/2.8 (subject-sharp), f/5.6 (environmental context)
+**Pose language:** candid mid-gesture, direct-to-camera confrontational, profile silhouette, over-shoulder glance
+**Skin/texture:** freckles visible, pores at macro distance, catch light in eyes, subsurface scattering
+
+### Editorial/Fashion Mode
+**Visual register (describe directly, do NOT name magazines — see "Prompt Patterns That Don't Help"):**
+  high-contrast studio editorial, natural-light documentary fashion, muted
+  minimalist lifestyle register, bold colour-block fashion, gritty street-style
+  reportage, ethereal diffused beauty, stark monochrome architectural fashion
+**Styling notes:** layered textures, statement accessories, monochromatic palette, contrast patterns
+**Locations:** marble staircase, rooftop at golden hour, industrial loft, desert dunes, neon-lit alley
+**Poses:** power stance, relaxed editorial lean, movement blur, fabric in wind
+
+### UI/Web Mode
+**Styles:** flat vector, isometric 3D, line art, glassmorphism, neumorphism, material design
+**Colors:** specify exact hex or descriptive palette (e.g., "cool blues #2563EB to #1E40AF")
+**Sizing:** design at 2x for retina, specify exact pixel dimensions needed
+**Backgrounds:** transparent (request solid white then post-process), gradient, solid color
+
+### Logo Mode
+**Construction:** geometric primitives, golden ratio, grid-based, negative space
+**Typography:** bold sans-serif, elegant serif, custom lettermark, monogram
+**Colors:** max 2-3 colors, works in monochrome, high contrast
+**Output:** request on solid white background, post-process to transparent
+
+### Landscape Mode
+**Depth layers:** foreground interest, midground subject, background atmosphere
+**Atmospherics:** fog, mist, haze, volumetric light rays, dust particles
+**Time of day:** blue hour (pre-dawn), golden hour, magic hour (post-sunset), midnight blue
+**Weather:** dramatic storm clouds, clearing after rain, snow-covered, sun-dappled
+
+### Infographic Mode
+**Layout:** modular sections, clear visual hierarchy, bento grid, flow top-to-bottom
+**Text:** use quotes for exact text, descriptive font style, specify size hierarchy
+**Data viz:** bar charts, pie charts, flow diagrams, timelines, comparison tables
+**Colors:** high-contrast, accessible palette, consistent brand colors
+
+### Abstract Mode
+**Geometry:** fractals, voronoi tessellation, spirals, fibonacci, organic flow, crystalline
+**Textures:** marble veining, fluid dynamics, smoke wisps, ink diffusion, watercolor bleed
+**Color palettes:** analogous harmony, complementary clash, monochromatic gradient, neon-on-black
+**Styles:** generative art, data visualization art, glitch, procedural, macro photography of materials
+
+### Presentation Mode
+
+Presentation mode has **two generation options**:
+
+**Option A -- Complete Slide** (text rendered in the image):
+Use when the model should render headline/body text directly. Nano Banana 2 excels
+at text rendering (up to 25 chars per element). The output is a finished slide.
+
+**Option B -- Background Only** (for layering in Keynote/PPT/Slides):
+Use when text, logos, and UI elements will be added as separate layers in presentation
+software. The output is a clean background with intentional negative space.
+
+**Background styles:** dark premium (pure black #000000), gradient sweep (brand color to darker tone), split layout (half image / half solid), full-bleed image with dark overlay
+**Layout zones:** headline zone (top 20%), content zone (middle 55%), lower margin (bottom 25% -- clean negative space for later overlays)
+**Typography rendering (Complete mode only):** headline (bold sans-serif, 48-72pt equivalent), subheading (medium, 32-40pt), body (light, 24-32pt), caption (12-20pt)
+**Pattern overlays:** geometric network, connected nodes and lines, circuit mesh, dot grid -- all at 30-50% opacity in silver or white
+**Slide types:** title, content, quote/statement, image feature, section divider
+**Format:** always 16:9 widescreen, default 4K (3840x2160) for backgrounds
+**Color guidance:** high contrast pairs (white on black, black on gold), gradient transitions, accent colors sparingly
+**Style refs:** Apple Keynote, TED stage visuals, premium pitch decks, conference keynotes
+
+**CRITICAL -- Logo exclusion:** NEVER mention "logo," "logo placement," "branding mark,"
+or "reserve space for logo" in any Presentation prompt. The model will generate unwanted
+logo-like artifacts. Instead, describe the area as "clean negative space," "simple
+uncluttered background," or "generous breathing room." Logos are composited in
+presentation software after generation.
+
+## Advanced Techniques
+
+### Start with Intent, Refine with Specs
+
+Nano Banana 2 is designed for conversational editing. Use a two-phase approach:
+
+**Phase 1 -- Intent (Initial Generation)**
+Start with a conceptual prompt that lets the model's thinking handle composition:
+- "A futuristic sports car on a rainy Tokyo street at night"
+- "A premium product shot of wireless earbuds for an e-commerce store"
+- "A cozy café interior for a lifestyle blog header"
+
+**Phase 2 -- Specs (Refinement via Edit/Chat)**
+Follow up with specific technical adjustments:
+- "Change the car to metallic red, add wet asphalt reflections"
+- "Use a lower camera angle, add dramatic rim lighting from the left"
+- "Make the wood tones warmer, add steam rising from the coffee cup"
+
+**The PEEL Strategy for adding specs:**
+| Component | What to specify | Example |
+|-----------|----------------|---------|
+| **P**osition | Camera angle, framing, subject placement | "Low-angle shot, subject on right third" |
+| **E**xpression | Emotion, mood, facial/body language | "Confident smile, relaxed posture" |
+| **E**nvironment | Setting, time, weather, atmosphere | "Golden hour rooftop, city skyline behind" |
+| **L**ens | Camera, focal length, depth of field | "85mm f/1.4, shallow depth of field" |
+
+**Use reference images instead of written specs** when describing style or texture.
+One reference image replaces paragraphs of description. Upload it and say
+"match the lighting style of this image" or "use this color palette."
+
+**When to front-load specs:** For photorealistic/cinema domain modes where camera
+and lighting are critical, include PEEL specs in the initial prompt. For simpler
+use cases, let the model interpret intent first.
+
+### Character Consistency (Multi-turn)
+
+Use `gemini_chat` and maintain descriptive anchors:
+- First turn: Generate character with exhaustive physical description
+- Following turns: Reference "the same character" + repeat 2-3 key identifiers
+- Key identifiers: hair color/style, distinctive clothing, facial feature
+
+**Multi-image reference technique** (3.1 Flash):
+- Provide up to 4-5 character reference images in the conversation
+- Assign distinct names to each character ("Character A: the red-haired knight")
+- Model preserves features across different angles, actions, and environments
+- Works best when reference images show the character from multiple angles
+
+**Identity-locked generation pattern:**
+Use a `CRITICAL CONSISTENCY REQUIREMENTS` block in prompts:
+```
+Create a professional portrait of the person from the reference image.
+
+CRITICAL CONSISTENCY REQUIREMENTS:
+- Maintain EXACT facial features, skin tone, and hair from reference
+- Keep their distinctive features identical across all scenes
+- Position them naturally in the new environment
+```
+
+**Group photos (up to 5 people):**
+- Assign positions: "Person 1 center, Persons 2-3 on left, Persons 4-5 on right"
+- Specify each person's expression and pose individually
+- Use medium shot (waist up) for best facial consistency
+- Maximum 5 people for high-fidelity consistency
+
+**Sequential storytelling (3-part visual story):**
+- Scene 1: Establish character with full physical description
+- Scene 2: Reference "the same person" + 2-3 key identifiers + new setting
+- Scene 3: Same reference pattern + final setting
+- Use consistent camera angle (three-quarter view) across all scenes
+- Specify "EXACTLY consistent" for critical features
+
+**YouTube thumbnails with character:**
+- Maintain facial features from reference image
+- Use exaggerated expressions (wide eyes, open mouth) for engagement
+- Position character on left 40% of frame, facing right toward content
+- Add text overlay separately: bold Impact-style font with thick stroke
+
+### Progressive Enhancement (Multi-Turn Workflow)
+
+For `/create-image chat` sessions, build images in 4 phases:
+
+| Phase | Focus | Example Follow-Up |
+|-------|-------|-------------------|
+| 1. **Composition & Subject** | Get layout, subject, framing right | "Move the subject to the left third, zoom out slightly" |
+| 2. **Lighting & Atmosphere** | Refine mood, shadows, time of day | "Shift to golden hour lighting, add warm rim light from right" |
+| 3. **Details & Polish** | Add fine elements, props, textures | "Add steam from the coffee, a small plant in the background" |
+| 4. **Technical Adjustments** | Color grading, contrast, final polish | "Slightly desaturate, add a subtle warm color grade" |
+
+**Key principle:** Each phase preserves successful elements from previous phases.
+This is more cost-effective and produces better results than trying to specify
+everything in a single prompt.
+
+### Multilingual & Localization
+
+Nano Banana 2 supports text rendering in multiple languages.
+
+**Translation within images:**
+Generate the image in English first, then follow up:
+```
+Take the previous image and translate all text to Japanese.
+Keep all visual elements, layout, colors, and composition identical.
+Only change the text content. Ensure Japanese text fits naturally
+within the same space constraints.
+```
+
+**Cultural adaptation:**
+Provide cultural context explicitly for region-specific aesthetics:
+```
+Create a coffee shop poster for the Japanese market.
+Use Japanese aesthetic principles: generous negative space,
+natural elements, muted tones. Headline in hiragana: "朝の一杯"
+in an elegant brush-style font. Format: 2:3 portrait.
+```
+
+**Tips:**
+- Provide exact text strings in the target language rather than asking for translation
+- Specify cultural context explicitly (e.g., "Japanese design sensibility," "Brazilian visual culture")
+- For RTL languages (Arabic, Hebrew), specify text direction if layout matters
+- Generate and verify one language at a time for multi-language campaigns
+- Native speaker review is recommended for production content
+
+### Brand Style Guide Integration
+
+When a loaded preset contains Brand Style Guide fields, apply them during prompt construction:
+
+**prompt_suffix:** Append verbatim after the Style component. The most direct brand influence on every generation.
+
+**prompt_keywords:** Weave keywords from relevant categories into the narrative naturally. Do not dump as a list -- integrate "premium" and "modern" into the Style component description.
+
+**visual_motifs:** Add motif description to Style or Context. In Presentation mode, include as pattern overlay with specified opacity. In other modes, use as subtle background texture.
+
+**background_styles:** In Presentation mode, select the variant matching the slide type:
+- Title slides → dark-premium or gradient variant
+- Content slides → variant with best readability for body text
+- Quote/statement → dark background for dramatic impact
+- User can override by naming a specific variant
+
+**do_list / dont_list:** Verify the final prompt aligns with do's and avoids don'ts. These are guardrails, not prompt components.
+
+**logo_placement:** This field records where the logo will be placed in post-production (e.g., "bottom-left, 15% of width"). Do NOT mention "logo" in the prompt. Instead, describe that area as "clean negative space" or "simple uncluttered background" so the model keeps it clear without generating logo-like artifacts. The logo is composited in Keynote/PowerPoint/Slides after image generation.
+
+### Style Transfer Without Reference Images
+Describe the target style exhaustively instead of referencing an image:
+```
+Render this scene in the style of a 1950s travel poster: flat areas of
+color in a limited palette of teal, coral, and cream. Bold geometric
+shapes with visible paper texture. Hand-lettered title text with a
+mid-century modern typeface feel.
+```
+
+### Text Rendering Tips
+- Quote exact text: `with the text "OPEN DAILY" in bold condensed sans-serif`
+- **25 characters or less** -- this is the practical limit for reliable rendering
+- **2-3 distinct phrases max** -- more text fragments degrade quality
+- Describe font characteristics, not font names
+- Specify placement: "centered at the top third", "along the bottom edge"
+- High contrast: light text on dark, or vice versa
+- **Text-first hack:** Establish the text concept conversationally first ("I need a sign that says FRESH BREAD"), then generate -- the model anchors on text mentioned early
+- Expect creative font interpretations, not exact replication of described styles
+
+### Positive Framing (No Negative Prompts)
+Gemini does NOT support negative prompts. Rephrase exclusions:
+- Instead of "no blur" → "sharp, in-focus, tack-sharp detail"
+- Instead of "no people" → "empty, deserted, uninhabited"
+- Instead of "no text" → "clean, uncluttered, text-free"
+- Instead of "not dark" → "brightly lit, high-key lighting"
+
+### Search-Grounded Generation
+
+For images based on real-world data, Gemini can use Google Search grounding
+to incorporate live information. Available on Nano Banana 2 via the
+`googleSearch` tool configuration.
+
+**Three-part formula for search-grounded prompts:**
+1. `[Source/Search request]` -- What to look up
+2. `[Analytical task]` -- What to analyze or extract
+3. `[Visual translation]` -- How to render it as an image
+
+**Examples:**
+
+| Use Case | Prompt Pattern |
+|----------|---------------|
+| Weather visualization | "Search for the current 5-day forecast for Tokyo, then generate a modern weather infographic showing each day with temperature, conditions, and clothing suggestions" |
+| Data comparison | "Search for the current top 5 programming languages by GitHub usage in 2026, analyze their relative popularity, then generate a clean infographic bar chart in a modern dark theme" |
+| Historical event | "Search for the key stages of the Apollo 11 mission, then create an educational timeline infographic with illustrations for each stage" |
+| Current events | "Search for today's major sports results, then create a visual scoreboard infographic in a bold, energetic style" |
+
+**Important:** Always verify factual accuracy of generated data visualizations.
+The model may approximate or hallucinate statistics -- treat search-grounded
+infographics as drafts requiring human verification.
+
+**API configuration:** Add `"tools": [{"googleSearch": {}}]` to the generation config.
+On Replicate, use the `google_search: true` parameter for `google/nano-banana-2`.
+
+## Prompt Patterns That Don't Help (Gemini 3.1 Flash Image)
+
+<!-- verified: 2026-04-15 via spike 6 — 9 test images, 3 conditions × 3 samples -->
+
+The guidance in this section supersedes the v3.6.x "banned keywords + use
+prestigious anchors instead" rule. Spike 6 (2026-04-15) empirically tested
+both parts of the old rule on `gemini-3.1-flash-image-preview` and found:
+
+- **The "banned keywords" don't actually degrade quality.** File size variance
+  *within* conditions (213 KB) exceeded variance *between* conditions (66 KB).
+  Visual quality was indistinguishable with or without `"8K ultra-realistic
+  masterpiece high resolution"` modifiers.
+- **The "prestigious anchors" actively fail.** The prompt `"Annie Leibovitz
+  editorial portrait, Vanity Fair magazine cover style, dramatic studio
+  lighting"` caused Gemini 3.1 to render all 3 samples as literal magazine
+  covers — with masthead typography (`"VAVANITY FAIR"`), headline text
+  overlays, gibberish cover lines, and magazine-layout framing — rather than
+  as the intended standalone portrait.
+
+The right guidance is Google's official principle: **describe the scene,
+don't just list keywords.**
+
+### Useless quality modifiers (cut them to save tokens)
+
+These don't degrade Gemini 3.1 output, but they don't improve it either.
+They're Stable-Diffusion-era muscle memory. If the user's source prompt has
+them, trim them — they just waste tokens and model attention.
+
+- "4K" / "8K" / "ultra HD" / "high resolution" — use the `imageSize` API parameter
+- "masterpiece" / "best quality" / "award winning"
+- "highly detailed" / "ultra detailed"
+- "hyperrealistic" / "ultra realistic"
+- "trending on artstation"
+- "photorealistic" — describe the camera and film stock directly instead
+
+### Patterns that ACTIVELY FAIL (avoid)
+
+**1. Naming a publication format.** Words like `"Vanity Fair magazine cover
+style"`, `"National Geographic cover story"`, `"WIRED magazine feature
+spread"`, `"Wallpaper* editorial"`, `"Architectural Digest interior"`,
+`"Bon Appetit cover aesthetic"` all trigger the same failure: Gemini 3.1
+renders the output as a literal magazine cover with masthead, headline text,
+and cover-line gibberish. The model's text-rendering strength works against
+you here — it's *good enough* at rendering "Vanity Fair" that when you name
+it, you get Vanity Fair (layout + typography), not a portrait.
+
+**Use instead:** describe the visual register *directly*.
+
+| ❌ Avoid | ✅ Use instead |
+|---|---|
+| "Vanity Fair editorial portrait" | "dramatic studio portrait, single hard key light, deep shadow side, formal composition, muted colour palette" |
+| "National Geographic cover story" | "documentary-style natural-light portrait, environmental context, unposed reportage moment" |
+| "WIRED magazine feature spread" | "high-contrast tech editorial, clean studio backdrop, bold directional lighting, saturated accent colour" |
+| "Wallpaper* design editorial" | "minimalist product still-life on a clean seamless backdrop, hard directional light, architectural composition" |
+| "Bon Appetit cover aesthetic" | "commercial food photography, overhead flat-lay on a linen backdrop, warm window light, steam and condensation details" |
+
+**2. Combining a named photographer with a named publication.** `"Annie
+Leibovitz, Vanity Fair cover"` is the worst case in spike 6 — both signals
+compound. A soft photographer reference (`"reminiscent of Dorothea Lange's
+documentary fieldwork"`) is OK when it biases composition and light. A hard
+photographer-plus-publication reference biases *layout and typography* and
+should be avoided.
+
+**3. Keyword stuffing.** Pre-3.1 Stable-Diffusion prompts often stacked
+20+ comma-separated modifiers. Gemini 3.1 isn't harmed by this, but it's
+working *against* the model's narrative-understanding strength. Rewrite
+as prose.
+
+❌ `"portrait, old man, ceramicist, workshop, warm light, 85mm, f/1.4, shallow dof, cinematic, dramatic, 8K, masterpiece, award winning"`
+
+✅ `"A weathered Japanese ceramicist in his 70s leans over a spinning wheel,
+shaping a tea bowl with deeply calloused hands. Shot on an 85mm f/1.4 at
+shallow depth of field, warm afternoon light filtering through a single high
+window camera-left, casting soft Rembrandt shadows across the workshop."`
+
+## Google's Official Use-Case Templates (Gemini 3.1)
+
+<!-- verified: 2026-04-15 from ai.google.dev/gemini-api/docs/image-generation -->
+
+These templates come directly from Google's official Gemini 3.1 Flash Image
+prompting guide. Use them as starting points and adapt the bracketed variables.
+
+### Photorealistic scene
+
+> `A photorealistic [shot type] of [subject], [action or expression], set in
+> [environment]. The scene is illuminated by [lighting description], creating
+> a [mood] atmosphere. Captured with a [camera/lens details], emphasizing
+> [key textures and details]. The image should be in a [aspect ratio] format.`
+
+Works because every bracket forces a concrete decision — no vague
+"photorealistic" on its own, no bare "masterpiece."
+
+### Stylised illustration / sticker
+
+> `A [style] sticker of a [subject], featuring [key characteristics] and a
+> [color palette]. The design should have [line style] and [shading style].
+> The background must be white.`
+
+"The background must be white" is the recommended way to get a stamp-ready
+asset on Gemini 3.1 — it's literal and reliable.
+
+### Accurate text in image
+
+> `Create a [image type] for [brand/concept] with the text "[text to render]"
+> in a [font style]. The design should be [style description], with a
+> [color scheme].`
+
+Text in quotation marks is the official way to lock the exact string.
+Keep it short (≤25 chars, ≤2-3 distinct phrases) for reliability.
+
+### Product mockup / commercial photograph
+
+> `A high-resolution, studio-lit product photograph of a [product description]
+> on a [background surface/description]. The lighting is a [lighting setup,
+> e.g., three-point softbox setup] to [lighting purpose]. The camera angle
+> is a [angle type] to showcase [specific feature]. Ultra-realistic, with
+> sharp focus on [key detail]. [Aspect ratio].`
+
+Note: `"high-resolution"` is OK *inside* Google's own template because it's
+embedded in a descriptive sentence, not standing alone as a quality-modifier
+tag. The principle is always "describe, don't label."
+
+### Minimalist / negative-space composition
+
+> `A minimalist composition featuring a single [subject] positioned in the
+> [bottom-right/top-left/etc.] of the frame. The background is a vast,
+> empty [color] canvas, creating significant negative space. Soft, subtle
+> lighting. [Aspect ratio].`
+
+The most reliable way to get a layout-driven image — explicit placement +
+explicit negative space + no decorative clutter.
+
+### Sequential art / comic panel
+
+> `A single comic book panel in a [art style] style. In the foreground,
+> [character description and action]. In the background, [setting details].
+> The panel has a [dialogue/caption box] with the text "[text]". The lighting
+> creates a [mood] mood. [Aspect ratio].`
+
+### Grounded in a reference image
+
+When providing an image, use it as the *primary* source and describe only
+what changes:
+
+> `Using the provided image of [subject], please [describe the
+> modification]. Keep the [elements to preserve] unchanged, but update
+> [elements to change] to [desired state].`
+
+One reference image replaces paragraphs of description. Prefer this to
+exhaustive verbal style transfer when you can.
+
+### Google's best-practice checklist
+
+From the same official guide, applied to every template above:
+
+1. **Be hyper-specific.** Specify materials, lighting, camera, emotion.
+2. **Provide context and intent.** Tell the model *why* the image looks a
+   certain way ("shot from below to convey authority"). This helps it
+   prioritise conflicting requirements.
+3. **Iterate and refine.** Use conversational turns rather than a single
+   mega-prompt. Each turn preserves successful elements.
+4. **Use step-by-step instructions** when you need layout control — e.g.
+   `"First, create the background... Then, add the subject in the
+   foreground... Finally, add the rim light from camera-left."`
+5. **Semantic negative prompts.** Not "no cars" but "an empty, deserted
+   street with no signs of traffic."
+6. **Camera-control language.** `"wide-angle"`, `"macro"`, `"low-angle"`,
+   `"shallow depth of field"` all work as expected.
+
+## ⚠️ NEGATIVE PROMPTS -- No API parameter exists
+
+Nano Banana models have NO dedicated negative prompt parameter. Do not pass
+negative instructions as a separate API argument -- it will be ignored.
+
+Correct approach: semantic reframing. Express what you want, not what you
+don't want.
+
+❌ WRONG: "no cars, no people, no clutter in the background"
+✅ RIGHT: "an empty, deserted street, completely still, no signs of activity"
+
+❌ WRONG: "no watermarks, no text"
+✅ RIGHT: (add to prompt) "NEVER include any text, labels, or watermarks"
+
+For critical constraints, ALL CAPS emphasis improves adherence:
+- "MUST contain exactly three figures"
+- "NEVER include any visible horizon line"
+- "ONLY show the product, nothing else in frame"
+
+## Prompt Length Guide
+
+| Use case | Target length | Notes |
+|---|---|---|
+| Quick draft / concept | 20–60 words (1–2 sentences) | Good for ideation |
+| Standard generation | 100–200 words (3–5 sentences) | Production default |
+| Complex professional | 200–300 words | Full 5-component treatment |
+| Maximum specification | Up to 2,600 tokens | JSON/Markdown structured format supported |
+
+Nano Banana 2 accepts up to 131,072 input tokens. Do not artificially truncate
+a prompt to hit a word count target -- quality and specificity matter more.
+
+## Text Rendering in Images
+
+Nano Banana 2 has excellent text rendering. Rules:
+1. Enclose desired text in quotation marks in the prompt: "LAUNCH DAY"
+2. Specify font characteristics explicitly: "bold white sans-serif," "Century Gothic"
+3. Specify placement: "centered at the bottom third," "upper left corner"
+4. For complex layouts, describe text placement before requesting the image
+
+Example: Place the text "Happy Birthday, Sarah" in a warm gold serif font
+centered in the lower third of the image.
+
+Known limitation: Small text (<16px equivalent) and complex multilingual text
+may require iterative refinement.
+
+## Prompt Adaptation Rules
+
+When adapting prompts from the claude-prompts database (Midjourney/DALL-E/etc.)
+to Gemini's natural language format:
+
+| Source Syntax | Gemini Equivalent |
+|---------------|-------------------|
+| `--ar 16:9` | Call `set_aspect_ratio("16:9")` separately |
+| `--v 6`, `--style raw` | Remove -- Gemini has no version/style flags |
+| `--chaos 50` | Describe variety: "unexpected, surreal composition" |
+| `--no trees` | Positive framing: "open clearing with no vegetation" |
+| `(word:1.5)` weight | Descriptive emphasis: "prominently featuring [word]" |
+| `8K, masterpiece, ultra-detailed` | Cut them — they're useless tokens on Gemini 3.1 (see "Prompt Patterns That Don't Help"). Do NOT replace with magazine/publication names either — that's a separate failure mode. Describe the visual register directly. |
+| Comma-separated tags | Expand into descriptive narrative paragraphs |
+| `shot on Hasselblad` | Keep -- camera specs work well in Gemini |
+
+## Common Prompt Mistakes
+
+1. **Keyword stuffing** -- stacking generic quality terms ("8K, masterpiece, best quality, ultra-realistic") wastes tokens on Gemini 3.1 without improving output. Rewrite as narrative prose. Do NOT replace with magazine/publication names — that's a separate failure mode (see "Prompt Patterns That Don't Help")
+2. **Tag lists** -- Gemini wants prose, not "red car, sunset, mountain, cinematic"
+3. **Missing lighting** -- The single biggest quality differentiator
+4. **No composition direction** -- Results in generic centered framing
+5. **Vague style** -- "make it look cool" vs specific art direction
+6. **Ignoring aspect ratio** -- Always set before generating
+7. **Overlong prompts** -- Diminishing returns past ~200 words; be precise, not verbose
+8. **Text longer than ~25 characters** -- Rendering degrades rapidly past this limit
+9. **Burying key details at the end** -- In long prompts, details placed last may be deprioritized; put critical specifics (exact text, key constraints) in the first third of the prompt
+10. **Not iterating with follow-up prompts** -- Use `gemini_chat` for progressive refinement instead of trying to get everything right in one generation
+11. **Contradictory instructions** -- "minimalist design with lots of intricate details" confuses the model. Pick one direction or specify a focal point: "minimalist design with one carefully chosen intricate detail as the focal point"
+12. **Impossible physics** -- "two different shadows in opposite directions from a single light source." Describe physically plausible lighting setups
+13. **Inconsistent style mixing** -- "photorealistic watercolor painting" is contradictory. Choose one: "photorealistic portrait" OR "watercolor painting portrait"
+14. **Aspect ratio mismatch** -- Requesting "tall vertical portrait" but setting 16:9 landscape ratio. Always align the ratio to the composition described in the prompt
+15. **Negative framing** -- "a beach scene with no people, no clouds, no rocks" -- the model has no negative prompts. Instead: "an empty, pristine beach with just white sand, calm turquoise water, and clear blue sky"
+
+## Proven Prompt Templates
+
+> Extracted from 2,500+ tested prompts. These patterns consistently produce
+> high-quality results. Use them as starting points and adapt to the request.
+
+### The Winning Formula (Weight Distribution)
+
+| Component | Weight | What to include |
+|-----------|--------|-----------------|
+| **Subject** | 30% | Age, skin tone, hair color/style, eye color, body type, expression |
+| **Action** | 10% | Movement, pose, gesture, interaction, state of being |
+| **Context** | 15% | Location + time of day + weather + context details |
+| **Composition** | 10% | Shot type, camera angle, framing, focal length, f-stop |
+| **Lighting** | 10% | Quality, direction, color temperature, shadows |
+| **Style** | 25% | Art medium, brand names, textures, camera model, color grading |
+
+### Instagram Ad / Social Media
+
+**Pattern:** `[Subject with age/appearance] + [outfit with brand/texture] + [action verb] + [setting] + [camera spec] + [lighting] + [platform aesthetic]`
+
+**Example (Product Placement):**
+```
+Hyper-realistic gym selfie of athletic 24yo influencer with glowing olive
+skin, wearing crinkle-textured athleisure set in mauve. iPhone 16 Pro Max
+front-facing portrait mode capturing sweat droplets on collarbones, hazel
+eyes enhanced by gym LED lighting. Mirror reflection shows perfect form,
+golden morning light through floor-to-ceiling windows. Frayed chestnut
+ponytail with baby hairs, visible skin texture with natural erythema from
+workout. High-contrast wellness editorial register with a muted warm palette.
+```
+
+**Example (Lifestyle Ad):**
+```
+A 24-year-old blonde fitness model in a high-energy sports drink
+advertisement. Mid-run on a beach, wearing a vibrant orange sports bra
+and black shorts, playful smile and sparkling blue eyes exuding vitality.
+Bottle of the drink held in hand, waves crashing in background. Shot on
+Nikon D850 with 70-200mm f/2.8 lens, natural light, fast shutter speed
+capturing motion. Visible skin texture, water droplets, product label
+clearly visible. Documentary-style outdoor fitness register, natural
+colour grading, environmental context.
+```
+
+**Example (Luxury Lifestyle):**
+```
+Gorgeous Instagram model wearing a designer silk gown, luxury rooftop
+restaurant, golden hour lighting, champagne in hand, luxurious aspirational
+lifestyle. Captured with Sony A7R IV, 85mm f/1.4 lens, shallow depth of
+field, warm color grading.
+```
+
+### Product / Commercial Photography
+
+**Pattern:** `[Product with brand/detail] + [dynamic elements] + [surface/setting] + "commercial photography for advertising campaign" + [lighting] + [direct visual-register description — NOT a magazine name]`
+
+**Example (Beverage):**
+```
+Gatorade bottle with condensation dripping down the sides, surrounded by
+lightning bolts and a burst of vibrant blue and orange light rays. The
+Gatorade logo is prominently displayed on the bottle, with splashes of
+water frozen in mid-air. Commercial beverage photography for an advertising
+campaign, vibrant complementary colours, studio-lit with hard rim light
+separating the bottle from the background.
+```
+
+**Example (Food):**
+```
+In and Out burger with layers of fresh lettuce, melted cheese, and pretzel
+bun, placed on a white surface with the In and Out logo subtly glowing in
+the background. Falling french fries and golden light, warm scene.
+Commercial food photography for an advertising campaign, vibrant
+complementary colours, overhead hero framing with warm window light
+and visible steam.
+```
+
+### Fashion / Editorial
+
+**Pattern:** `[Subject with ethnicity/age/features] + [outfit with texture/brand/cut] + [location] + [pose/action] + [camera + lens] + [lighting quality]`
+
+**Example (Street Style):**
+```
+A 24-year-old female AI influencer posing confidently in an urban cityscape
+during golden hour. Flawless sun-kissed skin, long wavy brown hair, deep
+green eyes. Wearing a chic streetwear outfit -- oversized beige blazer,
+white top, high-waisted jeans. Captured with Sony A7R IV at 85mm f/1.4,
+shallow depth of field with warm golden bokeh.
+```
+
+**Example (High Fashion):**
+```
+Stunning 24-year-old woman, long platinum blonde hair, radiant skin,
+piercing blue eyes, dressed in a chic pastel blazer with a modern
+minimalist aesthetic, soft sunlight glow, high-end fashion appeal.
+Shot on Canon EOS R5, 85mm f/1.2 lens.
+```
+
+**Example (Avant-Garde):**
+```
+A blonde fitness model transformed into a runway-ready fashion icon,
+wearing a bold avant-garde outfit: cropped leather jacket with neon pink
+accents, paired with high-waisted athletic shorts and knee-high boots.
+Captured mid-stride on a minimalist white runway, playful twinkle in her
+eye, dramatic studio lighting from above.
+```
+
+### SaaS / Tech Marketing
+
+**Pattern:** `[UI mockup or abstract visual] + "on [dark/light] background" + [specific colors with hex] + [typography description] + "clean, premium SaaS aesthetic" + [glassmorphism/gradient/glow effects]`
+
+**Example (Dashboard Hero):**
+```
+A floating glassmorphism UI card on a deep charcoal background showing a
+content analytics dashboard with a rising line graph in teal (#14B8A6),
+bar charts in coral (#F97316), and a circular progress indicator at 94%.
+Subtle grid lines, frosted glass effect with 20% opacity, teal glow
+bleeding from the card edges. Clean premium SaaS aesthetic, no text
+smaller than headline size.
+```
+
+**Example (Feature Highlight):**
+```
+An isometric 3D illustration of interconnected data nodes on a dark navy
+background. Each node is a glowing teal sphere connected by thin luminous
+lines, forming a constellation pattern. One central node pulses brighter
+with radiating rings. Modern tech illustration style with subtle depth
+of field, volumetric lighting from below.
+```
+
+**Example (Comparison/Before-After):**
+```
+Split-screen image: left side shows a cluttered, dim workspace with
+scattered papers, red error indicators, and a frustrated expression
+conveyed through a cracked coffee mug and tangled cables. Right side
+shows a clean, organized dashboard interface glowing in teal and white
+on a dark background, with smooth flowing lines and checkmarks. A sharp
+vertical dividing line separates chaos from clarity.
+```
+
+### Logo / Branding
+
+**Pattern:** `[Product/bottle/item] + "with [brand element] prominently displayed" + [dynamic visual elements] + "commercial photography" + [lighting style] + [direct visual-register description — NOT a magazine name]`
+
+**Example:**
+```
+A sleek matte black bottle with a minimal white logo mark centered on the
+label, surrounded by swirling gradient ribbons of teal and coral light.
+The bottle sits on a reflective dark surface, sharp studio rim lighting
+separating it from the background. Product photography for luxury
+branding, dramatic contrast, minimalist architectural still-life
+composition with generous negative space.
+```
+
+### Presentation / Slide
+
+Two generation patterns depending on whether text is rendered in the image or added later.
+
+#### Option A -- Complete Slide (text rendered by the model)
+
+**Pattern:** `[Background style] + [visual motif at opacity] + [rendered text with font description] + [color palette] + "16:9 widescreen presentation slide" + [mood/brand]`
+
+**Example (Complete Title Slide):**
+```
+A premium presentation title slide on a pure black background. The text
+"DIGITAL INNOVATION" is rendered in bold white condensed sans-serif at
+the top third, with the subtitle "Transforming the Future" in a lighter
+weight gold (#FFC000) font below it. A subtle geometric network pattern
+of connected silver nodes and thin lines at 30% opacity decorates the
+lower-right corner. Clean negative space throughout. 16:9 widescreen,
+4K resolution. Premium tech keynote aesthetic.
+```
+
+**Example (Complete Content Slide):**
+```
+A presentation slide with rich gold (#FFC000) gradient background fading
+to dark amber at the bottom. The headline "KEY FINDINGS" is rendered in
+bold black sans-serif in the upper-left. Below it, three bullet points
+in black regular-weight text: "94% accuracy rate", "3x faster workflow",
+"50% cost reduction". A faint dot grid pattern at 20% opacity overlays
+the gradient. 16:9 widescreen format. Modern corporate keynote style.
+```
+
+#### Option B -- Background Only (for layering in presentation software)
+
+**Pattern:** `[Background style] + [visual motif at opacity] + [describe negative space where text will go] + [color palette] + "16:9 widescreen slide background, NO text, NO logos, NO labels" + [mood/brand]`
+
+**CRITICAL:** Explicitly state "NO text, NO logos, NO labels, NO watermarks" in Background
+mode. Without this, the model may generate decorative text or logo-like shapes. Never
+mention logos even to say "leave space for" -- describe the area as clean background instead.
+
+**Example (Background-Only Dark Title):**
+```
+A dark premium slide background in pure black with generous clean negative
+space in the upper half and center. A subtle geometric network pattern of
+connected silver nodes and thin lines at 30% opacity in the lower-right
+quadrant. Simple, uncluttered lower-left corner with continued dark
+background. 16:9 widescreen, 4K resolution. NO text, NO logos, NO labels.
+Premium tech keynote aesthetic, Apple WWDC stage visual style.
+```
+
+**Example (Background-Only Gradient):**
+```
+A widescreen slide background with a smooth gradient sweep from rich gold
+(#FFC000) at the top transitioning to deep amber and dark charcoal at the
+bottom. A faint geometric dot grid at 20% opacity across the surface.
+Large open areas of clean gradient for content overlay. Simple uncluttered
+composition with generous breathing room. 16:9 format, 4K resolution.
+NO text, NO logos, NO labels. Premium corporate keynote background.
+```
+
+#### Additional Slide Types
+
+**Quote / Statement Slide (Background-Only):**
+```
+A dramatic presentation slide background with pure black base and a
+single bold golden accent line running horizontally across the upper
+third. Subtle silver geometric network at 15% opacity in the lower
+half. Deep, cinematic atmosphere with warm amber edge lighting from
+the left. Generous clean space in the center for a large quote overlay.
+16:9 widescreen, 4K resolution. NO text, NO logos, NO labels.
+Premium keynote statement slide aesthetic.
+```
+
+**Section Divider (Background-Only):**
+```
+A striking slide background with a rich gold-to-amber gradient sweeping
+diagonally from top-left to bottom-right, fading into deep charcoal.
+Abstract geometric shapes in dark tones at 20% opacity create subtle
+depth. Bold, confident, transitional energy. Large open center area.
+16:9 widescreen, 4K resolution. NO text, NO logos, NO labels.
+Premium section transition aesthetic.
+```
+
+**Image Feature Slide (Background-Only):**
+```
+A dark charcoal slide background with the right 55% reserved as clean
+dark space for a featured image overlay. The left 45% has a subtle
+vertical gradient from charcoal to slightly lighter gray, creating
+a natural content zone. Thin golden accent line separating the two
+zones. Minimal, editorial layout. 16:9 widescreen, 4K resolution.
+NO text, NO logos, NO labels. Premium split-layout presentation style.
+```
+
+**Infographic / Process Slide (Complete):**
+```
+A presentation slide showing a four-step progression flowing left to
+right on a pure black background. Four golden rounded rectangles
+connected by amber arrows, each containing a step number in bold
+white text: "1", "2", "3", "4". Below each rectangle, a short white
+label. Subtle silver network pattern at 10% opacity. 16:9 widescreen,
+4K resolution. Premium infographic process flow style.
+```
+
+### Key Tactics That Make Prompts Work
+
+1. **Name real cameras** -- "Sony A7R IV", "Canon EOS R5", "iPhone 16 Pro Max" anchor realism
+2. **Specify exact lens** -- "85mm f/1.4" gives the model precise depth-of-field information
+3. **Use age + ethnicity + features** -- "24yo with olive skin, hazel eyes" beats "a person"
+4. **Name brands for styling** -- "Lululemon mat", "Tom Ford suit" triggers specific visual associations
+5. **Include micro-details** -- "sweat droplets on collarbones", "baby hairs stuck to neck"
+6. **Add platform context** -- "Instagram aesthetic", "commercial photography for advertising"
+7. **Describe textures** -- "crinkle-textured", "metallic silver", "frosted glass"
+8. **Use action verbs** -- "mid-run", "posing confidently", "captured mid-stride"
+9. **Describe the visual register directly** -- "high-contrast studio portrait, single hard key light, deep shadow side" beats "Vanity Fair editorial portrait." Naming publications causes Gemini 3.1 to render the output as a literal magazine cover with masthead and headline text (see "Prompt Patterns That Don't Help"). Naming cameras, lenses, lighting, and composition is safe and productive.
+10. **For products, say "prominently displayed"** -- ensures the product/logo isn't hidden
+
+### Anti-Patterns (What NOT to Do)
+
+- **"A dark-themed Instagram ad showing..."** -- too meta, describes the concept not the image
+- **"A sleek SaaS dashboard visualization..."** -- abstract, no visual anchors
+- **"Modern, clean, professional..."** -- vague adjectives that mean nothing to the model
+- **"A bold call to action with..."** -- describes marketing intent, not visual content
+- **Describing what the viewer should feel** -- instead, describe what creates that feeling
+
+## Safety Filter Rephrase Strategies
+
+Gemini's safety filters (Layer 2: server-side output filter) cannot be disabled.
+When a prompt is blocked, the only path forward is rephrasing.
+
+### Common Trigger Categories
+
+| Category | Triggers on | Rephrase approach |
+|----------|------------|-------------------|
+| Violence/weapons | Combat, blood, injuries, firearms | Use metaphor or aftermath: "battle-worn" → "weathered veteran" |
+| Medical/gore | Surgery, wounds, anatomical detail | Abstract or clinical: "open wound" → "medical illustration" |
+| Real public figures | Named celebrities, politicians | Use archetypes: "Elon Musk" → "a tech entrepreneur in a minimalist office" |
+| Children + risk | Minors in any ambiguous context | Add safety context: specify educational, family, or playful framing |
+| NSFW/suggestive | Revealing clothing, intimate poses | Use artistic framing: "fashion editorial, fully clothed, editorial pose" |
+
+### Rephrase Patterns
+
+1. **Abstraction** -- Replace specific dangerous elements with abstract concepts
+2. **Artistic framing** -- Frame content as art, editorial, or documentary
+3. **Metaphor** -- Use symbolic language instead of literal descriptions
+4. **Positive emphasis** -- Describe what IS present, not what's dangerous
+5. **Context shift** -- Move from threatening to educational/professional context
+
+### Example Rephrases
+
+| Blocked prompt | Successful rephrase |
+|----------------|---------------------|
+| "a soldier in combat firing a rifle" | "a determined soldier standing guard at dawn, rifle slung over shoulder, morning mist over the outpost" |
+| "a scary horror monster" | "a fantastical creature from a dark fairy tale, intricate organic textures, bioluminescent accents, concept art style" |
+| "dog in a fight" | "a friendly golden retriever playing energetically in a sunny park, action shot, joyful expression" |
+| "medical surgery scene" | "a clean modern operating room viewed from the observation gallery, soft blue surgical lights, professional documentary style" |
+| "celebrity portrait of [name]" | "a distinguished middle-aged man in a tailored navy suit, warm studio lighting, editorial portrait style" |
+
+### Key Principle
+
+Layer 2 (output filter) analyzes the generated image, not just the prompt.
+Even well-phrased prompts can be blocked if the model's interpretation triggers
+the output filter. When this happens, try shifting the visual concept further
+from the trigger rather than just changing words.

@@ -1,16 +1,18 @@
 <!-- Updated: 2026-04-11 -->
 <!-- Originally forked from: https://github.com/AgriciDaniel/banana-claude -->
 
-![Nano Banana Studio](screenshots/cover-image.webp)
+![Creators Studio](screenshots/cover-image.webp)
 
-# Nano Banana Studio
+# Creators Studio
+
+> **Imagine · Direct · Generate** — Creative Engine for Claude Code
 
 AI image and video generation plugin for Claude Code where **Claude acts as Creative Director** using Google's Gemini and VEO models.
 
 Unlike simple API wrappers, Claude interprets your intent, selects domain expertise, constructs optimized prompts, and orchestrates generation for the best possible results — for both still images and video clips with synchronized audio.
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
-[![Version](https://img.shields.io/badge/version-3.8.4-coral)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.0.0-coral)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <details>
 <summary>Table of Contents</summary>
@@ -44,7 +46,7 @@ Kling's `start_image` feature now serves as a character identity lock for multi-
 
 ### Fabric Lip-Sync + Defensive Hardening (v3.8.1)
 
-New `/video lipsync` command pairs any face image with any audio file (including custom-designed ElevenLabs voices from `/video audio narrate`) to produce a lip-synced talking-head MP4 via VEED Fabric 1.0 — closing the v3.8.0 gap where VEO generated speech internally and Kling didn't accept audio at all. Also includes Cloudflare User-Agent hardening on the image-gen Replicate path, a new `_vertex_backend smoke-test` subcommand that validates v3.8.0 spike constraints without burning budget, and the final verdict on the user-requested Seedance 2.0 retest: **permanently rejected** (E005 filter triggers on every human subject tested).
+New `/create-video lipsync` command pairs any face image with any audio file (including custom-designed ElevenLabs voices from `/create-video audio narrate`) to produce a lip-synced talking-head MP4 via VEED Fabric 1.0 — closing the v3.8.0 gap where VEO generated speech internally and Kling didn't accept audio at all. Also includes Cloudflare User-Agent hardening on the image-gen Replicate path, a new `_vertex_backend smoke-test` subcommand that validates v3.8.0 spike constraints without burning budget, and the final verdict on the user-requested Seedance 2.0 retest: **permanently rejected** (E005 filter triggers on every human subject tested).
 
 ### Kling v3 as Default Video Model (v3.8.0)
 
@@ -72,7 +74,7 @@ Mandatory review gate before any VEO generation call — `video_sequence.py gene
 
 ### Sequence Production Polish (v3.6.2)
 
-Five production-polish items from the first real sequence shoot: new `review` subcommand that renders a human-approvable `REVIEW-SHEET.md` with inline frames, prompts, costs and status badges; `use_veo_interpolation` per-shot flag for cut-away shots that should skip the end frame; partial storyboard regeneration via `--shots 1,3-5`; and a new default output location under `~/Documents/nano-banana-sequences/` so sequences are Finder-visible.
+Five production-polish items from the first real sequence shoot: new `review` subcommand that renders a human-approvable `REVIEW-SHEET.md` with inline frames, prompts, costs and status badges; `use_veo_interpolation` per-shot flag for cut-away shots that should skip the end frame; partial storyboard regeneration via `--shots 1,3-5`; and a new default output location under `~/Documents/creators_sequences/` so sequences are Finder-visible.
 
 ### First+Last Frame Interpolation + Reference Images on Vertex (v3.6.1)
 
@@ -90,14 +92,14 @@ tracker) and corrected the VEO pricing in the cost tracker (Standard
 was mislabeled at $0.15/sec; the real rate is $0.40/sec). It also added
 the `--negative-prompt`/`--seed`/`--video-input` flags on
 `video_generate.py`, token-limit prompt validation, and a full rewrite
-of `skills/video/references/veo-models.md`. The Vertex-only features it
+of `skills/create-video/references/veo-models.md`. The Vertex-only features it
 documented but gated are exactly what v3.6.0 unblocks.
 
 ### Video Generation with VEO 3.1 (v3.0.0–v3.4.0)
 
 ![Video Pipeline](screenshots/video-pipeline.webp)
 
-**Sample videos (generated with `/video generate`):**
+**Sample videos (generated with `/create-video generate`):**
 
 | Product Reveal — 6s / 1080p | Banana Character — 4s / 720p |
 |---|---|
@@ -125,7 +127,7 @@ Self-contained HTML dashboard with inline SVG charts showing cost trends, model/
 ### Deck Builder (v2.5.0)
 
 ![Deck Builder](screenshots/deck-builder-new.webp)
-Assemble generated slide images into editable .pptx presentations with text layers, brand styling, and logo placement. Three layouts: fullbleed, standard, split. Reads generation-summary.json from `/banana slides` for slide notes with original prompts.
+Assemble generated slide images into editable .pptx presentations with text layers, brand styling, and logo placement. Three layouts: fullbleed, standard, split. Reads generation-summary.json from `/create-image slides` for slide notes with original prompts.
 
 ### Smart A/B Testing (v2.4.0)
 
@@ -199,7 +201,7 @@ Based on analysis of Google's official prompting guides and two research documen
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/juliandickie/nano-banana-studio.git ~/nano-banana-studio
+git clone https://github.com/juliandickie/creators-studio.git ~/creators-studio
 ```
 
 ### Step 2: Get Your Google AI API Key
@@ -217,7 +219,7 @@ git clone https://github.com/juliandickie/nano-banana-studio.git ~/nano-banana-s
 ### Step 3: Start Claude Code with the Plugin
 
 ```bash
-claude --plugin-dir ~/nano-banana-studio
+claude --plugin-dir ~/creators-studio
 ```
 
 ### Step 4: Configure Your API Key
@@ -225,7 +227,7 @@ claude --plugin-dir ~/nano-banana-studio
 In Claude Code, run:
 
 ```
-/banana setup
+/create-image setup
 ```
 
 Claude will walk you through the process conversationally — explaining what the key is, where to get it, and asking you to paste it in the chat. Your key is saved to:
@@ -237,7 +239,7 @@ Keys never leave your machine and are not sent to GitHub.
 ### Step 5: Test It
 
 ```
-/banana generate "a golden banana wearing a beret"
+/create-image generate "a golden banana wearing a beret"
 ```
 
 If you see an image path and the file exists, you're all set!
@@ -245,7 +247,7 @@ If you see an image path and the file exists, you're all set!
 ### Updating
 
 ```bash
-cd ~/nano-banana-studio && git pull
+cd ~/creators-studio && git pull
 ```
 
 Then in Claude Code, type `/reload-plugins` to pick up changes.
@@ -260,13 +262,13 @@ Replicate provides an alternative API backend using `google/nano-banana-2`. It's
 1. Go to [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens)
 2. Sign in with GitHub, Google, or email
 3. Click **"Create token"**
-4. Give it a name (e.g., "nano-banana-studio")
+4. Give it a name (e.g., "creators-studio")
 5. Copy the token (starts with `r8_...`)
 
 **Configure it in Claude Code:**
 
 ```
-/banana setup replicate
+/create-image setup replicate
 ```
 
 Claude will walk you through the process and ask you to paste the token. Your token is saved to `~/.banana/config.json` and never leaves your machine.
@@ -281,11 +283,11 @@ The fallback chain is automatic: MCP → Direct Gemini API → Replicate.
 If you prefer to copy the skill files rather than use the plugin system:
 
 ```bash
-git clone https://github.com/juliandickie/nano-banana-studio.git ~/nano-banana-studio
-bash ~/nano-banana-studio/install.sh
+git clone https://github.com/juliandickie/creators-studio.git ~/creators-studio
+bash ~/creators-studio/install.sh
 ```
 
-To update: `cd ~/nano-banana-studio && git pull && bash install.sh`
+To update: `cd ~/creators-studio && git pull && bash install.sh`
 
 </details>
 
@@ -293,117 +295,117 @@ To update: `cd ~/nano-banana-studio && git pull && bash install.sh`
 
 ```bash
 # Generate an image (Claude acts as Creative Director)
-/banana generate "a hero image for a coffee shop website"
+/create-image generate "a hero image for a coffee shop website"
 
 # Edit an existing image
-/banana edit ~/photo.png "remove the background and add warm lighting"
+/create-image edit ~/photo.png "remove the background and add warm lighting"
 
 # Multi-turn creative session with character/style consistency
-/banana chat
+/create-image chat
 
 # Generate for multiple social platforms at once (46 platforms)
-/banana social "product launch hero" --platforms ig-feed,yt-thumb,li-feed,tt-feed
+/create-image social "product launch hero" --platforms ig-feed,yt-thumb,li-feed,tt-feed
 
 # Build a brand guide from your website or documents
-/banana brand
+/create-image brand
 
 # Generate a slide deck from transcripts or content
-/banana slides plan --content ~/transcripts/ --preset my-brand
+/create-image slides plan --content ~/transcripts/ --preset my-brand
 
 # Save a product/character for consistent reuse across sessions
-/banana asset create "my-headphones" --type product \
+/create-image asset create "my-headphones" --type product \
   --reference ~/photos/headphones.jpg \
   --description "wireless earbuds in white charging case"
 
 # Use a brand preset for visual consistency
-/banana preset list                    # see available presets
-/banana preset create my-brand --colors "#000,#FFC000" --style "premium dark"
+/create-image preset list                    # see available presets
+/create-image preset create my-brand --colors "#000,#FFC000" --style "premium dark"
 
 # Generate 3 variations (Literal, Creative, Premium)
-/banana batch "landing page hero for fintech app" 3
+/create-image batch "landing page hero for fintech app" 3
 
 # Reverse engineer a prompt from an image
-/banana reverse ~/photos/inspiration.jpg
+/create-image reverse ~/photos/inspiration.jpg
 
 # Generate a visual brand book (markdown + pptx + html)
-/banana book --preset my-brand --tier standard --output ~/brand-book/
+/create-image book --preset my-brand --tier standard --output ~/brand-book/
 
 # Browse prompt inspiration
-/banana inspire
+/create-image inspire
 
 # Check costs and usage
-/banana cost summary
+/create-image cost summary
 
 # Setup, status, and updates
-/banana setup                          # configure API key (guided)
-/banana status                         # check version + keys
-/banana update                         # pull latest from GitHub
+/create-image setup                          # configure API key (guided)
+/create-image status                         # check version + keys
+/create-image update                         # pull latest from GitHub
 
 # --- Video Generation (VEO 3.1) ---
 
 # Generate a video clip (8s, 16:9, with audio)
-/video generate "product reveal of wireless earbuds on dark surface"
+/create-video generate "product reveal of wireless earbuds on dark surface"
 
 # Animate a still image from /banana
-/video animate ~/image.png "slow orbit revealing the product, SFX: soft whoosh"
+/create-video animate ~/image.png "slow orbit revealing the product, SFX: soft whoosh"
 
 # Multi-shot sequence with storyboard approval
-/video sequence plan --script "30-second product launch ad" --target 30
-/video sequence storyboard --plan shot-list.json     # preview frames before video
-/video sequence review --plan shot-list.json --storyboard ~/storyboard/ \
+/create-video sequence plan --script "30-second product launch ad" --target 30
+/create-video sequence storyboard --plan shot-list.json     # preview frames before video
+/create-video sequence review --plan shot-list.json --storyboard ~/storyboard/ \
                        --quality-tier draft          # human approval gate (free)
-/video sequence generate --storyboard ~/storyboard/ --quality-tier draft
-/video sequence stitch --clips ~/clips/ --output final.mp4
+/create-video sequence generate --storyboard ~/storyboard/ --quality-tier draft
+/create-video sequence stitch --clips ~/clips/ --output final.mp4
 
 # Extend a clip to 30 seconds
-/video extend clip.mp4 --target-duration 30
+/create-video extend clip.mp4 --target-duration 30
 ```
 
 Claude acts as Creative Director for both images and video — selecting domain modes, constructing optimized prompts with camera motion and audio, and managing brand/asset consistency across media.
 
-![Nano Banana Studio in action](screenshots/nano-banana-studio-skillcommand.gif)
+![Creators Studio in action](screenshots/nano-banana-studio-skillcommand.gif)
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `/banana` | Interactive -- Claude detects intent and guides you |
-| `/banana generate <idea>` | Full Creative Director pipeline |
-| `/banana edit <path> <instructions>` | Intelligent image editing |
-| `/banana chat` | Multi-turn visual session (character/style consistent) |
-| `/banana slides [plan\|prompts\|generate]` | Slide deck pipeline: content → design brief → prompts → batch images |
-| `/banana inspire [category]` | Browse prompt database for ideas |
-| `/banana batch <idea> [N]` | Generate N variations (default: 3) |
-| `/banana social <idea> --platforms <list>` | Platform-native image generation (46 platforms, 4K, auto-crop) |
-| `/banana brand` | Conversational brand guide builder (learn → refine → preview → save) |
-| `/banana asset [list\|show\|create\|delete]` | Manage persistent character/product/object references |
-| `/banana reverse <image-path>` | Analyze image → extract 5-Component Formula prompt |
-| `/banana book --preset <name> [--tier quick\|standard\|comprehensive]` | Generate visual brand book (markdown + pptx + html) |
-| `/banana setup` | Guided Google AI API key setup |
-| `/banana setup replicate` | Guided Replicate token setup (optional fallback) |
-| `/banana status` | Check version, installation, and API key status |
-| `/banana update` | Pull latest version from GitHub |
-| `/banana preset [list\|create\|show\|delete]` | Manage brand/style presets |
-| `/banana cost [summary\|today\|estimate]` | View cost tracking and estimates |
-| `/banana formats <path> [--formats] [--sizes]` | Convert image to multiple formats/sizes |
-| `/banana history [list\|show\|export\|sessions]` | View session generation history and export gallery |
-| `/banana ab-test <idea> [--count N]` | Generate Literal/Creative/Premium variations and track preferences |
-| `/banana deck --images DIR --output PATH` | Assemble slide images into editable .pptx with brand styling |
-| `/banana analytics [--format html\|json]` | Usage analytics dashboard (cost trends, domain usage, quota) |
-| `/banana content <idea> --outputs hero,social,email` | Multi-modal content pipeline from a single idea |
+| `/create-image` | Interactive -- Claude detects intent and guides you |
+| `/create-image generate <idea>` | Full Creative Director pipeline |
+| `/create-image edit <path> <instructions>` | Intelligent image editing |
+| `/create-image chat` | Multi-turn visual session (character/style consistent) |
+| `/create-image slides [plan\|prompts\|generate]` | Slide deck pipeline: content → design brief → prompts → batch images |
+| `/create-image inspire [category]` | Browse prompt database for ideas |
+| `/create-image batch <idea> [N]` | Generate N variations (default: 3) |
+| `/create-image social <idea> --platforms <list>` | Platform-native image generation (46 platforms, 4K, auto-crop) |
+| `/create-image brand` | Conversational brand guide builder (learn → refine → preview → save) |
+| `/create-image asset [list\|show\|create\|delete]` | Manage persistent character/product/object references |
+| `/create-image reverse <image-path>` | Analyze image → extract 5-Component Formula prompt |
+| `/create-image book --preset <name> [--tier quick\|standard\|comprehensive]` | Generate visual brand book (markdown + pptx + html) |
+| `/create-image setup` | Guided Google AI API key setup |
+| `/create-image setup replicate` | Guided Replicate token setup (optional fallback) |
+| `/create-image status` | Check version, installation, and API key status |
+| `/create-image update` | Pull latest version from GitHub |
+| `/create-image preset [list\|create\|show\|delete]` | Manage brand/style presets |
+| `/create-image cost [summary\|today\|estimate]` | View cost tracking and estimates |
+| `/create-image formats <path> [--formats] [--sizes]` | Convert image to multiple formats/sizes |
+| `/create-image history [list\|show\|export\|sessions]` | View session generation history and export gallery |
+| `/create-image ab-test <idea> [--count N]` | Generate Literal/Creative/Premium variations and track preferences |
+| `/create-image deck --images DIR --output PATH` | Assemble slide images into editable .pptx with brand styling |
+| `/create-image analytics [--format html\|json]` | Usage analytics dashboard (cost trends, domain usage, quota) |
+| `/create-image content <idea> --outputs hero,social,email` | Multi-modal content pipeline from a single idea |
 | | |
 | **Video Commands** | |
-| `/video generate <idea>` | Text-to-video with full Creative Director pipeline |
-| `/video animate <image> <motion>` | Animate a still image (from /banana or uploaded) |
-| `/video sequence plan --script "..." --target Ns [--shot-types ...]` | Break a script into a shot list with shot-type defaults |
-| `/video sequence storyboard --plan PATH [--shots 1,3-5]` | Generate start/end frame pairs (optionally a subset) |
-| `/video sequence review --plan PATH --storyboard DIR` | Generate REVIEW-SHEET.md — mandatory approval gate in v3.6.3+ |
-| `/video sequence generate --storyboard PATH [--skip-review]` | Batch-generate clips from approved storyboard frames |
-| `/video sequence stitch --clips DIR --output PATH` | Assemble clips into final sequence via FFmpeg |
-| `/video extend <clip> [--to Ns]` | Extend a clip (+7s per hop, max 148s) |
-| `/video stitch <clips...>` | Concat, trim, convert video via FFmpeg |
-| `/video cost [estimate]` | Video cost estimation |
-| `/video status` | Check VEO API access and FFmpeg availability |
+| `/create-video generate <idea>` | Text-to-video with full Creative Director pipeline |
+| `/create-video animate <image> <motion>` | Animate a still image (from /create-image or uploaded) |
+| `/create-video sequence plan --script "..." --target Ns [--shot-types ...]` | Break a script into a shot list with shot-type defaults |
+| `/create-video sequence storyboard --plan PATH [--shots 1,3-5]` | Generate start/end frame pairs (optionally a subset) |
+| `/create-video sequence review --plan PATH --storyboard DIR` | Generate REVIEW-SHEET.md — mandatory approval gate in v3.6.3+ |
+| `/create-video sequence generate --storyboard PATH [--skip-review]` | Batch-generate clips from approved storyboard frames |
+| `/create-video sequence stitch --clips DIR --output PATH` | Assemble clips into final sequence via FFmpeg |
+| `/create-video extend <clip> [--to Ns]` | Extend a clip (+7s per hop, max 148s) |
+| `/create-video stitch <clips...>` | Concat, trim, convert video via FFmpeg |
+| `/create-video cost [estimate]` | Video cost estimation |
+| `/create-video status` | Check VEO API access and FFmpeg availability |
 
 ## How It Works
 
@@ -484,21 +486,21 @@ Save named characters, products, equipment, and environments with reference imag
 
 ```bash
 # Save a product with reference images
-/banana asset create "itero-scanner" --type product \
+/create-image asset create "itero-scanner" --type product \
   --reference ~/photos/itero-front.jpg \
   --reference ~/photos/itero-angle.jpg \
   --description "Handheld intraoral scanner, white and gray body, LED ring" \
   --consistency-notes "Always show LED ring illuminated"
 
 # Now just mention it naturally
-/banana generate "the iTero Scanner being used in a modern dental clinic"
+/create-image generate "the iTero Scanner being used in a modern dental clinic"
 # Claude loads reference images automatically for visual consistency
 
 # Add more reference images later
-/banana asset add-image "itero-scanner" --reference ~/photos/itero-closeup.jpg
+/create-image asset add-image "itero-scanner" --reference ~/photos/itero-closeup.jpg
 
 # See all saved assets
-/banana asset list
+/create-image asset list
 ```
 
 Assets work alongside brand presets — the preset defines the visual style, the asset defines what the object looks like. Both are applied automatically when detected.
@@ -510,7 +512,7 @@ Assets work alongside brand presets — the preset defines the visual style, the
 Generate platform-native images for 46 social media platforms. One prompt, multiple platform-specific outputs — each generated at the correct native ratio at 4K, then auto-cropped to exact pixel specs.
 
 ```bash
-/banana social "product launch hero for wireless earbuds" --platforms ig-feed,yt-thumb,li-feed,tt-feed
+/create-image social "product launch hero for wireless earbuds" --platforms ig-feed,yt-thumb,li-feed,tt-feed
 ```
 
 Platforms sharing the same ratio are grouped automatically — if Instagram feed and Facebook portrait both use 4:5, only one API call is made and cropped to both specs. Saves cost and time.
@@ -525,7 +527,7 @@ Enhanced presets for project-wide visual consistency. Create a brand style guide
 
 ```bash
 # Create a brand style guide
-/banana preset create premium-brand \
+/create-image preset create premium-brand \
   --colors "#000000,#FFC000,#FFFFFF" \
   --style "premium dark photography, dramatic lighting, gold accents" \
   --mood "confident, innovative, premium" \
@@ -535,7 +537,7 @@ Enhanced presets for project-wide visual consistency. Create a brand style guide
   --dont-list "No busy backgrounds,No more than 2 accent colors"
 
 # Use it
-/banana generate "title slide for digital innovation keynote"
+/create-image generate "title slide for digital innovation keynote"
 # Claude automatically loads the brand guide and applies it
 ```
 
@@ -550,7 +552,7 @@ An alternative API backend using `google/nano-banana-2` on Replicate. Useful whe
 
 ```bash
 # Configure Replicate
-/banana setup replicate
+/create-image setup replicate
 
 # The fallback chain handles the rest automatically:
 # 1. MCP (primary) -> 2. Direct Gemini API -> 3. Replicate
@@ -576,22 +578,22 @@ An alternative API backend using `google/nano-banana-2` on Replicate. Useful whe
 | VEO 3.1 Lite | `veo-3.1-lite-generate-001` | ✅ Vertex AI (v3.6.0) | 4/6/8s, 720p/1080p, $0.05/sec — **draft tier** |
 | VEO 3.0 (legacy) | `veo-3.0-generate-001` | ✅ Vertex AI (v3.6.0) | Predecessor for reproduction |
 
-For sequences, **draft at Lite first** (`/video sequence generate
+For sequences, **draft at Lite first** (`/create-video sequence generate
 --quality-tier draft`) then re-render approved shots at Standard —
 **8× cheaper** than blind Standard for the draft pass. See the
 draft-then-final workflow in
-`skills/video/references/video-sequences.md`. Lite, GA `-001` IDs,
+`skills/create-video/references/video-sequences.md`. Lite, GA `-001` IDs,
 image-to-video, and Scene Extension v2 all require `vertex_api_key`
 in `~/.banana/config.json`.
 
 ## Architecture
 
 ```
-nano-banana-studio/                    # Claude Code Plugin
+creators-studio/                       # Claude Code Plugin
 ├── .claude-plugin/
 │   ├── plugin.json                    # Plugin manifest
 │   └── marketplace.json               # Marketplace catalog
-├── skills/banana/                     # Main skill
+├── skills/create-image/               # Main skill
 │   ├── SKILL.md                       # Creative Director orchestrator (~200 lines)
 │   ├── references/
 │   │   ├── prompt-engineering.md      # 5-component formula, 11 domain modes, PEEL strategy
@@ -639,7 +641,7 @@ nano-banana-studio/                    # Claude Code Plugin
 │       ├── history.py                 # Session generation history and gallery export
 │       ├── multiformat.py             # Multi-format image converter (PNG/WebP/JPEG)
 │       └── batch.py                  # CSV batch workflow parser
-├── skills/video/                      # Video generation skill (Kling v3 Std default, VEO 3.1 backup, Fabric 1.0 lip-sync v3.8.1+)
+├── skills/create-video/               # Video generation skill (Kling v3 Std default, VEO 3.1 backup, Fabric 1.0 lip-sync v3.8.1+)
 │   ├── SKILL.md                       # Video Creative Director orchestrator (v3.8.0: Kling default)
 │   ├── scripts/
 │   │   ├── video_generate.py          # Async video API with polling, --backend/--provider routing

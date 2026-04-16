@@ -1,18 +1,18 @@
 {
-  "name": "nano-banana-studio",
-  "version": "3.8.4",
-  "description": "AI image generation Creative Director powered by Google Gemini Nano Banana models. Claude interprets intent, selects domain expertise, constructs optimized prompts, and orchestrates Gemini for best results.",
+  "name": "creators-studio",
+  "version": "4.0.0",
+  "description": "AI image and video generation Creative Director. Claude interprets intent, selects domain expertise, constructs optimized prompts, and orchestrates best-in-class AI models for stunning results.",
   "author": {
     "name": "juliandickie",
     "url": "https://github.com/juliandickie"
   },
-  "homepage": "https://github.com/juliandickie/nano-banana-studio",
-  "repository": "https://github.com/juliandickie/nano-banana-studio",
+  "homepage": "https://github.com/juliandickie/creators-studio",
+  "repository": "https://github.com/juliandickie/creators-studio",
   "license": "MIT",
   "keywords": [
     "image-generation",
+    "video-generation",
     "ai-art",
-    "gemini",
     "creative-director",
     "prompt-engineering",
     "mcp"
