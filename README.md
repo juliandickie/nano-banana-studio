@@ -7,7 +7,7 @@
 
 > **Imagine · Direct · Generate** — Creative Engine for Claude Code
 
-AI image and video generation plugin for Claude Code where **Claude acts as Creative Director** using Google's Gemini and VEO models.
+AI image and video generation plugin for Claude Code where **Claude acts as Creative Director** — orchestrating best-in-class AI models for images, video clips, audio, and lip-sync.
 
 Unlike simple API wrappers, Claude interprets your intent, selects domain expertise, constructs optimized prompts, and orchestrates generation for the best possible results — for both still images and video clips with synchronized audio.
 
@@ -24,7 +24,7 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 - [How It Works](#how-it-works)
 - [What Makes This Different](#what-makes-this-different)
 - [Domain Modes](#domain-modes) (Image + Video)
-- [Models](#models) (Gemini + VEO)
+- [Models](#models)
 - [Architecture](#architecture)
 - [Requirements](#requirements)
 - [Changelog](CHANGELOG.md)
@@ -422,11 +422,11 @@ Claude acts as Creative Director for both images and video — selecting domain 
 - **Edit-First Workflow** -- 90% of refinements edit the image rather than regenerating from scratch
 - **Brand Style Guides** -- Rich preset system with background styles, motifs, keywords, do's/don'ts, and prompt suffixes
 - **Presentation Mode** -- Two options: complete slides with rendered text, or clean backgrounds for layering
-- **Prompt Adaptation** -- Translates patterns from a 2,500+ curated prompt database to Gemini's natural language format
+- **Prompt Adaptation** -- Translates patterns from a 2,500+ curated prompt database to each model's natural language format
 - **Post-Processing** -- Crops, removes backgrounds, converts formats, resizes for platforms
 - **Batch Variations** -- Generates N variations with Literal/Creative/Premium prompt styles
 - **Session Consistency** -- Maintains character/style across multi-turn conversations with progressive enhancement
-- **Triple Fallback** -- MCP -> Direct Gemini API -> Replicate for maximum availability
+- **Multi-Provider Fallback** -- MCP → Direct Gemini API → Replicate for maximum availability
 - **4K Resolution Output** -- Up to 4096×4096 with `imageSize` control
 - **14 Aspect Ratios** -- Including ultra-wide 21:9 and extreme 8:1 for banners
 
@@ -434,7 +434,7 @@ Claude acts as Creative Director for both images and video — selecting domain 
 
 ![Prompt Formula](screenshots/reasoning-brief.webp)
 
-Instead of sending "a cat in space" to Gemini, Claude constructs:
+Instead of sending "a cat in space" to the API, Claude constructs:
 
 > A medium shot of a tabby cat floating weightlessly inside the cupola module
 > of the International Space Station, paws outstretched toward a floating
@@ -476,7 +476,7 @@ Presentation mode has two generation options designed for real-world slide workf
 
 **Background Only** -- Produces clean backgrounds with intentional negative space where text and logos will be added in Keynote, PowerPoint, or Google Slides. The prompt explicitly states "NO text, NO logos, NO labels" to prevent the model from generating unwanted artifacts.
 
-> **Why no logos in prompts?** Gemini interprets every word literally. "Reserve space for logo" becomes "generate a logo here." The correct approach is describing the area as "clean negative space" or "simple uncluttered background," then compositing the logo as a separate layer in your presentation software where you have pixel-perfect control.
+> **Why no logos in prompts?** The image model interprets every word literally. "Reserve space for logo" becomes "generate a logo here." The correct approach is describing the area as "clean negative space" or "simple uncluttered background," then compositing the logo as a separate layer in your presentation software where you have pixel-perfect control.
 
 ## Asset Registry
 
@@ -560,27 +560,39 @@ An alternative API backend using `google/nano-banana-2` on Replicate. Useful whe
 
 ## Models
 
+Creators Studio is model-agnostic — models are swapped in and out based on empirical bake-offs, not brand loyalty. The current roster reflects tried-and-tested winners as of v4.0.0.
+
 ### Image Models
 
 | Model | ID | Notes |
 |-------|----|-------|
-| Flash 3.1 (default) | `gemini-3.1-flash-image-preview` | Fastest, newest, 14 aspect ratios, up to 4K |
-| Flash 2.5 | `gemini-2.5-flash-image` | Stable fallback, budget/free tier |
+| Gemini Flash 3.1 (default) | `gemini-3.1-flash-image-preview` | Fastest, 14 aspect ratios, up to 4K |
+| Gemini Flash 2.5 | `gemini-2.5-flash-image` | Budget/free tier fallback |
+| Replicate fallback | `google/nano-banana-2` | Same model via Replicate API |
 
 ### Video Models
 
-| Model | ID | Backend (auto-routed) | Notes |
-|-------|----|---|---|
-| VEO 3.1 Standard (default) | `veo-3.1-generate-preview` | ✅ Gemini API | 4-8s, 1080p/4K, native audio, $0.40/sec |
-| VEO 3.1 Fast | `veo-3.1-fast-generate-preview` | ✅ Gemini API | 4-8s, 1080p/4K, $0.15/sec |
-| VEO 3.1 Standard GA | `veo-3.1-generate-001` | ✅ Vertex AI (v3.6.0) | GA equivalent, full feature surface |
-| VEO 3.1 Fast GA | `veo-3.1-fast-generate-001` | ✅ Vertex AI (v3.6.0) | GA equivalent |
-| VEO 3.1 Lite | `veo-3.1-lite-generate-001` | ✅ Vertex AI (v3.6.0) | 4/6/8s, 720p/1080p, $0.05/sec — **draft tier** |
-| VEO 3.0 (legacy) | `veo-3.0-generate-001` | ✅ Vertex AI (v3.6.0) | Predecessor for reproduction |
+| Model | ID | Notes |
+|-------|----|-------|
+| **Kling v3 Std (default)** | `kwaivgi/kling-v3-video` | 3-15s, 1080p, 1:1 support, $0.02/s — won 8/15 shot types vs VEO |
+| VEO 3.1 (backup) | `veo-3.1-*-generate-*` | Opt-in via `--provider veo`. Lite/Fast/Standard tiers. |
 
-For sequences, **draft at Lite first** (`/create-video sequence generate
---quality-tier draft`) then re-render approved shots at Standard —
-**8× cheaper** than blind Standard for the draft pass. See the
+### Audio Models
+
+| Model | Provider | Notes |
+|-------|----|-------|
+| **ElevenLabs Music (default)** | ElevenLabs | Won 12-0 blind genre bake-off vs Lyria |
+| Lyria 2 (alternative) | Google Vertex AI | $0.06/clip, supports negative_prompt |
+| ElevenLabs TTS | ElevenLabs | Custom voice design + cloning |
+
+### Specialist Models
+
+| Model | ID | Use case |
+|-------|----|-------|
+| Fabric 1.0 | `veed/fabric-1.0` | Audio-driven lip-sync ($0.15/s) |
+| DreamActor M2.0 | `bytedance/dreamactor-m2.0` | Real-footage-to-avatar motion transfer ($0.05/s, deferred to v4.1.x) |
+
+For sequences, use `/create-video sequence generate` — all quality tiers route to Kling by default. Use `--quality-tier veo-backup` for explicit VEO. See the
 draft-then-final workflow in
 `skills/create-video/references/video-sequences.md`. Lite, GA `-001` IDs,
 image-to-video, and Scene Extension v2 all require `vertex_api_key`
