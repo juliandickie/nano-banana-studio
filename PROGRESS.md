@@ -1,15 +1,15 @@
-# Nano Banana Studio -- Development Progress
+# Creators Studio -- Development Progress
 
 > This file tracks development history, decisions, and next steps for
-> nano-banana-studio. Read this at the start of each session for continuity.
+> creators-studio. Read this at the start of each session for continuity.
 
 ## Project Overview
 
-- **Repo:** https://github.com/juliandickie/nano-banana-studio
+- **Repo:** https://github.com/juliandickie/creators-studio
 - **Origin:** https://github.com/AgriciDaniel/banana-claude (forked at v1.4.1, detached at v2.1.0)
-- **Current version:** 3.8.1
-- **Local path:** `/Users/juliandickie/code/nano-banana-pro/nano-banana-studio/`
-- **Plugin layout:** `.claude-plugin/` + `skills/banana/` (image) + `skills/video/` (video) + `agents/`
+- **Current version:** 4.0.0
+- **Local path:** `/Users/juliandickie/code/creators-studio-project/creators-studio/`
+- **Plugin layout:** `.claude-plugin/` + `skills/create-image/` (image) + `skills/create-video/` (video) + `agents/`
 
 ## Features Added Beyond Original banana-claude
 
@@ -490,10 +490,10 @@ This was the scheduled post-v3.7.3 polish release closing the known-issues debt 
 **Session 16 spend**: ~$53 total across both phases (Phase 1 ~$2.79 + Phase 2 ~$50.18). Zero hard-cap breaches (Phase 2 cap raised to $60). Cumulative v3.6.x + v3.7.x + spike 5 spend: **~$62.18**.
 
 **Artifacts**:
-- Full findings doc: `/Users/juliandickie/code/nano-banana-pro/spikes/v3.8.0-provider-bakeoff/writeup/v3.8.0-bakeoff-findings.md`
-- Implementation plan: `/Users/juliandickie/code/nano-banana-pro/spikes/v3.8.0-provider-bakeoff/IMPLEMENTATION_PLAN.md`
-- Handoff doc: `/Users/juliandickie/code/nano-banana-pro/spikes/v3.8.0-provider-bakeoff/NEXT_SESSION.md`
-- Phase 2 test definitions: `/Users/juliandickie/code/nano-banana-pro/spikes/v3.8.0-provider-bakeoff/config/phase2_tests.json`
+- Full findings doc: `/Users/juliandickie/code/creators-studio-project/spikes/v3.8.0-provider-bakeoff/writeup/v3.8.0-bakeoff-findings.md`
+- Implementation plan: `/Users/juliandickie/code/creators-studio-project/spikes/v3.8.0-provider-bakeoff/IMPLEMENTATION_PLAN.md`
+- Handoff doc: `/Users/juliandickie/code/creators-studio-project/spikes/v3.8.0-provider-bakeoff/NEXT_SESSION.md`
+- Phase 2 test definitions: `/Users/juliandickie/code/creators-studio-project/spikes/v3.8.0-provider-bakeoff/config/phase2_tests.json`
 - Kling extended 30s outputs (ship-quality): `runs/phase2_extended-2026-04-15T04-39-21Z/ext_01_cinematic_narrative_30s/kling-v3-std/output_stitched.mp4` + `ext_02_product_showcase_30s/kling-v3-std/output_stitched.mp4`
 
 **Session 16 is a research spike, NOT a release.** v3.8.0 implementation is queued for Session 17, which should start by reading `NEXT_SESSION.md` in the spike directory and executing the plan in `IMPLEMENTATION_PLAN.md`.
@@ -627,6 +627,41 @@ This was the scheduled post-v3.7.3 polish release closing the known-issues debt 
 7. **12-genre music bake-off: ElevenLabs 12-0 sweep over Lyria** — flipped `DEFAULT_MUSIC_SOURCE` to `"elevenlabs"` after a blind A/B evaluation across cinematic, corporate, electronic, lo-fi, classical, ambient, jazz, acoustic, hip-hop, synthwave, world, and funk. 24 calls total (12 per provider), $0.72 Lyria cost. User verdict: "each winner was a clear winner and a definite difference in quality and interpretation." This overrides v3.7.2 spike 4's single-genre Lyria win. Spike artifacts at `/tmp/genre-bakeoff/`. v3.8.3 release.
 
 **Updated session 19 total spend**: ~$1.82 ($1.10 DreamActor/Kling spike + $0.72 Lyria bake-off). **Cumulative: ~$9.34**.
+
+### Session 20 (2026-04-16 → 2026-04-17) — v3.8.4 Housekeeping + v4.0.0 Rebrand
+
+**Scope**: Ship two back-to-back releases — (1) v3.8.4 housekeeping that closes the last three "after v3.8.0" ROADMAP items and brings the cost ledger up to date for Kling, DreamActor, and Fabric; (2) v4.0.0 full rebrand from `nano-banana-studio` to `creators-studio` with a new `/create-image` + `/create-video` command namespace.
+
+**What shipped:**
+
+1. **v3.8.4 — cost tracking + strip-list config + dangling-phrase cleanup** (commit `46cb25d`).
+   - `cost_tracker.py` PRICING dict extended with Replicate video models: Kling ($0.02/s), DreamActor ($0.05/s), Fabric ($0.15/s). Sources: Kling + DreamActor from their Replicate model pages; Fabric from the predictions dashboard (authoritative over session 18's speculative $0.30/call figure).
+   - `_lookup_cost()` now branches on `per_second` / `per_clip` / resolution-keyed pricing modes. Lyria's `per_clip: 0.06` was unreachable pre-v3.8.4 (dead-code path); it's now live and correct.
+   - `video_generate.py` and `video_lipsync.py` shell out to `cost_tracker.py log` after successful generations via `subprocess.run(..., capture_output=True, timeout=5)` with a bare `except: pass`. **Best-effort only — never blocks generation output.**
+   - `audio_pipeline.py`: new `_load_custom_triggers()` helper reads `~/.banana/config.json` `named_creator_triggers` list; `strip_named_creators()` now has three-tier precedence (explicit param → config → hardcoded default). Users can add custom strip terms without editing the script.
+   - `audio_pipeline.py`: new `_DANGLING_PHRASES` list + regex cleanup. `"in the style of Hans Zimmer, warm strings"` → `"warm strings"` (was `"in the style of , warm strings"` on v3.8.3).
+   - `ROADMAP.md` housekeeping: fixed three duplicate `| 9 |` priority rows, consolidated "deferred / pending / future" spike sections into a single "Completed research spikes" block, marked v3.8.2/v3.8.3/v3.8.4 items done.
+   - GitHub Releases published for v3.8.2 + v3.8.3 with plugin zips (both had been tagged but the zip artifacts weren't uploaded).
+
+2. **v4.0.0 — rebrand to Creators Studio** (commit `4474454` + README polish in `87d644c`).
+   - **Why now**: the name `nano-banana-studio` anchored the product to a single Google model at the exact moment the AI race is not finished. Kling v3 Std replaced VEO as the video default in v3.8.0. ElevenLabs Music replaced Lyria as the music default in v3.8.3. Both changes shipped in the last ten days. The next best-in-class swap is coming. The rename decouples product identity from any one model so those swaps don't require a rebrand each time.
+   - **Naming changes**: plugin `nano-banana-studio` → `creators-studio`; commands `/banana` → `/create-image`, `/video` → `/create-video`; skill dirs `skills/banana/` → `skills/create-image/`, `skills/video/` → `skills/create-video/` (via `git mv` so history is preserved); output dirs `nanobanana_generated` / `nano-banana-audio` / `nano-banana-sequences` → `creators_generated` / `creators_audio` / `creators_sequences` (only on fresh install — existing dirs are left alone).
+   - **Preserved deliberately for backward compat**: `~/.banana/` config dir (API keys, custom voices, presets, cost ledger all stay put — zero config loss on upgrade), Google model identifiers (`gemini-3.1-flash-image-preview`, `google/nano-banana-2` — those are Google's brand, not ours), MCP package name (`@ycse/nanobanana-mcp` is a third-party upstream dependency).
+   - **Scope**: 77 files, ~425 string replacements, all 28 Python scripts compile cleanly. No functional changes. Pure rename + version bump.
+   - **Prerequisite**: GitHub repo renamed from `juliandickie/nano-banana-studio` to `juliandickie/creators-studio` before pushing v4.0.0. GitHub auto-redirects the old URL for existing clones.
+   - **Tagline**: *Imagine · Direct · Generate — Creative Engine for Claude Code*.
+
+3. **Doc catch-up (this session)**: added CHANGELOG entries for v3.8.4 + v4.0.0 (were missing — the Feature Completion Checklist hadn't been completed for either release), added footer links for v3.8.0 through v4.0.0 (a pre-existing gap — v3.8.0-3 were missing too), wrote this Session 20 PROGRESS entry. README rebrand polish for the screenshots folder is tracked as the next session's work.
+
+**Key decisions**:
+
+- **User state vs product branding separation.** Renaming `~/.banana/` on upgrade would force every existing user to re-paste API keys and re-design custom voices. The slight branding asymmetry of a "Creators Studio" plugin writing to `~/.banana/config.json` is the right trade-off. This is a general principle: rename the product freely, touch user state carefully.
+- **Google model identifiers are upstream, not ours.** `google/nano-banana-2` is a Replicate model slug Google publishes. `gemini-3.1-flash-image-preview` is a Gemini API model name. Renaming either would break the dispatch. The rebrand stops at the plugin's own surface.
+- **ROADMAP "strip-list extensibility" + "dangling-phrase stripping" were tagged Low priority** but shipped together in v3.8.4 because both touch `strip_named_creators()` and the marginal cost of shipping them together was ~5 minutes. When two deferred items share code, batch them.
+
+**Session spend**: $0 (code + docs only, no API calls). **Cumulative: ~$9.34** (unchanged since session 19).
+
+**Next session**: README rebrand polish in the screenshots folder — the screenshots are already committed-as-modified (file compression + old filename cleanup), but the README body references them by alt text and caption. Also needs the What's New in This Fork section to get v3.8.4 + v4.0.0 entries in the sales-copy-not-changelog style per the CLAUDE.md §3 rule.
 
 ## Expansion Roadmap
 

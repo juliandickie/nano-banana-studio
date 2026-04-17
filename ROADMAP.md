@@ -235,6 +235,7 @@ These worked well and should be documented in the video-sequences reference so f
 | 10g | v3.8.2 — **Kling character consistency via start_image** — session 19 spike proved start_image + matched prompt = identity lock at 1080p. DreamActor deferred to v3.9.x. | Small | High | **✅ Shipped 2026-04-16** |
 | 10h | v3.8.3 — **ElevenLabs Music as default** — 12-genre blind bake-off, ElevenLabs 12-0 sweep. Lyria demoted to `--music-source lyria`. | Small | Medium | **✅ Shipped 2026-04-16** |
 | 10i | v3.8.4 — **Housekeeping**: Replicate cost tracking in video scripts, strip-list config extensibility, dangling-phrase fix, ROADMAP cleanup, GitHub releases for v3.8.2-3 | Small | Medium | **✅ Shipped 2026-04-16** |
+| 10j | v4.0.0 — **Rebrand to Creators Studio**: `nano-banana-studio` → `creators-studio`, `/banana` → `/create-image`, `/video` → `/create-video`. Model-agnostic identity decouples product from any one model. 77 files / ~425 replacements, no functional changes. `~/.banana/` config preserved for zero-config-loss upgrade. Plus session 20 screenshot rebrand: 7 banana-mascot-branded WEBPs regenerated via Gemini in matching editorial-neon aesthetic at ~$0.62 total generation spend. | Large | High | **✅ Shipped 2026-04-17** |
 | 11 | Backlog cherry-picks — `output_gcs_uri`, `--num-videos`, parallel batch execution, object insertion, regional restrictions awareness | Various | Low-Medium | Cherry-pick as needed |
 
 ### Completed research spikes

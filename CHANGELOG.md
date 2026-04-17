@@ -5,6 +5,85 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2026-04-17
+
+### Headline
+
+**Full rebrand from `nano-banana-studio` to `creators-studio`.** The plugin is now **Creators Studio — Creative Engine for Claude Code**, with the tagline *Imagine · Direct · Generate*. The old name anchored the product to a single Google model (Nano Banana) at a moment when the AI race is emphatically not finished — Kling v3 Std already beat VEO 3.1 to become the video default in v3.8.0, ElevenLabs Music beat Lyria to become the music default in v3.8.3, and the next best-in-class swap will happen again. The rename separates the product's identity from any one model so the plugin can continue absorbing new state-of-the-art engines without carrying a misleading brand.
+
+This is a rename-only release. **No functional changes.** 77 files touched, ~425 string replacements, all 28 Python scripts compile cleanly.
+
+### Changed
+
+- **Plugin identifier**: `nano-banana-studio` → `creators-studio` in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`.
+- **Command namespace**: `/banana` → `/create-image`, `/video` → `/create-video`. All 34 commands across both skills renamed. Example: `/banana generate` is now `/create-image generate`, `/video sequence` is now `/create-video sequence`.
+- **Skill directories** renamed via `git mv` (preserves history):
+  - `skills/banana/` → `skills/create-image/`
+  - `skills/video/` → `skills/create-video/`
+- **Default output directories** (created on first use of new versions):
+  - `~/Documents/nanobanana_generated` → `~/Documents/creators_generated`
+  - `~/Documents/nano-banana-audio` → `~/Documents/creators_audio`
+  - `~/Documents/nano-banana-sequences` → `~/Documents/creators_sequences`
+  - Existing output directories are left in place — the script only creates the new dir on a fresh install.
+- **Repository homepage + all README/doc references** updated from `github.com/juliandickie/nano-banana-studio` to `github.com/juliandickie/creators-studio`.
+- **CITATION.cff** project name + repository-code URL updated.
+- **All 28 Python scripts'** internal `Path(__file__)` traversal, help strings, User-Agent headers, and error messages updated to the new plugin name.
+- **All 24 reference markdown files** (12 image-skill + 12 video-skill) updated for command name references.
+- **Both SKILL.md orchestrators** (create-image + create-video) updated for command names and script paths.
+
+### Preserved (backward compatibility)
+
+- **`~/.banana/` config directory** is intentionally NOT renamed. API keys (`google_ai_api_key`, `replicate_api_token`, `elevenlabs_api_key`, `vertex_api_key`, `vertex_project_id`, `vertex_location`), custom voices, custom preset overrides, cost ledger, and session history all stay at the existing path. Existing users upgrade with zero config loss.
+- **Google model identifiers** (`gemini-3.1-flash-image-preview`, `gemini-2.5-flash-image`, `google/nano-banana-2`) are Google's brand — they stay unchanged. Renaming them would break the Replicate dispatch and Gemini API routes.
+- **MCP package name** `@ycse/nanobanana-mcp` unchanged — it's a third-party upstream dependency the plugin doesn't own.
+
+### Release process
+
+- **GitHub repo renamed** from `juliandickie/nano-banana-studio` to `juliandickie/creators-studio` as a prerequisite. GitHub auto-redirects the old URL, so cloned forks continue to work, but new clones should use the new URL.
+- **Release zip** renamed from `nano-banana-studio-vX.Y.Z.zip` to `creators-studio-vX.Y.Z.zip` pattern. Historical `banana-claude-vX.Y.Z.zip` and `nano-banana-studio-vX.Y.Z.zip` files at the workspace root are preserved as archived build artifacts — do not delete or rename them, as their URLs are public.
+
+### Migration notes for existing users
+
+1. Update your git remote: `git remote set-url origin https://github.com/juliandickie/creators-studio.git`
+2. Pull the latest: `git pull`
+3. Commands change: replace `/banana` with `/create-image` and `/video` with `/create-video` in any scripts, aliases, or documentation you maintain.
+4. Your `~/.banana/` config, API keys, voices, and presets **carry forward unchanged**.
+5. Old output directories in `~/Documents/nanobanana_generated` etc. are left in place — move them to the new `creators_*` locations manually if you want a single canonical location.
+
+## [3.8.4] - 2026-04-16
+
+### Headline
+
+**Replicate cost tracking + strip-list config extensibility + dangling-phrase cleanup.** A five-item housekeeping release that closes the last three ROADMAP items tagged "after v3.8.0" and brings the cost ledger up to date for Kling, DreamActor, and Fabric — which together account for most of the ~$62 cumulative video spend since spike 5 but were invisible in `~/.banana/costs.json` because the PRICING table was still image-only. This is the release that makes the analytics dashboard honest for video work.
+
+### Added
+
+- **Replicate video model pricing in `cost_tracker.py` PRICING dict** — three new entries, each with a `per_second` rate sourced from the authoritative Replicate model page or predictions dashboard:
+  - `kwaivgi/kling-v3-video`: `$0.02/s` (model page)
+  - `bytedance/dreamactor-m2.0`: `$0.05/s` (model page)
+  - `veed/fabric-1.0`: `$0.15/s` (predictions dashboard, session 19 2026-04-16 — authoritative over the speculative $0.30/call figure from session 18's first lipsync.md draft)
+- **`per_second` and `per_clip` pricing modes** in `cost_tracker._lookup_cost()` — the image-era function only handled resolution-keyed image pricing (`"512" | "1K" | "2K" | "4K"` → $). Now it branches on which pricing key is present: `per_second` (video models; duration passed as the `resolution` string e.g. `"8s"`), `per_clip` (Lyria — always $0.06), or the original resolution-keyed mode (Gemini image-gen). Lyria's existing `per_clip` entry was previously bypassed; it now works correctly.
+- **Best-effort cost logging in `video_generate.py` and `video_lipsync.py`** — after a successful generation, the script shells out to `cost_tracker.py log` with the model name + duration. Uses `subprocess.run(..., capture_output=True, timeout=5)` with a bare `except Exception: pass` — cost logging **never blocks generation output** or returns a non-zero exit. Duration passed as `f"{args.duration}s"` to satisfy the new `per_second` branch.
+- **`_load_custom_triggers()` helper in `audio_pipeline.py`** — reads `~/.banana/config.json` `named_creator_triggers` key (list). Returns the list if present and non-empty, else `None`. Called by `strip_named_creators()` before falling back to the hardcoded default.
+- **`_DANGLING_PHRASES` module-level list in `audio_pipeline.py`** — eight wrapper phrases (`"in the style of"`, `"inspired by"`, `"reminiscent of"`, `"like"`, `"à la"`, `"a la"`, `"channeling"`, `"evoking"`) that commonly precede creator names. When the creator is stripped, these are detected and removed via a case-insensitive regex so `"in the style of Hans Zimmer, warm strings"` → `"warm strings"` instead of the v3.8.3 output `"in the style of , warm strings"`.
+
+### Changed
+
+- **`strip_named_creators()` trigger precedence** is now explicitly documented and three-tier:
+  1. Explicit `triggers=` parameter passed by a caller (override)
+  2. `named_creator_triggers` list in `~/.banana/config.json` (user override — NEW in v3.8.4)
+  3. Hardcoded `NAMED_CREATOR_TRIGGERS` module constant (default)
+  The function signature didn't change — the change is behavioral. Callers that don't care about the override path (which is all of them today) get the v3.8.3 behavior unless the config key is present.
+- **`ROADMAP.md` housekeeping**: fixed duplicate "priority 9" rows (three `| 9 |` rows were clobbering each other in the table), consolidated the "Deferred research spikes" + "Pending spikes for v3.8.x" + "Future research backlog" sections into a single "Completed research spikes" block now that everything in the pending buckets has shipped, marked all items completed in v3.8.2 / v3.8.3 / v3.8.4, and struck through the "strip-list extensibility" + "compound-phrase stripping" entries that landed this release.
+
+### Fixed
+
+- **Lyria cost entries were unreachable pre-v3.8.4.** `PRICING["vertex/lyria-002"]` has `per_clip: 0.06` but `_lookup_cost()` only branched on the resolution-keyed image path and would emit `"Warning: Unknown resolution '32.768s'"` then fall through to 1K image pricing ($0.039). No real cost was miscomputed in practice because `audio_pipeline.py` never called `cost_tracker.py` for music — but the dead-code path is now live and correct.
+
+### Release process
+
+- **GitHub Releases published for v3.8.2 and v3.8.3** with plugin zips attached. Both had been tagged + pushed but the zip artifacts weren't uploaded. v3.8.4 catches those up as part of the housekeeping.
+
 ## [3.8.3] - 2026-04-16
 
 ### Headline
@@ -144,7 +223,7 @@ Full spike 5 findings: `spikes/v3.8.0-provider-bakeoff/writeup/v3.8.0-bakeoff-fi
 
 ### Fixed
 
-- **Replicate API `/v1/account` endpoint blocked by Cloudflare WAF error 1010** when using Python-urllib's default User-Agent. `_replicate_backend.py` sends a custom `User-Agent: nano-banana-studio/3.8.0 (+https://github.com/juliandickie/nano-banana-studio)` header on every request. The existing image-gen `replicate_generate.py` does NOT set a User-Agent and works only because `/v1/models/.../predictions` endpoints have more lenient Cloudflare rules — adding User-Agent to that script is a candidate v3.8.x hardening but out of scope for this release.
+- **Replicate API `/v1/account` endpoint blocked by Cloudflare WAF error 1010** when using Python-urllib's default User-Agent. `_replicate_backend.py` sends a custom `User-Agent: nano-banana-studio/3.8.0 (+https://github.com/juliandickie/creators-studio)` header on every request. The existing image-gen `replicate_generate.py` does NOT set a User-Agent and works only because `/v1/models/.../predictions` endpoints have more lenient Cloudflare rules — adding User-Agent to that script is a candidate v3.8.x hardening but out of scope for this release.
 - **Replicate Prediction.status `aborted` not handled by the spike's client** — the OpenAPI schema explicitly defines 6 status values (`starting | processing | succeeded | failed | canceled | aborted`) but `spikes/v3.8.0-provider-bakeoff/lib/replicate_client.py` only handles the first 5. `_replicate_backend.parse_replicate_poll_response()` maps `aborted` to the "failed" bucket — without this fix, the poll loop would spin forever on aborted predictions.
 - **Spike's `Prefer: wait=0` is non-spec-compliant per the Replicate OpenAPI regex** (`^wait(=([1-9]|[1-9][0-9]|60))?$`). `_replicate_backend.py` omits the Prefer header entirely for async-first semantic, which is correct for Kling's 3-6 min wall times.
 - **4K error message in `video_generate.py` was hardcoded to VEO-only guidance** — used to say "Use 'veo-3.1-generate-preview' or 'veo-3.1-fast-generate-preview' for 4K" regardless of which model was blocked. Now model-aware: Kling users see "Kling v3 Std maxes at 1080p (pro mode). Use --resolution 1080p or --provider veo if you specifically need 4K output."
@@ -957,29 +1036,35 @@ Real-API verification during the v3.5.0 release surfaced a critical distinction:
 - Batch variations, multi-turn chat, prompt inspiration
 - Install script with validation
 
-[3.7.4]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.7.4
-[3.7.3]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.7.3
-[3.4.1]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.4.1
-[3.4.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.4.0
-[3.3.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.3.0
-[3.2.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.2.0
-[3.1.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.1.0
-[3.0.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v3.0.0
-[2.7.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.7.0
-[2.6.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.6.0
-[2.5.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.5.0
-[2.4.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.4.0
-[2.3.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.3.0
-[2.2.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.2.0
-[2.1.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.1.0
-[2.0.1]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.0.1
-[2.0.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v2.0.0
-[1.9.1]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.9.1
-[1.9.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.9.0
-[1.8.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.8.0
-[1.7.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.7.0
-[1.6.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.6.0
-[1.5.0]: https://github.com/juliandickie/nano-banana-studio/releases/tag/v1.5.0
+[4.0.0]: https://github.com/juliandickie/creators-studio/releases/tag/v4.0.0
+[3.8.4]: https://github.com/juliandickie/creators-studio/releases/tag/v3.8.4
+[3.8.3]: https://github.com/juliandickie/creators-studio/releases/tag/v3.8.3
+[3.8.2]: https://github.com/juliandickie/creators-studio/releases/tag/v3.8.2
+[3.8.1]: https://github.com/juliandickie/creators-studio/releases/tag/v3.8.1
+[3.8.0]: https://github.com/juliandickie/creators-studio/releases/tag/v3.8.0
+[3.7.4]: https://github.com/juliandickie/creators-studio/releases/tag/v3.7.4
+[3.7.3]: https://github.com/juliandickie/creators-studio/releases/tag/v3.7.3
+[3.4.1]: https://github.com/juliandickie/creators-studio/releases/tag/v3.4.1
+[3.4.0]: https://github.com/juliandickie/creators-studio/releases/tag/v3.4.0
+[3.3.0]: https://github.com/juliandickie/creators-studio/releases/tag/v3.3.0
+[3.2.0]: https://github.com/juliandickie/creators-studio/releases/tag/v3.2.0
+[3.1.0]: https://github.com/juliandickie/creators-studio/releases/tag/v3.1.0
+[3.0.0]: https://github.com/juliandickie/creators-studio/releases/tag/v3.0.0
+[2.7.0]: https://github.com/juliandickie/creators-studio/releases/tag/v2.7.0
+[2.6.0]: https://github.com/juliandickie/creators-studio/releases/tag/v2.6.0
+[2.5.0]: https://github.com/juliandickie/creators-studio/releases/tag/v2.5.0
+[2.4.0]: https://github.com/juliandickie/creators-studio/releases/tag/v2.4.0
+[2.3.0]: https://github.com/juliandickie/creators-studio/releases/tag/v2.3.0
+[2.2.0]: https://github.com/juliandickie/creators-studio/releases/tag/v2.2.0
+[2.1.0]: https://github.com/juliandickie/creators-studio/releases/tag/v2.1.0
+[2.0.1]: https://github.com/juliandickie/creators-studio/releases/tag/v2.0.1
+[2.0.0]: https://github.com/juliandickie/creators-studio/releases/tag/v2.0.0
+[1.9.1]: https://github.com/juliandickie/creators-studio/releases/tag/v1.9.1
+[1.9.0]: https://github.com/juliandickie/creators-studio/releases/tag/v1.9.0
+[1.8.0]: https://github.com/juliandickie/creators-studio/releases/tag/v1.8.0
+[1.7.0]: https://github.com/juliandickie/creators-studio/releases/tag/v1.7.0
+[1.6.0]: https://github.com/juliandickie/creators-studio/releases/tag/v1.6.0
+[1.5.0]: https://github.com/juliandickie/creators-studio/releases/tag/v1.5.0
 [1.4.2]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.2
 [1.4.1]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.1
 [1.4.0]: https://github.com/AgriciDaniel/banana-claude/releases/tag/v1.4.0

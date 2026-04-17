@@ -36,6 +36,14 @@ Unlike simple API wrappers, Claude interprets your intent, selects domain expert
 
 Features driven by production use and research analysis of Google's prompting guidance:
 
+### Rebrand to Creators Studio (v4.0.0)
+
+Full rebrand from `nano-banana-studio` to **Creators Studio** — *Imagine · Direct · Generate. Creative Engine for Claude Code.* The old name anchored the plugin to a single Google model at a moment when Kling, ElevenLabs Music, and Fabric had already become best-in-class for their respective surfaces; the new identity is model-agnostic so future swaps don't require a rebrand. Commands change to `/create-image` and `/create-video`. Your `~/.banana/` config, API keys, custom voices, and presets carry forward unchanged — zero config loss on upgrade.
+
+### Replicate Cost Tracking + Strip-List Config (v3.8.4)
+
+**Replicate video costs now land in your cost ledger.** Kling ($0.02/s), DreamActor ($0.05/s), and Fabric ($0.15/s) pricing is registered in `cost_tracker.py`, and every successful `/create-video generate` or `/create-video lipsync` run auto-logs. Also: extend the named-creator strip-list via `named_creator_triggers` in `~/.banana/config.json`, and wrapper phrases (*"in the style of"*, *"inspired by"*) are cleaned up after the creator name is removed — no more dangling *"in the style of , warm strings"* fragments sent to the music APIs.
+
 ### ElevenLabs Music as Default Provider (v3.8.3)
 
 A 12-genre blind A/B bake-off found ElevenLabs Music decisively outperforms Lyria 2 across every genre tested — cinematic, electronic, lo-fi, jazz, hip-hop, synthwave, and six more. ElevenLabs is now the default `--music-source`; Lyria remains available via `--music-source lyria` for its unique `negative_prompt` feature.
@@ -95,24 +103,9 @@ the `--negative-prompt`/`--seed`/`--video-input` flags on
 of `skills/create-video/references/veo-models.md`. The Vertex-only features it
 documented but gated are exactly what v3.6.0 unblocks.
 
-### Video Generation with VEO 3.1 (v3.0.0–v3.4.0)
+### Video Generation (v3.0.0–v3.4.0)
 
-![Video Pipeline](screenshots/video-pipeline.webp)
-
-**Sample videos (generated with `/create-video generate`):**
-
-| Product Reveal — 6s / 1080p | Banana Character — 4s / 720p |
-|---|---|
-| [![Product Reveal Demo](screenshots/video-product-reveal-thumb.webp)](https://vimeo.com/1181470215) | [![Banana Spinning Demo](screenshots/video-banana-spinning-thumb.webp)](https://vimeo.com/1181470192) |
-| ▶ [Watch on Vimeo](https://vimeo.com/1181470215) — Product reveal with native audio. Generated in ~47 seconds. | ▶ [Watch on Vimeo](https://vimeo.com/1181470192) — Character animation test. Generated in ~36 seconds. |
-
-New `/video` skill powered by Google VEO 3.1. Text-to-video, image-to-video (animate stills from `/banana`), and first/last frame keyframe interpolation for seamless shot chaining. 4-8 second clips at up to 4K with native synchronized audio (dialogue, SFX, ambient). 6 video domain modes (Product Reveal, Story-Driven, Environment Reveal, Social Short, Cinematic, Tutorial/Demo). Multi-shot sequence production with storyboard approval — generate frame pairs cheaply with `/banana` before committing to video generation. Clip extension to 148 seconds. FFmpeg toolkit for concat/trim/convert. Same API key, shared brand presets and asset registry.
-
-![Video Domain Modes](screenshots/video-domain-modes.webp)
-
-![Sequence Production](screenshots/sequence-production.webp)
-
-![Storyboard Workflow](screenshots/storyboard-workflow.webp)
+Text-to-video, image-to-video (animate stills from `/create-image`), and first/last frame keyframe interpolation for seamless shot chaining. 3-15 second clips at up to 1080p with native synchronized audio (dialogue, SFX, ambient). 6 video domain modes (Product Reveal, Story-Driven, Environment Reveal, Social Short, Cinematic, Tutorial/Demo). Multi-shot sequence production with storyboard approval — generate frame pairs cheaply with `/create-image` before committing to video generation. FFmpeg toolkit for concat/trim/convert. Same API key, shared brand presets and asset registry.
 
 ### Multi-Modal Content Pipeline (v2.7.0)
 
@@ -121,7 +114,6 @@ One idea, complete content package. Orchestrates hero image, social media pack, 
 
 ### Analytics Dashboard (v2.6.0)
 
-![Analytics Dashboard](screenshots/analytics-dashboard.webp)
 Self-contained HTML dashboard with inline SVG charts showing cost trends, model/domain usage, resolution distribution, and quota monitoring. Aggregates data from cost tracker, session history, and A/B preferences. No external dependencies — opens in any browser.
 
 ### Deck Builder (v2.5.0)
@@ -131,7 +123,6 @@ Assemble generated slide images into editable .pptx presentations with text laye
 
 ### Smart A/B Testing (v2.4.0)
 
-![A/B Testing](screenshots/ab-testing.webp)
 Generate Literal/Creative/Premium prompt variations from the same brief. Rate the results on a 1-5 scale, and preferences are tracked over time to learn which styles work best for you.
 
 ### Session History with Gallery Export (v2.3.0)
@@ -277,20 +268,6 @@ The fallback chain is automatic: MCP → Direct Gemini API → Replicate.
 
 </details>
 
-<details>
-<summary>Standalone Install (without plugin system)</summary>
-
-If you prefer to copy the skill files rather than use the plugin system:
-
-```bash
-git clone https://github.com/juliandickie/creators-studio.git ~/creators-studio
-bash ~/creators-studio/install.sh
-```
-
-To update: `cd ~/creators-studio && git pull && bash install.sh`
-
-</details>
-
 ## Quick Start
 
 ```bash
@@ -346,7 +323,7 @@ To update: `cd ~/creators-studio && git pull && bash install.sh`
 # Generate a video clip (8s, 16:9, with audio)
 /create-video generate "product reveal of wireless earbuds on dark surface"
 
-# Animate a still image from /banana
+# Animate a still image from /create-image
 /create-video animate ~/image.png "slow orbit revealing the product, SFX: soft whoosh"
 
 # Multi-shot sequence with storyboard approval
@@ -362,8 +339,6 @@ To update: `cd ~/creators-studio && git pull && bash install.sh`
 ```
 
 Claude acts as Creative Director for both images and video — selecting domain modes, constructing optimized prompts with camera motion and audio, and managing brand/asset consistency across media.
-
-![Creators Studio in action](screenshots/nano-banana-studio-skillcommand.gif)
 
 ## Commands
 
@@ -402,10 +377,20 @@ Claude acts as Creative Director for both images and video — selecting domain 
 | `/create-video sequence review --plan PATH --storyboard DIR` | Generate REVIEW-SHEET.md — mandatory approval gate in v3.6.3+ |
 | `/create-video sequence generate --storyboard PATH [--skip-review]` | Batch-generate clips from approved storyboard frames |
 | `/create-video sequence stitch --clips DIR --output PATH` | Assemble clips into final sequence via FFmpeg |
-| `/create-video extend <clip> [--to Ns]` | Extend a clip (+7s per hop, max 148s) |
+| `/create-video extend <clip> [--to Ns]` | Extend a clip (+7s per hop, max 148s) — **DEPRECATED in v3.8.0**, requires `--acknowledge-veo-limitations` |
+| `/create-video lipsync --image FACE --audio AUDIO [--resolution 480p\|720p]` | **v3.8.1** lip-sync a face image to audio via Fabric 1.0 — pairs with `/create-video audio narrate` custom voices |
 | `/create-video stitch <clips...>` | Concat, trim, convert video via FFmpeg |
+| `/create-video audio pipeline --video V --text "..." --music-prompt "..." [--music-source lyria\|elevenlabs]` | **v3.7.1+v3.8.3** end-to-end: parallel TTS + music (ElevenLabs default, Lyria alt), mix, swap into video |
+| `/create-video audio narrate --text "..." [--voice ROLE]` | **v3.7.1** generate ElevenLabs TTS narration only |
+| `/create-video audio music --prompt "..." [--source lyria\|elevenlabs] [--negative-prompt "..."]` | **v3.8.3** background music — ElevenLabs default, Lyria alt ($0.06/clip, supports negative-prompt) |
+| `/create-video audio mix --narration N --music M` | **v3.7.1** mix existing narration + music with side-chain ducking |
+| `/create-video audio swap --video V --audio A` | **v3.7.1** swap an audio file into a video (lossless video) |
+| `/create-video voice design --description "..."` | **v3.7.1** generate 3 voice previews from a text description |
+| `/create-video voice promote --generated-id ID --name N --role R` | **v3.7.1** save a chosen preview as a permanent custom voice |
+| `/create-video voice list` | **v3.7.1** list saved custom voices from `~/.banana/config.json` |
 | `/create-video cost [estimate]` | Video cost estimation |
 | `/create-video status` | Check VEO API access and FFmpeg availability |
+| `/create-video audio status` | **v3.7.1** check ElevenLabs API key + ffmpeg + custom voices |
 
 ## How It Works
 
