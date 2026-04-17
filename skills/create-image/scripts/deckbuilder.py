@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Slide Deck Builder
+"""Creators Studio -- Slide Deck Builder
 
 Assembles generated slide images into an editable .pptx presentation with
 text layers, logos, and brand styling.
@@ -561,7 +561,7 @@ def cmd_layouts(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Banana Claude -- Slide Deck Builder",
+        description="Creators Studio -- Slide Deck Builder",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup script for Banana Claude MCP server in Claude Code.
+Setup script for Creators Studio MCP server in Claude Code.
 
 Configures @ycse/nanobanana-mcp in Claude Code's settings.json
 with the user's Google AI API key. Also manages Replicate backend config.
@@ -203,7 +203,7 @@ def main() -> None:
         api_key = os.environ.get("GOOGLE_AI_API_KEY")
 
     if not api_key:
-        print("Banana Claude -- MCP Setup")
+        print("Creators Studio -- MCP Setup")
         print("=" * 40)
         print(f"\nGet your free API key at: https://aistudio.google.com/apikey")
         print()

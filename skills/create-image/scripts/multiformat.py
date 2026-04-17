@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Multi-Format Image Converter
+"""Creators Studio -- Multi-Format Image Converter
 
 Convert a generated image to multiple formats and sizes using ImageMagick.
 Detects source aspect ratio and scales to standard pixel dimensions per tier.

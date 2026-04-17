@@ -37,7 +37,7 @@ Walk the user through this:
 
 1. **Explain the option:**
    "Replicate is an optional backup. If the primary Google API is unavailable,
-   Banana Claude will automatically fall back to Replicate. It costs ~$0.05/image."
+   Creators Studio will automatically fall back to Replicate. It costs ~$0.05/image."
 
 2. **Direct them to get the token:**
    "Go to https://replicate.com/account/api-tokens and:

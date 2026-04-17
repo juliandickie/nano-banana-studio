@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Asset Registry
+"""Creators Studio -- Asset Registry
 
 Manage persistent character, product, and object references for
 consistent image generation across sessions.
@@ -188,7 +188,7 @@ def cmd_add_image(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Banana Claude Asset Registry")
+    parser = argparse.ArgumentParser(description="Creators Studio Asset Registry")
     sub = parser.add_subparsers(dest="command", required=True)
 
     # list

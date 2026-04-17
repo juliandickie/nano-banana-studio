@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Social Media Multi-Platform Image Generator
+"""Creators Studio -- Social Media Multi-Platform Image Generator (v4.1.2+)
 
-Generate images optimized for 45+ social media placements from a single prompt.
-Groups platforms by aspect ratio to avoid duplicate API calls, generates at 4K,
-and crops to exact platform pixels with ImageMagick.
+Generate images optimized for 87 placements across 16 social media platforms
+from a single prompt. Groups placements by aspect ratio to avoid duplicate API
+calls, generates at 4K, and crops to exact platform pixels via
+resize_for_platform() (ImageMagick preferred, sips+cwebp fallback).
 
-Uses only Python stdlib (no pip dependencies).
+Uses only Python stdlib (no pip dependencies). All aspect ratios drawn from
+the 14 Nano Banana 2-supported set; non-standard targets use closest-supported
+generation + crop.
 
 Usage:
-    social.py generate --prompt "a cat in space" --platforms ig-feed,yt-thumb
-    social.py generate --prompt "product hero" --platforms instagram,youtube --mode complete
+    social.py generate --prompt "product launch hero" --platforms ig-feed,yt-thumb
+    social.py generate --prompt "spring sale banner" --platforms instagram,youtube
+    social.py generate --prompt "abstract background" --platforms ig-feed --mode image-only
     social.py list
     social.py info ig-feed
     social.py info instagram
+
+Default mode is "complete" (v4.1.2+) — prompts that imply text (social posts,
+ads with CTAs) render it naturally. Opt into text-free output with
+--mode image-only, which appends explicit text-suppression to the prompt.
 """
 
 import argparse
@@ -36,97 +44,175 @@ API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 # Platform definitions
 # ---------------------------------------------------------------------------
 
-# PLATFORMS dict — 6 platforms, 38 placements, max-quality specs (v4.1.1+)
+# PLATFORMS dict — 16 platforms, 87 placements, SOP max-quality specs (v4.1.2+)
 #
-# Scope narrowed from 11 platforms (v4.0.x) to 6 (Instagram, Facebook, YouTube,
-# LinkedIn, Twitter/X, TikTok) in v4.1.1 to reflect honest coverage — the
-# previous 46 "platforms" were actually 46 placements across 11 prefixes
-# with shallow (2-3 placement) coverage on Pinterest, Threads, Snapchat,
-# Google Ads, Spotify.
+# Restored Pinterest / Threads / Snapchat / Google Ads / Spotify from v4.1.1's
+# 6-platform scope, then added Telegram / Signal / WhatsApp / ManyChat / BlueSky
+# for marketer coverage (messaging groups, automated response engines, new
+# social platforms). Depth + breadth both expanded.
 #
-# All pixel specs upgraded to SOP-recommended MAX-QUALITY values, not minimum
-# platform requirements. Authoritative source for every spec below is:
+# All pixel specs at SOP-recommended MAX-QUALITY values. Authoritative source:
 # dev-docs/SOP Graphic Sizes - Social Media Image and Video Specifications Guide.md
-# (January 2026 update).
+# (January 2026 update). BlueSky specs are best-guess since not in SOP — verify
+# against official BlueSky docs before relying on them.
 #
-# Key upgrades from v4.0.x → v4.1.1:
-# - yt-thumb:        1280×720  → 3840×2160  (9× pixel count, 4K quality)
-# - ig-profile:       320×320  → 720×720    (quality-recommended spec)
-# - fb-profile:       (new)    → 720×720    (quality-recommended spec)
-# - fb-ad:          1080×1080  → 1440×1800  (SOP premium feed ad)
-# - fb-story-ad:    1080×1920  → 1440×2560  (SOP premium story ad)
-# - ig-story-ad:    1080×1920  → 1440×2560  (SOP premium story ad — new key)
-# - x-header:       3:2 ratio  → 3:1 ratio  (bug fix; 1500/500 = 3:1)
-# - x-landscape:   1600×900    → 1200×675   (SOP-correct single-image feed spec)
-# - x-ad:          1600×900    → 800×800    (SOP-correct image ad spec)
+# Non-standard target ratios (placements whose true aspect isn't in Gemini's
+# 14 supported ratios) use the closest-supported ratio + resize_for_platform
+# crop. Each such placement documents its generation ratio and the trim cost.
+#
+# All aspect ratios below are drawn from the 14 Nano Banana 2-supported set:
+#   1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9, 1:4, 4:1, 1:8, 8:1
+# See dev-docs/google-nano-banana-2-llms.md for the authoritative list.
 
 PLATFORMS = {
-    # ═══ Instagram (8 placements) ═══════════════════════════════════════════
-    "ig-profile":           {"name": "Instagram Profile Picture",       "pixels": (720, 720),   "ratio": "1:1",  "resolution": "4K", "notes": "Circular crop -- keep subject in center 70%. SOP-recommended 720x720 (was 320x320 minimum in v4.0.x)."},
+    # ═══ Instagram (10 placements) ═══════════════════════════════════════════
+    "ig-profile":           {"name": "Instagram Profile Picture",       "pixels": (720, 720),   "ratio": "1:1",  "resolution": "4K", "notes": "Circular crop -- keep subject in center 70%. SOP-recommended 720x720."},
     "ig-feed":              {"name": "Instagram Feed Portrait",         "pixels": (1080, 1350), "ratio": "4:5",  "resolution": "4K", "notes": "Preferred organic feed format. Bottom 20% may be obscured by caption overlay."},
     "ig-square":            {"name": "Instagram Feed Square",           "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Center subject; edges may clip on older devices."},
     "ig-landscape":         {"name": "Instagram Feed Landscape",        "pixels": (1080, 566),  "ratio": "16:9", "resolution": "4K", "notes": "1.91:1 crop from 16:9 source."},
     "ig-story":             {"name": "Instagram Story / Reel",          "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Top 14% and bottom 35% reserved for UI (safe zones)."},
     "ig-reel-cover":        {"name": "Instagram Reel Cover (full)",     "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Full reel cover image. Center of frame is the visible thumbnail."},
     "ig-reel-cover-grid":   {"name": "Instagram Reel Grid Thumbnail",   "pixels": (1080, 1440), "ratio": "3:4",  "resolution": "4K", "notes": "Profile-grid display variant of the reel cover."},
-    "ig-story-ad":          {"name": "Instagram Story Ad (premium)",    "pixels": (1440, 2560), "ratio": "9:16", "resolution": "4K", "notes": "SOP premium quality spec for Stories Ads (1440x2560, not 1080x1920)."},
+    "ig-story-ad":          {"name": "Instagram Story Ad (premium)",    "pixels": (1440, 2560), "ratio": "9:16", "resolution": "4K", "notes": "SOP premium quality spec for Stories Ads."},
+    "ig-carousel":          {"name": "Instagram Carousel Slide",        "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Consistent ratio required across all slides; 1:1 or 4:5."},
+    "ig-explore-grid":      {"name": "Instagram Explore Grid Ad",       "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Explore Ads grid placement spec."},
 
-    # ═══ Facebook (8 placements) ═════════════════════════════════════════════
+    # ═══ Facebook (10 placements) ════════════════════════════════════════════
     "fb-profile":           {"name": "Facebook Profile Picture",        "pixels": (720, 720),   "ratio": "1:1",  "resolution": "4K", "notes": "SOP quality spec 720x720 (displays 176x176 desktop, 196x196 mobile)."},
-    "fb-cover":             {"name": "Facebook Cover Photo",            "pixels": (851, 315),   "ratio": "21:9", "resolution": "4K", "notes": "Design-size 851x315; desktop displays 820x312, mobile 640x360. Safe zone is center 640x312."},
+    "fb-cover":             {"name": "Facebook Cover Photo",            "pixels": (851, 315),   "ratio": "21:9", "resolution": "4K", "notes": "Design-size 851x315; true aspect ~2.7:1. Generates at 21:9 (closest supported), ~10% vertical trim. Safe zone center 640x312."},
     "fb-feed":              {"name": "Facebook Feed Square",            "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Organic square post."},
     "fb-landscape":         {"name": "Facebook Feed Landscape",         "pixels": (1200, 630),  "ratio": "16:9", "resolution": "4K", "notes": "1.91:1 — link preview crops tighter."},
     "fb-portrait":          {"name": "Facebook Feed Portrait",          "pixels": (1080, 1350), "ratio": "4:5",  "resolution": "4K", "notes": "Truncated in feed with See More."},
-    "fb-story":             {"name": "Facebook Story / Reel",           "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Top 14% profile bar; bottom 20% CTA."},
-    "fb-ad":                {"name": "Facebook Feed Ad (premium)",      "pixels": (1440, 1800), "ratio": "4:5",  "resolution": "4K", "notes": "SOP premium feed ad spec 1440x1800 (was 1080x1080 in v4.0.x). Bottom 20% ad copy overlay."},
-    "fb-story-ad":          {"name": "Facebook Story Ad (premium)",     "pixels": (1440, 2560), "ratio": "9:16", "resolution": "4K", "notes": "SOP premium story/reel ad spec 1440x2560. Safe zones top 360px, bottom 900px."},
+    "fb-story":             {"name": "Facebook Story",                  "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Top 14% profile bar; bottom 20% CTA."},
+    "fb-reel":              {"name": "Facebook Reel Cover",             "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Reels cover spec; safe zones top 14%, bottom 35%, sides 6%."},
+    "fb-ad":                {"name": "Facebook Feed Ad (premium)",      "pixels": (1440, 1800), "ratio": "4:5",  "resolution": "4K", "notes": "SOP premium feed ad spec. Bottom 20% ad copy overlay."},
+    "fb-story-ad":          {"name": "Facebook Story Ad (premium)",     "pixels": (1440, 2560), "ratio": "9:16", "resolution": "4K", "notes": "SOP premium story/reel ad spec. Safe zones top 360px, bottom 900px."},
+    "fb-right-column-ad":   {"name": "Facebook Right Column Ad",        "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Desktop sidebar ad placement."},
 
     # ═══ YouTube (4 placements) ══════════════════════════════════════════════
     "yt-profile":           {"name": "YouTube Channel Icon",            "pixels": (800, 800),   "ratio": "1:1",  "resolution": "4K", "notes": "Displays as circle at 98x98."},
-    "yt-thumb":             {"name": "YouTube Thumbnail (4K)",          "pixels": (3840, 2160), "ratio": "16:9", "resolution": "4K", "notes": "4K max-quality upload per v4.1.1 (was 1280x720 minimum in v4.0.x). YouTube supports up to 50MB for 4K thumbnails. Bottom-right has timestamp overlay."},
+    "yt-thumb":             {"name": "YouTube Thumbnail (4K)",          "pixels": (3840, 2160), "ratio": "16:9", "resolution": "4K", "notes": "4K max-quality upload. YouTube supports up to 50MB for 4K thumbnails. Bottom-right has timestamp overlay."},
     "yt-banner":            {"name": "YouTube Channel Banner",          "pixels": (2560, 1440), "ratio": "16:9", "resolution": "4K", "notes": "Safe zone is center 1546x423 for visibility across all devices."},
     "yt-shorts":            {"name": "YouTube Shorts Cover",            "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Center subject; top/bottom cropped in browse."},
 
-    # ═══ LinkedIn (9 placements) ═════════════════════════════════════════════
+    # ═══ LinkedIn (10 placements) ════════════════════════════════════════════
     "li-profile":           {"name": "LinkedIn Profile Picture",        "pixels": (400, 400),   "ratio": "1:1",  "resolution": "4K", "notes": "Displays as circle. Also company logo spec."},
     "li-banner":            {"name": "LinkedIn Banner",                 "pixels": (1584, 396),  "ratio": "4:1",  "resolution": "4K", "notes": "Keep subject in center band."},
+    "li-company-cover":     {"name": "LinkedIn Company Cover",          "pixels": (1128, 191),  "ratio": "8:1",  "resolution": "4K", "notes": "True aspect 5.9:1; generates at 8:1 (closer crop than 4:1 for this target), ~13% horizontal trim."},
     "li-landscape":         {"name": "LinkedIn Feed Landscape",         "pixels": (1200, 627),  "ratio": "16:9", "resolution": "4K", "notes": "1.91:1 standard share image."},
     "li-portrait":          {"name": "LinkedIn Feed Portrait",          "pixels": (1080, 1350), "ratio": "4:5",  "resolution": "4K", "notes": "Truncated in feed; top portion most visible."},
     "li-square":            {"name": "LinkedIn Feed Square",            "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Safe choice for LinkedIn."},
     "li-carousel":          {"name": "LinkedIn Carousel Slide",         "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Keep margins; swipe arrows overlay edges."},
     "li-carousel-portrait": {"name": "LinkedIn Carousel Portrait",      "pixels": (1080, 1350), "ratio": "4:5",  "resolution": "4K", "notes": "More vertical real estate for document-style carousels."},
     "li-ad":                {"name": "LinkedIn Single Image Ad",        "pixels": (1200, 628),  "ratio": "16:9", "resolution": "4K", "notes": "SOP single image ad spec (also supports 1200x1200 square)."},
-    "li-video-ad-frame":    {"name": "LinkedIn Video Ad Still",         "pixels": (1920, 1080), "ratio": "16:9", "resolution": "4K", "notes": "Video ad thumbnail / still frame at 1080p."},
+    "li-message-ad-banner": {"name": "LinkedIn Message Ad Banner",      "pixels": (300, 250),   "ratio": "5:4",  "resolution": "4K", "notes": "Optional InMail banner. True aspect 1.2:1; generates at 5:4 (1.25:1), ~4% vertical trim."},
 
-    # ═══ Twitter/X (6 placements) ════════════════════════════════════════════
+    # ═══ Twitter/X (7 placements) ════════════════════════════════════════════
     "x-profile":            {"name": "Twitter/X Profile Picture",       "pixels": (400, 400),   "ratio": "1:1",  "resolution": "4K", "notes": "Circular display."},
-    "x-header":             {"name": "Twitter/X Header Banner",         "pixels": (1500, 500),  "ratio": "21:9", "resolution": "4K", "notes": "v4.1.1 FIX: was incorrectly labeled 3:2 in v4.0.x. True target aspect is 3:1 (1500/500 = 3.0); Gemini generates at 21:9 (2.33:1, closest supported ratio) then crops ~11% vertical to exact 3:1. Safe zone: 100px buffer top/bottom; profile photo overlaps bottom-left."},
-    "x-landscape":          {"name": "Twitter/X Feed Landscape",        "pixels": (1200, 675),  "ratio": "16:9", "resolution": "4K", "notes": "v4.1.1 CORRECTED to SOP spec (was 1600x900 in v4.0.x). Crops from center on mobile."},
+    "x-header":             {"name": "Twitter/X Header Banner",         "pixels": (1500, 500),  "ratio": "21:9", "resolution": "4K", "notes": "True target 3:1 (1500/500 = 3.0); Gemini generates at 21:9 (2.33:1, closest supported) then crops ~11% vertical. Safe zone: 100px buffer top/bottom; profile photo overlaps bottom-left."},
+    "x-landscape":          {"name": "Twitter/X Feed Landscape",        "pixels": (1200, 675),  "ratio": "16:9", "resolution": "4K", "notes": "SOP spec for single-image feed posts. Crops from center on mobile."},
     "x-square":             {"name": "Twitter/X Feed Square",           "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Displayed with slight letterboxing on some devices."},
-    "x-ad":                 {"name": "Twitter/X Image Ad",              "pixels": (800, 800),   "ratio": "1:1",  "resolution": "4K", "notes": "v4.1.1 CORRECTED to SOP spec 800x800 1:1 (was 1600x900 16:9 in v4.0.x). SOP also allows 800x418 (1.91:1)."},
-    "x-video-ad-frame":     {"name": "Twitter/X Video Ad Still",        "pixels": (1920, 1080), "ratio": "16:9", "resolution": "4K", "notes": "Video ad thumbnail / still frame at 1080p (SOP: 1920x1080 16:9 or 1200x1200 1:1 accepted)."},
+    "x-ad":                 {"name": "Twitter/X Image Ad",              "pixels": (800, 800),   "ratio": "1:1",  "resolution": "4K", "notes": "SOP image ad spec. SOP also allows 800x418 (1.91:1)."},
+    "x-video-ad-frame":     {"name": "Twitter/X Video Ad Still",        "pixels": (1920, 1080), "ratio": "16:9", "resolution": "4K", "notes": "Video ad thumbnail / still frame at 1080p."},
+    "x-amplify-preroll":    {"name": "Twitter/X Amplify Pre-roll Frame", "pixels": (1200, 1200), "ratio": "1:1",  "resolution": "4K", "notes": "Amplify Pre-roll video ad frame."},
 
-    # ═══ TikTok (3 placements) ═══════════════════════════════════════════════
+    # ═══ TikTok (2 placements — TikTok is a video-first platform) ════════════
     "tt-profile":           {"name": "TikTok Profile Picture",          "pixels": (720, 720),   "ratio": "1:1",  "resolution": "4K", "notes": "Displays at 200x200 but upload at 720x720 for quality."},
-    "tt-feed":              {"name": "TikTok Feed / Cover",             "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "9:16 preferred. Avoid top and bottom 120 pixels due to UI overlays."},
-    "tt-ad":                {"name": "TikTok In-Feed / TopView Ad",     "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Both in-feed ads and TopView ads use same 1080x1920 9:16 spec at SOP-recommended quality."},
+    "tt-hashtag-banner":    {"name": "TikTok Branded Hashtag Banner",   "pixels": (1440, 288),  "ratio": "4:1",  "resolution": "4K", "notes": "True aspect 5:1; generates at 4:1 (closer than 8:1 for this target), ~10% vertical trim."},
+
+    # ═══ Pinterest (3 placements) ════════════════════════════════════════════
+    "pin-standard":         {"name": "Pinterest Standard Pin",          "pixels": (1000, 1500), "ratio": "2:3",  "resolution": "4K", "notes": "Optimal ratio for Pinterest grid."},
+    "pin-long":             {"name": "Pinterest Long Pin",              "pixels": (1000, 2100), "ratio": "9:16", "resolution": "4K", "notes": "Tall pins get more grid space. True aspect 1:2.1; generates at 9:16 (closest supported), ~8% horizontal trim."},
+    "pin-square":           {"name": "Pinterest Square Pin",            "pixels": (1000, 1000), "ratio": "1:1",  "resolution": "4K", "notes": "Less grid presence than portrait but cleaner for logo-style content."},
+
+    # ═══ Threads (4 placements) ══════════════════════════════════════════════
+    "threads-profile":      {"name": "Threads Profile Picture",         "pixels": (320, 320),   "ratio": "1:1",  "resolution": "4K", "notes": "Syncs with Instagram profile; 320x320 per SOP."},
+    "threads-portrait":     {"name": "Threads Feed Portrait",           "pixels": (1080, 1350), "ratio": "4:5",  "resolution": "4K", "notes": "Same as Instagram feed portrait."},
+    "threads-vertical":     {"name": "Threads Feed Vertical",           "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "SOP-recommended format for maximum screen fill."},
+    "threads-square":       {"name": "Threads Feed Square",             "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Safe default. Mixed carousel ratios are allowed within the same post."},
+
+    # ═══ Snapchat (6 placements) ═════════════════════════════════════════════
+    "snap-story":           {"name": "Snapchat Story",                  "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Top 14% header; bottom 20% swipe-up/reply area. 150px buffer top/bottom."},
+    "snap-spotlight":       {"name": "Snapchat Spotlight",              "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Vertical required. Public creator feed."},
+    "snap-geofilter":       {"name": "Snapchat Geofilter",              "pixels": (1080, 2340), "ratio": "9:16", "resolution": "4K", "notes": "True aspect 1:2.17; generates at 9:16 (closest supported), ~7% horizontal trim. Coverage max 25% of screen."},
+    "snap-sticker":         {"name": "Snapchat Static Sticker",         "pixels": (512, 512),   "ratio": "1:1",  "resolution": "4K", "notes": "PNG/WEBP, max 300KB."},
+    "snap-ad":              {"name": "Snapchat Ad",                     "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Bottom 30% is CTA; subject in upper 60%."},
+    "snap-story-ad-tile":   {"name": "Snapchat Story Ad Tile",          "pixels": (360, 600),   "ratio": "2:3",  "resolution": "4K", "notes": "PNG required, max 2MB. True aspect 1:1.67; generates at 2:3 (1:1.5), ~10% vertical trim."},
+
+    # ═══ Google Ads (10 placements) ══════════════════════════════════════════
+    "gads-resp-landscape":  {"name": "Google Ads Responsive Landscape", "pixels": (1200, 628),  "ratio": "16:9", "resolution": "4K", "notes": "1.91:1 — Google may auto-crop further across placements."},
+    "gads-resp-square":     {"name": "Google Ads Responsive Square",    "pixels": (1200, 1200), "ratio": "1:1",  "resolution": "4K", "notes": "Ad text overlaid below."},
+    "gads-logo":            {"name": "Google Ads Logo",                 "pixels": (1200, 1200), "ratio": "1:1",  "resolution": "4K", "notes": "Optional logo asset (max 5MB per image)."},
+    "gads-leaderboard":     {"name": "Google Ads Leaderboard",          "pixels": (728, 90),    "ratio": "8:1",  "resolution": "4K", "notes": "True aspect 8.09:1; generates at 8:1 (near-exact). Max 150KB file size."},
+    "gads-mobile-lb":       {"name": "Google Ads Mobile Leaderboard",   "pixels": (320, 50),    "ratio": "8:1",  "resolution": "4K", "notes": "True aspect 6.4:1; generates at 8:1 (closest), ~20% horizontal trim. Keep text LARGE."},
+    "gads-large-mobile":    {"name": "Google Ads Large Mobile Banner",  "pixels": (320, 100),   "ratio": "4:1",  "resolution": "4K", "notes": "True aspect 3.2:1; generates at 4:1 (closest), ~10% vertical trim."},
+    "gads-skyscraper":      {"name": "Google Ads Wide Skyscraper",      "pixels": (160, 600),   "ratio": "1:4",  "resolution": "4K", "notes": "True aspect 1:3.75; generates at 1:4 (near-exact). Narrow vertical; text must be large."},
+    "gads-half-page":       {"name": "Google Ads Half-Page",            "pixels": (300, 600),   "ratio": "9:16", "resolution": "4K", "notes": "True aspect 1:2; generates at 9:16 (1:1.78), ~6% vertical trim. Keep subject in upper half."},
+    "gads-rectangle":       {"name": "Google Ads Medium Rectangle",     "pixels": (300, 250),   "ratio": "5:4",  "resolution": "4K", "notes": "True aspect 1.2:1; generates at 5:4 (1.25:1, closest), ~4% vertical trim. Compact format; center everything."},
+    "gads-shopping":        {"name": "Google Ads Shopping",             "pixels": (800, 800),   "ratio": "1:1",  "resolution": "4K", "notes": "Merchant Center spec. Apparel 250x250 min; non-apparel 100x100 min; 800x800 recommended."},
+
+    # ═══ Spotify (4 placements) ══════════════════════════════════════════════
+    "spotify-profile":      {"name": "Spotify Artist Profile",          "pixels": (1000, 1000), "ratio": "1:1",  "resolution": "4K", "notes": "SOP-recommended size. 750x750 minimum."},
+    "spotify-banner":       {"name": "Spotify Artist Banner",           "pixels": (2660, 1140), "ratio": "21:9", "resolution": "4K", "notes": "True aspect 2.33:1 = exact 21:9 match. Text overlays on left side."},
+    "spotify-cover":        {"name": "Spotify Album/Podcast Cover",     "pixels": (3000, 3000), "ratio": "1:1",  "resolution": "4K", "notes": "Official Spotify/Apple Podcasts cover art spec. sRGB 24-bit."},
+    "spotify-audio-ad":     {"name": "Spotify Audio Ad Companion",      "pixels": (640, 640),   "ratio": "1:1",  "resolution": "4K", "notes": "Companion image shown during audio ad playback."},
+
+    # ═══ Telegram (4 placements) ═════════════════════════════════════════════
+    "tg-profile":           {"name": "Telegram Profile Picture",        "pixels": (512, 512),   "ratio": "1:1",  "resolution": "4K", "notes": "Circular display. Same spec as sticker canvas."},
+    "tg-sticker-static":    {"name": "Telegram Static Sticker",         "pixels": (512, 512),   "ratio": "1:1",  "resolution": "4K", "notes": "PNG/WEBP, max 512KB. One side must be exactly 512px."},
+    "tg-message-image":     {"name": "Telegram Message Image",          "pixels": (1280, 1280), "ratio": "1:1",  "resolution": "4K", "notes": "Telegram auto-compresses messages to 1280x1280; send as file to avoid compression."},
+    "tg-ad":                {"name": "Telegram Ad Image",               "pixels": (1280, 720),  "ratio": "16:9", "resolution": "4K", "notes": "Telegram Ads require 16:9, min 640px width, max 5MB."},
+
+    # ═══ Signal (1 placement — minimal broadcast surface) ════════════════════
+    "sg-profile":           {"name": "Signal Profile Picture",          "pixels": (500, 500),   "ratio": "1:1",  "resolution": "4K", "notes": "Signal applies aggressive compression; upload source at 500x500 for best preserved quality. Minimum is 160x160."},
+
+    # ═══ WhatsApp (6 placements) ═════════════════════════════════════════════
+    "wa-profile":           {"name": "WhatsApp Profile Picture",        "pixels": (640, 640),   "ratio": "1:1",  "resolution": "4K", "notes": "Max quality spec (640x640); 500x500 also ideal."},
+    "wa-status":            {"name": "WhatsApp Status",                 "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "WhatsApp Stories-equivalent format."},
+    "wa-catalog":           {"name": "WhatsApp Business Catalog",       "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Product image for Business catalog. Minimum 640x640."},
+    "wa-business-cover":    {"name": "WhatsApp Business Cover",         "pixels": (1920, 1080), "ratio": "16:9", "resolution": "4K", "notes": "Recommended Business profile cover photo."},
+    "wa-ctwa-square":       {"name": "WhatsApp Click-to-WhatsApp Ad",   "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "Managed through Facebook/Instagram Ads Manager."},
+    "wa-ctwa-story":        {"name": "WhatsApp CTWA Story Ad",          "pixels": (1080, 1920), "ratio": "9:16", "resolution": "4K", "notes": "Vertical CTWA placement for Stories."},
+
+    # ═══ ManyChat (2 placements — native blocks) ═════════════════════════════
+    "mc-gallery-card":      {"name": "ManyChat Gallery/Card Image",     "pixels": (909, 476),   "ratio": "16:9", "resolution": "4K", "notes": "Messenger gallery card spec. True aspect 1.91:1; generates at 16:9 (1.78:1), ~3% vertical trim. Max 8MB."},
+    "mc-image-block":       {"name": "ManyChat Image Block",            "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "SOP-recommended 900x900 rounded up to 1080x1080 for quality. 1:1 appears larger in chat."},
+
+    # ═══ BlueSky (4 placements — specs unverified against official docs) ═════
+    "bsky-profile":         {"name": "BlueSky Profile Picture",         "pixels": (400, 400),   "ratio": "1:1",  "resolution": "4K", "notes": "v4.1.2: best-guess spec; not in SOP. Displays circular. Verify against BlueSky official docs before production use."},
+    "bsky-banner":          {"name": "BlueSky Profile Banner",          "pixels": (3000, 1000), "ratio": "21:9", "resolution": "4K", "notes": "v4.1.2: best-guess spec. True target 3:1 (3.0:1); generates at 21:9 (2.33:1, closest supported), ~11% vertical trim. Verify against BlueSky docs."},
+    "bsky-feed-square":     {"name": "BlueSky Feed Square",             "pixels": (1080, 1080), "ratio": "1:1",  "resolution": "4K", "notes": "v4.1.2: best-guess spec. BlueSky allows up to 4 images per post at common social ratios."},
+    "bsky-feed-portrait":   {"name": "BlueSky Feed Portrait",           "pixels": (1080, 1350), "ratio": "4:5",  "resolution": "4K", "notes": "v4.1.2: best-guess spec. Portrait variant for richer vertical feed presence."},
 }
 
-# Group shorthands expand to multiple platform keys (v4.1.1: 6 platforms)
+# Group shorthands expand to multiple platform keys (v4.1.2: 16 platforms)
 GROUPS = {
+    # Per-platform groups — the main placements for that platform's feed
     "instagram":    ["ig-feed", "ig-square", "ig-story", "ig-reel-cover"],
-    "facebook":     ["fb-feed", "fb-landscape", "fb-portrait", "fb-story"],
+    "facebook":     ["fb-feed", "fb-landscape", "fb-portrait", "fb-story", "fb-reel"],
     "youtube":      ["yt-thumb", "yt-banner", "yt-shorts"],
     "linkedin":     ["li-landscape", "li-square", "li-portrait", "li-banner"],
     "twitter":      ["x-landscape", "x-square", "x-header"],
-    "tiktok":       ["tt-feed"],
+    "tiktok":       ["tt-profile", "tt-hashtag-banner"],
+    "pinterest":    ["pin-standard", "pin-square"],
+    "threads":      ["threads-portrait", "threads-square", "threads-vertical"],
+    "snapchat":     ["snap-story", "snap-spotlight"],
+    "google-ads":   ["gads-resp-landscape", "gads-resp-square", "gads-logo"],
+    "spotify":      ["spotify-cover", "spotify-profile", "spotify-banner"],
+    "telegram":     ["tg-profile", "tg-sticker-static", "tg-ad"],
+    "signal":       ["sg-profile"],
+    "whatsapp":     ["wa-profile", "wa-status", "wa-catalog"],
+    "manychat":     ["mc-gallery-card", "mc-image-block"],
+    "bluesky":      ["bsky-profile", "bsky-banner", "bsky-feed-square"],
+
     # Cross-platform family groups — useful for multi-channel campaigns
-    "all-feeds":    ["ig-feed", "fb-portrait", "li-portrait", "x-landscape"],
-    "all-squares":  ["ig-square", "fb-feed", "li-square", "x-square"],
-    "all-stories":  ["ig-story", "fb-story", "tt-feed"],
-    "all-ads":      ["fb-ad", "fb-story-ad", "ig-story-ad", "li-ad", "x-ad", "tt-ad"],
-    "all-profiles": ["ig-profile", "fb-profile", "yt-profile", "li-profile", "x-profile", "tt-profile"],
-    "all-banners":  ["fb-cover", "yt-banner", "li-banner", "x-header"],
+    "all-feeds":    ["ig-feed", "fb-portrait", "li-portrait", "x-landscape", "threads-portrait", "bsky-feed-portrait"],
+    "all-squares":  ["ig-square", "fb-feed", "li-square", "x-square", "threads-square", "bsky-feed-square"],
+    "all-stories":  ["ig-story", "fb-story", "snap-story", "wa-status"],
+    "all-ads":      ["fb-ad", "fb-story-ad", "ig-story-ad", "li-ad", "x-ad", "snap-ad", "gads-resp-landscape", "wa-ctwa-square"],
+    "all-profiles": ["ig-profile", "fb-profile", "yt-profile", "li-profile", "x-profile", "tt-profile", "threads-profile", "tg-profile", "sg-profile", "wa-profile", "bsky-profile", "spotify-profile"],
+    "all-banners":  ["fb-cover", "yt-banner", "li-banner", "x-header", "spotify-banner", "bsky-banner"],
+    "all-messaging": ["tg-profile", "sg-profile", "wa-profile", "wa-status", "wa-catalog", "mc-gallery-card", "mc-image-block"],
 }
 
 # 4K generation sizes for each native ratio
@@ -439,7 +525,22 @@ def cmd_generate(args):
         sys.exit(1)
 
     model = args.model or DEFAULT_MODEL
-    image_only = args.mode != "complete"
+    # v4.1.2: default --mode is "complete" (text allowed). Explicit opt into
+    # text-free via --mode image-only, which (a) sets responseModalities to
+    # IMAGE only and (b) appends an explicit text-suppression clause to the
+    # prompt so the model doesn't render typography in the output.
+    image_only = args.mode == "image-only"
+
+    # When image-only mode is active, append a suppression clause so the model
+    # actually produces text-free output. Previously this was just a response-
+    # modalities setting, which didn't affect whether the image contained text.
+    effective_prompt = args.prompt
+    if image_only:
+        effective_prompt = (
+            f"{args.prompt}\n\n"
+            f"IMPORTANT: produce a clean image with NO text, NO logos, NO "
+            f"typography, NO labels, NO captions. Pure visual content only."
+        )
 
     # Output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -451,7 +552,7 @@ def cmd_generate(args):
 
     print(f"Generating for {len(platform_keys)} platform(s) across {len(ratio_groups)} unique ratio(s)...")
     print(f"  Model: {model}")
-    print(f"  Mode: {'Complete (with text)' if not image_only else 'Image Only'}")
+    print(f"  Mode: {'Image Only (text suppressed)' if image_only else 'Complete (text allowed — default in v4.1.2+)'}")
     print(f"  Output: {output_dir}")
     print()
 
@@ -464,7 +565,7 @@ def cmd_generate(args):
         print(f"  [{ratio_idx + 1}/{len(ratio_groups)}] Generating {ratio} ({gen_w}x{gen_h}) for: {platform_names}...", end=" ", flush=True)
 
         image_data, error = generate_image(
-            prompt=args.prompt,
+            prompt=effective_prompt,
             model=model,
             aspect_ratio=ratio,
             resolution=DEFAULT_RESOLUTION,
@@ -639,7 +740,7 @@ def _print_platform_info(key):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Banana Claude Social Media Multi-Platform Image Generator",
+        description="Creators Studio Social Media Multi-Platform Image Generator",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Examples:
   social.py generate --prompt "a red sports car" --platforms ig-feed,yt-thumb
@@ -657,8 +758,8 @@ def main():
     p_gen.add_argument("--platforms", required=True,
                        help="Comma-separated platform keys, group names, or 'all'")
     p_gen.add_argument("--output", default=None, help="Output directory")
-    p_gen.add_argument("--mode", choices=["complete", "image-only"], default="image-only",
-                       help="Output mode: complete (with text) or image-only (default)")
+    p_gen.add_argument("--mode", choices=["complete", "image-only"], default="complete",
+                       help="Output mode: complete (text allowed, DEFAULT in v4.1.2+) or image-only (explicitly suppresses text/logos/typography in the prompt). Social posts typically have text — the v4.1.1 image-only default was backwards.")
     p_gen.add_argument("--model", default=None, help=f"Model ID (default: {DEFAULT_MODEL})")
     p_gen.add_argument("--api-key", default=None, help="Google AI API key")
 

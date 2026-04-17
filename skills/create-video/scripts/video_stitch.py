@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Video Stitching Toolkit
+"""Creators Studio -- Video Stitching Toolkit
 
 Concatenate, trim, and convert video clips using FFmpeg.
 Uses only Python stdlib + subprocess (FFmpeg only).

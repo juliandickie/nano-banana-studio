@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Visual Brand Book Generator
+"""Creators Studio -- Visual Brand Book Generator
 
 Generate a complete visual brand book from a brand preset in three formats:
 Markdown + images, PowerPoint (.pptx), and self-contained HTML.
@@ -924,7 +924,7 @@ def output_html(preset, colors_table, image_paths, output_dir, logo_path=None):
   <h2>Templates</h2>
   <div class="template-grid">{template_html}</div>
 
-  <p class="generated">Generated {datetime.now().strftime('%Y-%m-%d %H:%M')} by Banana Claude</p>
+  <p class="generated">Generated {datetime.now().strftime('%Y-%m-%d %H:%M')} by Creators Studio</p>
 </div>
 </body>
 </html>"""
@@ -1040,7 +1040,7 @@ def cmd_generate(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Banana Claude -- Visual Brand Book Generator",
+        description="Creators Studio -- Visual Brand Book Generator",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Examples:
   %(prog)s generate --preset luxury-dark --output ~/brand-book/ --tier standard

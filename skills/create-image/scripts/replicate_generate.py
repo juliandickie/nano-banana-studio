@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Replicate API Backend: Image Generation
+"""Creators Studio -- Replicate API Backend: Image Generation
 
 Generate images via the Replicate API using google/nano-banana-2.
 Uses only Python stdlib (no pip dependencies).

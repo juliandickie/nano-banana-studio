@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Session History Tracker
+"""Creators Studio -- Session History Tracker
 
 Track image generation history per session and provide gallery/export features.
 
@@ -203,7 +203,7 @@ def cmd_sessions(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Banana Claude Session History")
+    parser = argparse.ArgumentParser(description="Creators Studio Session History")
     sub = parser.add_subparsers(dest="command", required=True)
 
     # log

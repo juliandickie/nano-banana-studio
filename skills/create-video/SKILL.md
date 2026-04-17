@@ -42,6 +42,7 @@ argument-hint: "[generate|animate|sequence|extend|stitch|cost|status] <idea, pat
 | `/create-video cost [estimate]` | Video cost estimation |
 | `/create-video status` | Check VEO API access and FFmpeg availability |
 | `/create-video audio status` | **v3.7.1** check ElevenLabs API key + ffmpeg + custom voices |
+| `/create-video social <idea> --platforms <list>` | **Coming in v4.2.0** — platform-native video generation. Spec catalogue is available now at `references/social-platforms.md` (37 placements across 14 platforms with duration min/max). |
 
 ## Video Creative Director Pipeline
 

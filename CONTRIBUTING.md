@@ -1,4 +1,4 @@
-# Contributing to Banana Claude
+# Contributing to Creators Studio
 
 Contributions are welcome! Here's how to help.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Replicate API Fallback: Image Editing
+"""Creators Studio -- Replicate API Fallback: Image Editing
 
 Edit images via Replicate API using google/nano-banana-2.
 Uses only Python stdlib (no pip dependencies).

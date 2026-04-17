@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Video Generation via Google VEO 3.1
+"""Creators Studio -- Video Generation via Google VEO 3.1
 
 Generate videos via VEO REST API using async long-running operations.
 Uses only Python stdlib (no pip dependencies).

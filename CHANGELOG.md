@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.2] - 2026-04-17
+
+### Headline
+
+**Full social platform coverage — 87 image placements across 16 platforms — plus plugin-wide text-by-default.** v4.1.1 over-narrowed to 6 platforms; v4.1.2 corrects course by restoring Pinterest, Threads, Snapchat, Google Ads, and Spotify, then adding Telegram, Signal, WhatsApp, ManyChat, and BlueSky to cover marketer needs for messaging groups, automated response engines, and emerging platforms. Every pixel spec remains at SOP max-quality (including the v4.1.1 YouTube thumbnail 4K upgrade). Default `--mode` on `/create-image social` flips from `image-only` to `complete` — social posts typically need text, and the `image-only` flag now additionally appends an explicit text-suppression clause to the prompt so it actually does what its name implies. Video specs for the same 16 platforms (37 placements across 14 — Signal and ManyChat have no native video) are captured as reference data in a new `skills/create-video/references/social-platforms.md` ready for v4.2.0's forthcoming `/create-video social` command.
+
+### Changed (non-breaking)
+
+- **`PLATFORMS` dict in `social.py` restored + expanded** from v4.1.1's 38 placements to **87 across 16 platforms**. Restored: Pinterest (3), Threads (4), Snapchat (6), Google Ads (10), Spotify (4). Added: Telegram (4), Signal (1), WhatsApp (6), ManyChat (2), BlueSky (4). Expanded Instagram 8→10, Facebook 8→10, LinkedIn 9→10, Twitter/X 6→7, TikTok 3→2 (dropped `tt-feed` + `tt-ad` — those are video-only and moved to the video spec doc; `tt-hashtag-banner` and `tt-profile` retained as the two TikTok image placements).
+- **`GROUPS` dict expanded** with per-platform groups for all 16 platforms plus new cross-platform family groups: `all-feeds` (expanded to 6 platforms), `all-squares` (6 platforms), `all-stories`, `all-ads`, `all-profiles` (12 variants), `all-banners`, and **`all-messaging`** (Telegram + Signal + WhatsApp + ManyChat for marketer messaging-channel packs).
+- **Default `--mode` on `/create-image social` flipped from `image-only` to `complete`**. Rationale: finished social content typically has text (CTAs, ads, headline overlays); the `image-only` default was backwards. Opt-in to text-free via `--mode image-only`.
+- **`--mode image-only` behavior fixed**: previously only set `responseModalities` to `["IMAGE"]` (which controls whether the model returns a text description alongside the image, NOT whether text appears in the image). v4.1.2 additionally appends an explicit `"IMPORTANT: produce a clean image with NO text, NO logos, NO typography, NO labels, NO captions. Pure visual content only."` clause to the prompt so the flag actually suppresses text in the output. The v4.1.1 flag was semantically misleading.
+
+### Added
+
+- **`skills/create-video/references/social-platforms.md`** — new reference doc for **37 video placements across 14 platforms**. Each entry lists pixel dimensions, aspect ratio, `duration_min_s`, `duration_max_s`, and platform-specific notes (safe zones, codec constraints, bitrate requirements). This is **data-only in v4.1.2** — consumed by the forthcoming `/create-video social` command in v4.2.0. Cites the January 2026 SOP doc as authoritative source. Signal and ManyChat are explicitly excluded (no native video placements); BlueSky specs flagged as best-guess pending verification.
+- **11 new image placements** beyond the v4.1.1 set:
+  - `ig-carousel` + `ig-explore-grid` (Instagram)
+  - `fb-reel` + `fb-right-column-ad` (Facebook)
+  - `li-company-cover` + `li-message-ad-banner` (LinkedIn)
+  - `x-amplify-preroll` (Twitter/X)
+- **5 new platforms** with complete image coverage:
+  - **Telegram** (4): profile, static sticker, message image, ad image
+  - **Signal** (1): profile
+  - **WhatsApp** (6): profile, Status, Business Catalog, Business Cover, Click-to-WhatsApp square ad, CTWA story ad
+  - **ManyChat** (2): gallery card, image block
+  - **BlueSky** (4): profile, banner, feed square, feed portrait (specs flagged unverified)
+- **Updated docstring on `social.py`** reflecting the 87-across-16 scope, default-mode flip, and the non-standard-ratio → closest-supported generation pattern.
+
+### Fixed
+
+- **Semantic misalignment on `--mode image-only`**: the flag name promised text-free output but only affected API response modalities, not whether the model actually rendered text in the image. v4.1.2 makes the flag do what it says — append a suppression clause to the prompt and set image-only modality.
+- **Legacy "Banana Claude" branding cleanup in scripts and live docs**: ~40 references to the pre-rename project name survived the v4.0.0 rebrand in Python script docstrings, argparse `description=` strings, print headers, a brand-book HTML output footer, `CONTRIBUTING.md` H1, and one line in `setup.md`. All now reference "Creators Studio." Historical entries in `CHANGELOG.md` (v2.1.0 rename release notes, v1.x retrospectives) and `PROGRESS.md` (session history) are preserved as factual at their point in time; only LIVE user-facing and runtime references were updated. Archived release-zip filenames like `banana-claude-v1.7.0.zip` remain unchanged (they're public URLs).
+
+### Platform count clarification
+
+The `/create-image social` feature's public framing changes from "38 sizes across 6 platforms" (v4.1.1) to **"87 sizes across 16 platforms"** (v4.1.2) in README, CLAUDE.md, SKILL.md, and `references/social-platforms.md`. Historical entries (CHANGELOG v1.7.0, PROGRESS retrospective table) are left intact.
+
+### Breaking changes
+
+**None.** v4.1.2 is strictly additive + restores v4.1.1 removals. Users whose workflows pinned retired v4.1.1 keys regain functionality transparently. The `--mode` default change is a behavior shift but both modes remain available; users explicitly passing `--mode image-only` still get the same behavior, now improved so the flag actually suppresses text in the output.
+
+### Aspect ratio validation
+
+All 87 placements use only the 14 Nano Banana 2-supported aspect ratios (per `dev-docs/google-nano-banana-2-llms.md`): `1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9, 1:4, 4:1, 1:8, 8:1`. Non-standard platform targets (Twitter/X header 3:1, TikTok hashtag banner 5:1, LinkedIn company cover 5.9:1, Facebook cover 2.7:1, Snapchat geofilter 1:2.17, Snapchat story ad tile 1:1.67, Pinterest long pin 1:2.1, Google Ads half-page 1:2, Google Ads mobile leaderboard 6.4:1, Google Ads large mobile banner 3.2:1) generate at the closest-supported ratio with documented trim percentages per-placement.
+
 ## [4.1.1] - 2026-04-17
 
 ### Headline
@@ -1108,6 +1154,7 @@ Real-API verification during the v3.5.0 release surfaced a critical distinction:
 - Batch variations, multi-turn chat, prompt inspiration
 - Install script with validation
 
+[4.1.2]: https://github.com/juliandickie/creators-studio/releases/tag/v4.1.2
 [4.1.1]: https://github.com/juliandickie/creators-studio/releases/tag/v4.1.1
 [4.1.0]: https://github.com/juliandickie/creators-studio/releases/tag/v4.1.0
 [4.0.0]: https://github.com/juliandickie/creators-studio/releases/tag/v4.0.0

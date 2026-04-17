@@ -12,7 +12,7 @@
 Let an AI that's been trained on the best practices for every model write the prompts for you, instead of spending hours teaching yourself to prompt-engineer a moving target.
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
-[![Version](https://img.shields.io/badge/version-4.1.1-coral)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.1.2-coral)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 <details>
@@ -71,7 +71,7 @@ Three creative surfaces, one Creative Director.
 
 ### 📷 Images
 
-**Brand-native visual assets across 38 sizes and ratios on 6 major platforms** (Instagram, Facebook, YouTube, LinkedIn, Twitter/X, TikTok) — presentations, brand books, and product assets. Claude reads your intent, picks a domain lens (Cinema, Product, Editorial, UI/Web, Logo, Landscape, etc.), applies your brand style guide if you have one, and generates at the correct aspect ratio and resolution for the target surface — at max-quality upload specs, not platform minimums.
+**Brand-native visual assets across 87 sizes and ratios on 16 platforms** — broadcast social (Instagram, Facebook, YouTube, LinkedIn, Twitter/X, TikTok, Pinterest, Threads, Snapchat, Google Ads, Spotify, BlueSky) plus messaging channels for marketing campaigns and automated response engines (Telegram, Signal, WhatsApp, ManyChat). Presentations, brand books, and product assets too. Claude reads your intent, picks a domain lens (Cinema, Product, Editorial, UI/Web, Logo, Landscape, etc.), applies your brand style guide if you have one, and generates at the correct aspect ratio and resolution for the target surface — at max-quality upload specs, not platform minimums.
 
 ![5-Input Creative Brief](screenshots/creative-brief.webp)
 
@@ -87,7 +87,7 @@ Three creative surfaces, one Creative Director.
 
 ![Content Pipeline](screenshots/content-pipeline.webp)
 
-**Key features:** 5-Input Creative Brief · 11 Domain Modes · 5-Component Prompt Formula · Edit-First refinements · Brand Style Guides · Asset Registry (save once, reuse everywhere) · Platform-native generation (38 sizes × 6 platforms at max-quality specs) · Slide decks and brand books · A/B prompt variation testing · Multi-format output · Session history with gallery export.
+**Key features:** 5-Input Creative Brief · 11 Domain Modes · 5-Component Prompt Formula · Edit-First refinements · Brand Style Guides · Asset Registry (save once, reuse everywhere) · Platform-native generation (87 sizes × 16 platforms at max-quality specs) · Slide decks and brand books · A/B prompt variation testing · Multi-format output · Session history with gallery export.
 
 ### 🎬 Video
 
@@ -239,7 +239,7 @@ Claude acts as Creative Director for every call — selecting domain modes, cons
 | `/create-image slides [plan\|prompts\|generate]` | Slide deck pipeline: content → design brief → prompts → batch images |
 | `/create-image inspire [category]` | Browse prompt database for ideas |
 | `/create-image batch <idea> [N]` | Generate N variations (default: 3) |
-| `/create-image social <idea> --platforms <list>` | Platform-native image generation (38 sizes × 6 platforms, max-quality upload specs, 4K generation + exact-dim crop) |
+| `/create-image social <idea> --platforms <list>` | Platform-native image generation (87 sizes × 16 platforms, max-quality upload specs, 4K generation + exact-dim crop, text-rendering by default) |
 | `/create-image brand` | Conversational brand guide builder (learn → refine → preview → save) |
 | `/create-image asset [list\|show\|create\|delete]` | Manage persistent character/product/object references |
 | `/create-image reverse <image-path>` | Analyze image → extract 5-Component Formula prompt |
@@ -283,6 +283,7 @@ Claude acts as Creative Director for every call — selecting domain modes, cons
 | `/create-video cost [estimate]` | Video cost estimation |
 | `/create-video status` | Check VEO API access and FFmpeg availability |
 | `/create-video audio status` | **v3.7.1** check ElevenLabs API key + ffmpeg + custom voices |
+| `/create-video social <idea> --platforms <list>` | **Coming in v4.2.0** — platform-native video generation (spec catalogue shipped in v4.1.2 at `references/social-platforms.md`: 37 placements × 14 platforms with duration ranges) |
 
 ## How It Works
 
@@ -367,7 +368,7 @@ creators-studio/                       # Claude Code Plugin
 │   │   ├── gemini-models.md           # Model specs, resolution tables, input limits
 │   │   ├── mcp-tools.md               # MCP tool parameters and responses
 │   │   ├── replicate.md               # Replicate backend API reference
-│   │   ├── social-platforms.md        # 38 sizes × 6 platforms at max-quality specs
+│   │   ├── social-platforms.md        # 87 sizes × 16 platforms at max-quality specs (image side)
 │   │   ├── brand-builder.md           # Conversational brand guide flow
 │   │   ├── asset-registry.md          # Persistent asset system
 │   │   ├── reverse-prompt.md          # Image → prompt extraction
@@ -395,7 +396,7 @@ creators-studio/                       # Claude Code Plugin
 │   │   ├── video_extend.py            # DEPRECATED in v3.8.0 (hard-gated)
 │   │   ├── audio_pipeline.py          # TTS + music + mix + swap
 │   │   └── video_stitch.py            # FFmpeg concat/trim/convert
-│   └── references/                    # 8 video reference guides
+│   └── references/                    # 9 video reference guides
 │       ├── kling-models.md            # Kling v3 Std default, Seedance verdict
 │       ├── lipsync.md                 # Fabric 1.0 2-step workflow
 │       ├── veo-models.md              # VEO backup specs + Vertex constraints
@@ -403,7 +404,8 @@ creators-studio/                       # Claude Code Plugin
 │       ├── video-domain-modes.md      # 6 video domain modes + shot types
 │       ├── video-sequences.md         # Multi-shot production
 │       ├── audio-pipeline.md          # Full audio architecture
-│       └── image-to-video.md          # Animate-a-still
+│       ├── image-to-video.md          # Animate-a-still
+│       └── social-platforms.md        # v4.1.2: 37 video placements × 14 platforms with duration ranges (feeds /create-video social in v4.2.0)
 └── agents/
     ├── brief-constructor.md           # Image prompt subagent
     └── video-brief-constructor.md     # Video prompt subagent

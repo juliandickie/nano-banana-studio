@@ -28,7 +28,7 @@ argument-hint: "[generate|edit|chat|slides|social|brand|asset|reverse|book|batch
 | `/create-image slides [plan\|prompts\|generate]` | Slide deck pipeline |
 | `/create-image inspire [category]` | Browse prompt database for ideas |
 | `/create-image batch <idea> [N]` | Generate N variations (default: 3) |
-| `/create-image social <idea> --platforms <list>` | Platform-native image generation (38 sizes × 6 platforms, max-quality upload specs, 4K generation + exact-dim crop) |
+| `/create-image social <idea> --platforms <list>` | Platform-native image generation (87 sizes × 16 platforms, max-quality upload specs, 4K generation + exact-dim crop, text-rendering by default in v4.1.2+) |
 | `/create-image brand` | Conversational brand guide builder (learn → refine → preview → save) |
 | `/create-image asset [list\|show\|create\|delete]` | Manage persistent character/product/object references |
 | `/create-image reverse <image-path>` | Analyze image → extract 5-Component Formula prompt to recreate it |
@@ -192,7 +192,11 @@ Analyze an image and extract the prompt that would recreate it. See `references/
 
 ## /create-image social
 
-Generate platform-native images at correct ratios for **38 sizes across 6 platforms** (Instagram, Facebook, YouTube, LinkedIn, Twitter/X, TikTok) — at max-quality upload specs, not platform minimums (v4.1.1+). See `references/social-platforms.md` for the full spec table. Script: `python3 ${CLAUDE_SKILL_DIR}/scripts/social.py generate --prompt "..." --platforms ig-feed,yt-thumb`
+Generate platform-native images at correct ratios for **87 sizes across 16 platforms** (Instagram, Facebook, YouTube, LinkedIn, Twitter/X, TikTok, Pinterest, Threads, Snapchat, Google Ads, Spotify, Telegram, Signal, WhatsApp, ManyChat, BlueSky) — at max-quality upload specs, not platform minimums (v4.1.2+). See `references/social-platforms.md` for the full spec table. Script: `python3 ${CLAUDE_SKILL_DIR}/scripts/social.py generate --prompt "..." --platforms ig-feed,yt-thumb`
+
+**Default mode is `--mode complete`** (v4.1.2+) — text-rendering is allowed. Prompts that imply text (social posts with CTAs, ads, slide titles) will render it naturally. Pass `--mode image-only` only when the user explicitly wants a text-free background plate — that flag appends an explicit text-suppression clause to the prompt.
+
+For cross-channel campaigns, use group shorthands: `instagram`, `facebook`, `all-feeds`, `all-stories`, `all-ads`, `all-profiles`, `all-messaging` (Telegram+Signal+WhatsApp+ManyChat).
 
 ## /create-image brand
 
@@ -295,7 +299,7 @@ Load on-demand -- do NOT load all at startup:
 - `references/post-processing.md` -- ImageMagick/FFmpeg pipelines, green screen
 - `references/cost-tracking.md` -- Pricing table, usage guide
 - `references/presets.md` -- Brand Style Guide schema (17 fields)
-- `references/social-platforms.md` -- 38 placement specs across 6 platforms (Instagram, Facebook, YouTube, LinkedIn, Twitter/X, TikTok), max-quality upload dimensions, safe zones
+- `references/social-platforms.md` -- 87 image placement specs across 16 platforms (see doc for full list), max-quality upload dimensions, safe zones, non-standard ratio mappings
 - `references/brand-builder.md` -- Guided brand creation flow (learn → refine → preview → save)
 - `references/asset-registry.md` -- Persistent asset registry (characters, products, objects, environments)
 - `references/reverse-prompt.md` -- Image analysis → 5-Component Formula prompt extraction

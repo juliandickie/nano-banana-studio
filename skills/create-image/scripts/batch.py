@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- CSV Batch Workflow
+"""Creators Studio -- CSV Batch Workflow
 
 Parse a CSV file of image generation requests and output a structured plan.
 Claude then executes each row via MCP.

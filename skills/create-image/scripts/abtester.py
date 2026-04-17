@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- A/B Prompt Variation Tester
+"""Creators Studio -- A/B Prompt Variation Tester
 
 Generate Literal/Creative/Premium prompt variations from the same creative
 brief, rate them, and track preferences over time.
@@ -302,7 +302,7 @@ def cmd_history(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Banana Claude A/B Prompt Variation Tester")
+    parser = argparse.ArgumentParser(description="Creators Studio A/B Prompt Variation Tester")
     sub = parser.add_subparsers(dest="command", required=True)
 
     # generate

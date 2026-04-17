@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Multi-Shot Sequence Production Pipeline
+"""Creators Studio -- Multi-Shot Sequence Production Pipeline
 
 Break scripts into shot lists, generate storyboard frame pairs using the
 image generation API, batch-generate video clips via VEO, and stitch them

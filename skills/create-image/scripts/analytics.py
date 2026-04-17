@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Analytics Dashboard
+"""Creators Studio -- Analytics Dashboard
 
 Generate a self-contained HTML analytics dashboard showing cost trends,
 domain usage, model breakdown, and quota monitoring.
@@ -463,7 +463,7 @@ def cmd_report(args):
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="Banana Claude Analytics Dashboard")
+    parser = argparse.ArgumentParser(description="Creators Studio Analytics Dashboard")
     sub = parser.add_subparsers(dest="command", required=True)
 
     # report

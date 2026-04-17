@@ -7,7 +7,7 @@
 
 - **Repo:** https://github.com/juliandickie/creators-studio
 - **Origin:** https://github.com/AgriciDaniel/banana-claude (forked at v1.4.1, detached at v2.1.0)
-- **Current version:** 4.1.1
+- **Current version:** 4.1.2
 - **Local path:** `/Users/juliandickie/code/creators-studio-project/creators-studio/`
 - **Plugin layout:** `.claude-plugin/` + `skills/create-image/` (image) + `skills/create-video/` (video) + `agents/`
 
@@ -721,6 +721,36 @@ This was the scheduled post-v3.7.3 polish release closing the known-issues debt 
 - **Breaking change acceptable for honest coverage**. Dropping 5 shallow-coverage platforms is technically a breaking API change (old platform keys error out), but the scope was dishonest — claiming "46 platforms" when 5 of them had 2-3 placements and no profile/ad variants. Depth beats breadth for creator-tool positioning. Users whose workflows pinned retired keys get a clear error and can migrate.
 - **Generation resolution unchanged**. Gemini still generates at 4K natively; the difference is only in the final crop target. No extra API cost, just better uploads.
 - **Gemini-supported-ratio fallback is the right pattern**. When a platform's true aspect ratio (e.g. 3:1 for x-header, 2.7:1 for fb-cover) isn't in Gemini's 14-ratio set, we pick the closest supported ratio and let `resize_for_platform` handle the crop. Better than forcing a destructive crop from a mismatched ratio.
+
+**Session spend**: $0 (doc + config changes only). **Cumulative: ~$1.10**.
+
+### Session 23 (2026-04-17, continuing from session 22) — v4.1.2 full social platform restoration + plugin-wide text-by-default
+
+**Scope**: Reverse the v4.1.1 6-platform narrowing after user feedback ("expand, don't narrow — marketers need messaging platforms too"). Restore Pinterest/Threads/Snapchat/Google Ads/Spotify and add Telegram/Signal/WhatsApp/ManyChat/BlueSky. Flip `/create-image social` default to `--mode complete` so text renders by default (social posts usually have text — the previous default was backwards). Capture video specs as data-only reference in the video skill, ready for v4.2.0's `/create-video social` command.
+
+**Process note**: After shipping v4.1.1 with an unreviewed scope decision (drop 5 platforms), user feedback established a new rule: "We need to have a final check-in with me the user before pushing and committing the version update." Saved as `feedback_release_checkin.md` in project memory. v4.1.2 followed this rule — three rounds of scope review with user before any code touched disk.
+
+**What shipped**:
+
+1. **87 image placements across 16 platforms** (up from 38 across 6 in v4.1.1):
+   - Instagram 10, Facebook 10, YouTube 4, LinkedIn 10, Twitter/X 7, TikTok 2, Pinterest 3, Threads 4, Snapchat 6, Google Ads 10, Spotify 4, Telegram 4, Signal 1, WhatsApp 6, ManyChat 2, BlueSky 4.
+   - 11 new image placements beyond v4.1.1: `ig-carousel`, `ig-explore-grid`, `fb-reel`, `fb-right-column-ad`, `li-company-cover`, `li-message-ad-banner`, `x-amplify-preroll` plus the 5 new platforms' placements.
+   - BlueSky specs flagged as best-guess pending verification (not in SOP doc).
+
+2. **Plugin-wide text-by-default flip**. `/create-image social` default `--mode` changed from `image-only` to `complete`. Rationale: social posts with CTAs, ads with headlines, branded banners all need text — the v4.1.1 default suppressed text for the common case. Users wanting text-free backgrounds pass `--mode image-only`, which now additionally appends an explicit suppression clause (`"NO text, NO logos, NO typography, NO labels, NO captions"`) to the prompt. Previously the flag only affected response modalities, not whether text appeared in the image — semantically misleading.
+
+3. **New `skills/create-video/references/social-platforms.md`** (data-only). 37 video placements across 14 platforms (Signal + ManyChat have no native video). Each entry lists pixel dimensions, aspect ratio, `duration_min_s`, `duration_max_s`, and notes (safe zones, codec constraints, bitrate requirements). Ready for v4.2.0's `/create-video social` command. Duration ranges span 0.5s (X Amplify Pre-roll) to 14,400s (Facebook feed video 4-hour max) to 43,200s (YouTube long-form 12h verified).
+
+4. **GROUPS dict expanded** with per-platform groups for all 16 platforms plus cross-platform family groups: `all-feeds` (6 platforms), `all-squares` (6), `all-stories`, `all-ads`, `all-profiles` (12 variants), `all-banners`, and **`all-messaging`** (Telegram + Signal + WhatsApp + ManyChat for marketer messaging-channel packs).
+
+5. **Aspect ratio discipline**: every placement uses only the 14 Nano Banana 2-supported ratios (per `dev-docs/google-nano-banana-2-llms.md`). Non-standard targets (3:1, 5:1, 5.9:1, 2.7:1, 1:2.17, 1:1.67, 1:2.1, 1:2, 6.4:1, 3.2:1) map to closest-supported generation with documented trim percentages per-placement. No new ratios invented.
+
+**Key decisions**:
+
+- **Depth + breadth both matter**. v4.1.1 made the right diagnosis (shallow coverage on 5 platforms) but the wrong prescription (drop them). v4.1.2 keeps them AND expands each. The right fix was always "fix the depth," not "remove the platform."
+- **Messaging platforms count as social marketing surface**. Telegram groups, WhatsApp Status, ManyChat Messenger cards — these are legitimate creative-asset delivery channels for marketers. Including them in `/create-image social` matches how creative teams actually operate.
+- **Video specs live in the video skill**, even though v4.1.2 doesn't yet wire a CLI for them. Separation of concerns: `/create-image` owns image specs, `/create-video` owns video specs. Cross-doc "see also" links maintain discoverability.
+- **BlueSky specs shipped unverified with explicit warning** rather than deferred. User preference was to include BlueSky; best-guess defaults with prominent ⚠️ flags let users start using the keys while maintaining clarity that final verification is pending.
 
 **Session spend**: $0 (doc + config changes only). **Cumulative: ~$1.10**.
 

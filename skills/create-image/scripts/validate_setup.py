@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Validate that the Banana Claude MCP server is properly configured.
+Validate that the Creators Studio MCP server is properly configured.
 
 Checks:
 1. Claude Code settings.json has the MCP entry
@@ -32,7 +32,7 @@ def check(label: str, passed: bool, detail: str = "") -> bool:
 
 
 def main() -> int:
-    print("Banana Claude -- Setup Validation")
+    print("Creators Studio -- Setup Validation")
     print("=" * 40)
     results = []
 

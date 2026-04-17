@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Video Extension via VEO 3.1
+"""Creators Studio -- Video Extension via VEO 3.1
 
 DEPRECATED IN v3.8.0: Scene Extension v2 and keyframe extension via VEO
 produce glitches, inconsistent actors, and audio seam discontinuities at

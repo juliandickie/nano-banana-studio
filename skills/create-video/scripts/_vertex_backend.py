@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Vertex AI backend helper for VEO video generation.
+"""Creators Studio -- Vertex AI backend helper for VEO video generation.
 
 Pure data-translation layer for the Vertex AI Gemini API surface. Called by
 video_generate.py when --backend vertex-ai is active. Has no global state.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Brand/Style Presets
+"""Creators Studio -- Brand/Style Presets
 
 Manage reusable brand and style presets for consistent image generation.
 
@@ -147,7 +147,7 @@ def cmd_delete(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Banana Claude Brand/Style Presets")
+    parser = argparse.ArgumentParser(description="Creators Studio Brand/Style Presets")
     sub = parser.add_subparsers(dest="command", required=True)
 
     # list

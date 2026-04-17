@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Slide Deck Pipeline
+"""Creators Studio -- Slide Deck Pipeline
 
 Parse slide prompts from markdown and batch-generate images.
 Uses only Python stdlib (no pip dependencies).
@@ -333,7 +333,7 @@ professional presentation aesthetic.
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Banana Claude Slide Deck Pipeline")
+    parser = argparse.ArgumentParser(description="Creators Studio Slide Deck Pipeline")
     sub = parser.add_subparsers(dest="command", required=True)
 
     # generate

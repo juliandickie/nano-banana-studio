@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Banana Claude -- Content Pipeline Orchestrator
+"""Creators Studio -- Content Pipeline Orchestrator
 
 Produce a complete content package from a single idea by chaining existing
 scripts (generate.py, social.py, multiformat.py, slides.py).
